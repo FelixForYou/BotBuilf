@@ -1,0 +1,34 @@
+{
+  "name": "felixiority",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Visualisasi user dan server panel Pterodactyl dalam ruangan pixel interaktif.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "assets": "node scripts/generate-assets.mjs",
+    "mock-panel": "node scripts/mock-panel.mjs"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "next": "^16.4.0",
+    "pixi.js": "^8.22.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.4"
+  }
+}
