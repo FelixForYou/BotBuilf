@@ -1,37 +1,90 @@
 import { AppError } from "./errors";
 
 /**
+ * Origin frontend lain yang boleh memakai API ini (mis. GitHub Pages).
+ * Opsional: ALLOWED_ORIGINS=https://user.github.io (pisahkan dengan koma).
+ * Kosong = hanya origin aplikasi ini sendiri.
+ */
+export function allowedOrigins(): Set<string> {
+  const raw = process.env.ALLOWED_ORIGINS ?? "";
+  const out = new Set<string>();
+  for (const part of raw.split(",")) {
+    const v = part.trim();
+    if (!v) continue;
+    try {
+      const u = new URL(v);
+      if (u.protocol === "https:" || (process.env.NODE_ENV !== "production" && u.protocol === "http:")) out.add(u.origin);
+    } catch {
+      /* abaikan nilai tidak valid */
+    }
+  }
+  return out;
+}
+
+/** true jika API dipakai oleh frontend di origin lain (mode GitHub Pages). */
+export function crossOriginEnabled(): boolean {
+  return allowedOrigins().size > 0;
+}
+
+export function isAllowedCrossOrigin(origin: string | null): origin is string {
+  return !!origin && allowedOrigins().has(origin);
+}
+
+function isSameOrigin(req: Request, origin: string): boolean {
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  try {
+    return !!host && new URL(origin).host === host.split(",")[0].trim();
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Perlindungan CSRF untuk endpoint yang mengubah sesi:
- * header Origin (atau Sec-Fetch-Site) harus sama dengan host aplikasi.
+ * header Origin harus origin aplikasi ini atau origin yang diizinkan (ALLOWED_ORIGINS).
  */
 export function assertSameOrigin(req: Request): void {
-  const site = req.headers.get("sec-fetch-site");
-  if (site && site !== "same-origin" && site !== "none") {
-    throw new AppError("FORBIDDEN_ORIGIN", "Permintaan ditolak: asal permintaan tidak sah.", 403);
-  }
   const origin = req.headers.get("origin");
-  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
   if (!origin) {
     // Browser modern selalu mengirim Origin untuk POST. Tanpa Origin → tolak.
     throw new AppError("FORBIDDEN_ORIGIN", "Permintaan ditolak: header Origin tidak ada.", 403);
   }
-  let originHost: string;
-  try {
-    originHost = new URL(origin).host;
-  } catch {
-    throw new AppError("FORBIDDEN_ORIGIN", "Permintaan ditolak: asal permintaan tidak sah.", 403);
-  }
-  if (!host || originHost !== host.split(",")[0].trim()) {
+  if (isAllowedCrossOrigin(origin)) return;
+  const site = req.headers.get("sec-fetch-site");
+  if ((site && site !== "same-origin" && site !== "none") || !isSameOrigin(req, origin)) {
     throw new AppError("FORBIDDEN_ORIGIN", "Permintaan ditolak: asal permintaan tidak sah.", 403);
   }
 }
 
-/** Untuk GET data: tolak permintaan lintas situs (mis. dari tag <script>/<img> situs lain). */
+/** Untuk GET data: tolak permintaan lintas situs kecuali dari origin yang diizinkan. */
 export function assertNotCrossSite(req: Request): void {
+  if (isAllowedCrossOrigin(req.headers.get("origin"))) return;
   const site = req.headers.get("sec-fetch-site");
   if (site === "cross-site" || site === "same-site") {
     throw new AppError("FORBIDDEN_ORIGIN", "Permintaan ditolak: asal permintaan tidak sah.", 403);
   }
+}
+
+/** Header CORS — hanya untuk origin di ALLOWED_ORIGINS. */
+export function applyCors(req: Request, res: Response): Response {
+  const origin = req.headers.get("origin");
+  res.headers.append("Vary", "Origin");
+  if (isAllowedCrossOrigin(origin)) {
+    res.headers.set("Access-Control-Allow-Origin", origin);
+    res.headers.set("Access-Control-Allow-Credentials", "true");
+    res.headers.set("Access-Control-Expose-Headers", "Retry-After");
+  }
+  return res;
+}
+
+export function preflight(req: Request): Response {
+  const res = new Response(null, { status: 204 });
+  if (isAllowedCrossOrigin(req.headers.get("origin"))) {
+    res.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.headers.set("Access-Control-Max-Age", "600");
+  }
+  return applyCors(req, res);
 }
 
 export async function readJsonBody(req: Request, maxBytes = 4096): Promise<Record<string, unknown>> {

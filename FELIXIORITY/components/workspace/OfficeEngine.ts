@@ -2,6 +2,7 @@
 // roster berubah; posisi, animasi, dan label diperbarui imperatif per frame
 // tanpa render ulang React.
 import { Application, Assets, Container, Graphics, Sprite, TextureSource, type Spritesheet, type Ticker } from "pixi.js";
+import { assetUrl } from "@/lib/api";
 import { hashId } from "@/lib/appearance";
 import {
   CHAIRS,
@@ -41,9 +42,9 @@ function loadSheets(): Promise<Sheets> {
   if (!sheetsPromise) {
     TextureSource.defaultOptions.scaleMode = "nearest";
     sheetsPromise = Promise.all([
-      Assets.load<Spritesheet>("/assets/characters/characters.json"),
-      Assets.load<Spritesheet>("/assets/tiles/tiles.json"),
-      Assets.load<Spritesheet>("/assets/furniture/furniture.json"),
+      Assets.load<Spritesheet>(assetUrl("/assets/characters/characters.json")),
+      Assets.load<Spritesheet>(assetUrl("/assets/tiles/tiles.json")),
+      Assets.load<Spritesheet>(assetUrl("/assets/furniture/furniture.json")),
     ])
       .then(([chars, tiles, furniture]) => ({ chars, tiles, furniture }))
       .catch((e) => {

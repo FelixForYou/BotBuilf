@@ -106,7 +106,8 @@ Lisensi aset: CC0 (lihat `public/assets/LICENSE.md`).
 2. Di Vercel: **Add New → Project**, pilih repositori.
 3. **Root Directory**: `FELIXIORITY` (wajib karena aplikasi berada di subfolder).
 4. Framework terdeteksi otomatis (Next.js). Build command & output default.
-5. **Environment Variables**: tambahkan `SESSION_SECRET` = hasil `openssl rand -hex 32`. Tidak ada variabel lain.
+5. **Environment Variables**: tambahkan `SESSION_SECRET` = hasil `openssl rand -hex 32`. Hanya ini yang wajib
+   (`ALLOWED_ORIGINS` opsional, hanya untuk mode GitHub Pages di bawah).
 6. Deploy. Buka domain Vercel (HTTPS), hubungkan panel.
 
 Catatan Vercel:
@@ -119,13 +120,55 @@ Catatan Vercel:
 
 ---
 
+## GitHub Pages (frontend) + Vercel (backend)
+
+GitHub Pages hanya menyajikan file statis, jadi API tetap berjalan di Vercel. Tampilan dibuka di
+`https://<user>.github.io/<repo>/` dan memanggil backend Vercel.
+
+```
+Browser ──► GitHub Pages (HTML/JS/aset statis)
+   │
+   └──► Vercel /api/connect, /api/session, /api/sync, /api/disconnect ──► Panel Pterodactyl
+```
+
+**Langkah**
+
+1. **Deploy backend ke Vercel** seperti bagian di atas (Root Directory `FELIXIORITY`). Tambahkan dua variabel:
+   - `SESSION_SECRET` = hasil `openssl rand -hex 32`
+   - `ALLOWED_ORIGINS` = `https://<user>.github.io` (origin saja, tanpa path; contoh `https://felixforyou.github.io`)
+2. Di GitHub, **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+3. Di GitHub, **Settings → Secrets and variables → Actions → tab Variables → New repository variable**:
+   `FELIX_API_BASE` = URL Vercel Anda, mis. `https://felixiority.vercel.app` (tanpa garis miring di akhir).
+4. Jalankan workflow **Deploy GitHub Pages** (tab **Actions → Deploy GitHub Pages → Run workflow**), atau push
+   ke branch default. Workflow menjalankan unit test, membangun `STATIC_EXPORT=1`, lalu men-deploy folder `out/`.
+5. Buka `https://<user>.github.io/<repo>/` dan hubungkan panel.
+
+**Sesi lintas situs**
+
+- Jika `ALLOWED_ORIGINS` diisi, cookie sesi menjadi `SameSite=None; Secure; Partitioned` (CHIPS) agar dapat
+  dipakai dari github.io. Chrome, Edge, dan Firefox menyimpannya, jadi sesi bertahan setelah halaman dimuat ulang.
+- Browser yang memblokir cookie lintas situs (Safari, termasuk semua browser di iPhone/iPad, atau mode privat yang
+  ketat) memakai cadangan: backend mengirim **token sesi terenkripsi** ke origin yang diizinkan, dan frontend
+  menyimpannya **hanya di memori tab**. PTLA tetap tidak terbaca karena token terenkripsi. Konsekuensinya, di
+  browser tersebut Anda perlu **menghubungkan ulang setelah memuat ulang halaman**.
+- Origin lain ditolak (CSRF/CORS). Token tidak pernah diberikan untuk permintaan dari origin aplikasi sendiri.
+- Paling mulus: pakai custom domain yang satu situs, mis. `felixiority.domainanda.com` (Pages) dan
+  `api.felixiority.domainanda.com` (Vercel). Cookie menjadi satu situs dan tidak terkena pemblokiran.
+
+**Build statis lokal**
+
+```bash
+STATIC_EXPORT=1 PAGES_BASE_PATH=/BotBuilf NEXT_PUBLIC_API_BASE=https://felixiority.vercel.app npm run build
+# hasil di out/
+```
+
 ## Keamanan
 
 - **API key hanya di server.** PTLA disimpan di cookie `HttpOnly`, `SameSite=Lax`, `Secure` (produksi, dengan
   prefiks `__Host-`), dienkripsi & diautentikasi dengan AES-256-GCM (kunci diturunkan dari `SESSION_SECRET`
   via HKDF). Masa berlaku 12 jam. PTLA tidak pernah dikirim balik ke browser, tidak disimpan di
   localStorage/sessionStorage/URL, dan tidak dicatat di log. Pesan error disaring dari pola `ptl?_…`.
-- **Frontend hanya memanggil backend aplikasi** (`/api/connect`, `/api/sync`, `/api/disconnect`); backend yang menghubungi panel.
+- **Frontend hanya memanggil backend aplikasi** (`/api/connect`, `/api/session`, `/api/sync`, `/api/disconnect`); backend yang menghubungi panel.
 - **SSRF**: domain divalidasi; `localhost`, `.local`, `.internal`, IP privat/loopback/link-local/CGNAT/multicast,
   `169.254.169.254` dan endpoint metadata, IPv6 ULA/link-local, serta IPv4 tersemat di IPv6 (`::ffff:`, NAT64, 6to4)
   ditolak. **Semua** hasil DNS diperiksa, lalu koneksi dipaku ke IP yang sudah divalidasi (mencegah DNS rebinding).
@@ -158,7 +201,7 @@ FELIXIORITY/
 │   ├── users/page.tsx           Pengguna
 │   ├── servers/page.tsx         Server
 │   ├── settings/page.tsx        Pengaturan
-│   └── api/{connect,sync,disconnect}/route.ts
+│   └── api/{connect,session,sync,disconnect}/route.ts
 ├── components/
 │   ├── workspace/
 │   │   ├── Office.tsx           Komponen React ruangan (memuat engine secara dinamis)
@@ -167,16 +210,19 @@ FELIXIORITY/
 │   │   ├── CharacterPreview.tsx Pratinjau karakter (kanvas 2D) untuk detail/daftar
 │   │   ├── UserLabel.tsx        Label username + jumlah server
 │   │   └── Camera.tsx           Logika kamera + tombol zoom/reset
+│   ├── Protected.tsx, HomeGate.tsx  Gerbang sesi sisi klien (dipakai di Vercel & Pages)
 │   ├── UserDetail.tsx, Stats.tsx, Search.tsx, AppShell.tsx, SyncStatus.tsx, …
 │   └── views/                   Isi tiap halaman
 ├── lib/
+│   ├── api.ts                   Klien API frontend (API_BASE, token cadangan di memori)
+│   ├── request-session.ts       Baca sesi dari cookie / header Bearer
 │   ├── pterodactyl.ts           Klien Application API (pagination penuh, pemetaan error)
 │   ├── http.ts                  Transport HTTP aman (DNS pinning, timeout, batas ukuran, tanpa redirect)
 │   ├── sync.ts                  Snapshot server-side (kepemilikan via ID)
 │   ├── client-store.ts          Polling sisi klien, backoff, diff perubahan, slot ruangan
 │   ├── session.ts               Cookie sesi terenkripsi (AES-256-GCM)
 │   ├── validation.ts            Validasi domain/API key + pemblokiran alamat (SSRF)
-│   ├── security.ts              Origin/CSRF, rate limit
+│   ├── security.ts              Origin/CSRF, CORS (ALLOWED_ORIGINS), rate limit
 │   └── workspace/               Denah ruangan & pathfinding
 ├── public/assets/{characters,furniture,tiles}/   Sprite atlas PNG + JSON
 ├── scripts/generate-assets.mjs  Generator aset pixel

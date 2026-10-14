@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { IconAlert, IconGlobe, IconKey, IconPlug, LogoMark } from "@/components/icons";
+import { apiFetch, checkSession, setMemoryToken } from "@/lib/api";
 import { resetStore } from "@/lib/client-store";
 
 export function ConnectForm({ expired }: { expired: boolean }) {
@@ -16,13 +17,12 @@ export function ConnectForm({ expired }: { expired: boolean }) {
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch("/api/connect", {
+      const res = await apiFetch("/api/connect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
         body: JSON.stringify({ domain, apiKey }),
       });
-      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      const body = (await res.json().catch(() => ({}))) as { error?: string; sessionToken?: string };
       if (!res.ok) {
         setError(body.error ?? "Koneksi gagal. Coba lagi.");
         setBusy(false);
@@ -30,6 +30,9 @@ export function ConnectForm({ expired }: { expired: boolean }) {
       }
       // Kosongkan API key dari memori komponen sebelum pindah halaman.
       setApiKey("");
+      // Mode GitHub Pages: token terenkripsi disimpan di memori tab sebagai cadangan cookie.
+      if (body.sessionToken) setMemoryToken(body.sessionToken);
+      await checkSession(true);
       resetStore();
       router.replace("/workspace");
     } catch {

@@ -1,8 +1,16 @@
 import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
 import { AppError } from "./errors";
+import { crossOriginEnabled } from "./security";
 import { IS_PRODUCTION } from "./validation";
 
-export const SESSION_COOKIE = IS_PRODUCTION ? "__Host-felix_session" : "felix_session";
+/** Cookie Secure di produksi, dan selalu pada mode lintas origin (SameSite=None wajib Secure). */
+function secureCookies(): boolean {
+  return IS_PRODUCTION || crossOriginEnabled();
+}
+
+export function sessionCookieName(): string {
+  return secureCookies() ? "__Host-felix_session" : "felix_session";
+}
 /** Masa berlaku sesi: 12 jam. */
 export const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const VERSION = "v1";
@@ -90,10 +98,13 @@ export function newSessionId(): string {
 }
 
 export function cookieOptions(maxAgeSec: number) {
+  const cross = crossOriginEnabled();
   return {
     httpOnly: true,
-    sameSite: "lax" as const,
-    secure: IS_PRODUCTION,
+    // Mode GitHub Pages: frontend di situs lain → cookie lintas situs, dipartisi (CHIPS).
+    sameSite: cross ? ("none" as const) : ("lax" as const),
+    secure: secureCookies(),
+    partitioned: cross ? true : undefined,
     path: "/",
     maxAge: maxAgeSec,
   };

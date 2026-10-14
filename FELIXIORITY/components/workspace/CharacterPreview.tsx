@@ -1,6 +1,7 @@
 "use client";
 // Pratinjau karakter (kanvas 2D, tanpa PixiJS) untuk panel detail & daftar.
 import { useEffect, useRef } from "react";
+import { assetUrl } from "@/lib/api";
 import { appearanceFor } from "@/lib/appearance";
 
 interface Atlas {
@@ -11,9 +12,9 @@ let atlasPromise: Promise<Atlas> | null = null;
 function loadAtlas(): Promise<Atlas> {
   if (!atlasPromise) {
     atlasPromise = (async () => {
-      const json = await fetch("/assets/characters/characters.json").then((r) => r.json());
+      const json = await fetch(assetUrl("/assets/characters/characters.json")).then((r) => r.json());
       const image = new Image();
-      image.src = "/assets/characters/characters.png";
+      image.src = assetUrl("/assets/characters/characters.png");
       await image.decode();
       return { image, frames: json.frames };
     })().catch((e) => {

@@ -1,5 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { apiFetch, forgetSession, hardNavigate } from "./api";
 import { assignSlots, roomCount } from "./rooms";
 import { getPrefs } from "./prefs";
 import type { PanelServer, PanelUser, Snapshot } from "@/types/panel";
@@ -152,15 +153,14 @@ export function syncNow(): Promise<void> {
   const ctl = controller;
   inflight = (async () => {
     try {
-      const res = await fetch("/api/sync", {
-        cache: "no-store",
-        credentials: "same-origin",
+      const res = await apiFetch("/api/sync", {
         signal: ctl.signal,
         headers: { Accept: "application/json" },
       });
       if (res.status === 401) {
         stopPolling(true);
-        window.location.replace("/?expired=1");
+        forgetSession();
+        hardNavigate("/?expired=1");
         return;
       }
       if (!res.ok) {

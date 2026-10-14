@@ -1,0 +1,88 @@
+# Deploy frontend FELIXIORITY ke GitHub Pages.
+# Backend (API) tetap berjalan di Vercel — lihat FELIXIORITY/README.md bagian "GitHub Pages".
+#
+# Sebelum dipakai:
+#   1. Settings → Pages → Source: "GitHub Actions".
+#   2. Settings → Secrets and variables → Actions → Variables:
+#        FELIX_API_BASE = https://<proyek-anda>.vercel.app
+name: Deploy GitHub Pages
+
+on:
+  push:
+    paths:
+      - "FELIXIORITY/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Otomatis hanya dari branch default; branch lain lewat "Run workflow" manual.
+    if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: FELIXIORITY
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: FELIXIORITY/package-lock.json
+
+      - name: Periksa konfigurasi
+        env:
+          FELIX_API_BASE: ${{ vars.FELIX_API_BASE }}
+        run: |
+          if [ -z "$FELIX_API_BASE" ]; then
+            echo "::error::Variabel repositori FELIX_API_BASE belum diisi (URL backend Vercel, mis. https://felixiority.vercel.app)."
+            exit 1
+          fi
+          case "$FELIX_API_BASE" in
+            https://*) ;;
+            *) echo "::error::FELIX_API_BASE harus diawali https://"; exit 1 ;;
+          esac
+
+      - run: npm ci
+
+      - name: Unit test
+        run: npm test
+
+      - name: Build statis
+        env:
+          STATIC_EXPORT: "1"
+          NEXT_PUBLIC_API_BASE: ${{ vars.FELIX_API_BASE }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          # Situs proyek: https://<user>.github.io/<repo>/ → basePath /<repo>
+          # Repo bernama <user>.github.io → tanpa basePath
+          case "$REPO_NAME" in
+            *.github.io) export PAGES_BASE_PATH="" ;;
+            *) export PAGES_BASE_PATH="/$REPO_NAME" ;;
+          esac
+          npm run build
+          touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: FELIXIORITY/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { IconAlert, IconGlobe, IconInfo, IconUnplug } from "@/components/icons";
+import { apiFetch, forgetSession, hardNavigate } from "@/lib/api";
 import { resetStore, useStore } from "@/lib/client-store";
 import { formatDate, formatNumber, formatTime } from "@/lib/format";
 import { setPrefs, usePrefs, useSystemReducedMotion, type Prefs } from "@/lib/prefs";
@@ -48,10 +49,15 @@ export function SettingsView({ session }: { session: SessionInfo }) {
     setBusy(true);
     setErr(null);
     try {
-      const res = await fetch("/api/disconnect", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const res = await apiFetch("/api/disconnect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
       if (!res.ok) throw new Error();
+      forgetSession();
       resetStore();
-      window.location.replace("/");
+      hardNavigate("/");
     } catch {
       setErr("Gagal memutuskan koneksi. Coba lagi.");
       setBusy(false);
