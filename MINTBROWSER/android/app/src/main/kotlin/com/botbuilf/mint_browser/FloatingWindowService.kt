@@ -67,7 +67,7 @@ class FloatingWindowService : Service() {
     private var bubble: View? = null
     private var webView: WebView? = null
     private lateinit var titleView: TextView
-    private lateinit var progress: View
+    private lateinit var progressBar: View
     private lateinit var maximizeIcon: ImageView
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var bubbleParams: WindowManager.LayoutParams
@@ -276,7 +276,7 @@ class FloatingWindowService : Service() {
         header.addView(iconButton(R.drawable.ic_float_close, "Close") { stopSelf() })
         header.setOnTouchListener(DragListener { dx, dy, done -> moveBy(dx, dy, done) })
 
-        progress = View(this).apply {
+        progressBar = View(this).apply {
             setBackgroundColor(ACCENT)
             pivotX = 0f
             scaleX = 0f
@@ -309,12 +309,12 @@ class FloatingWindowService : Service() {
             }
             webChromeClient = object : WebChromeClient() {
                 override fun onProgressChanged(view: WebView, newProgress: Int) {
-                    progress.animate().cancel()
+                    progressBar.animate().cancel()
                     if (newProgress >= 100) {
-                        progress.animate().scaleX(1f).alpha(0f).setDuration(260).start()
+                        progressBar.animate().scaleX(1f).alpha(0f).setDuration(260).start()
                     } else {
-                        progress.alpha = 1f
-                        progress.animate().scaleX(newProgress / 100f).setDuration(160).start()
+                        progressBar.alpha = 1f
+                        progressBar.animate().scaleX(newProgress / 100f).setDuration(160).start()
                     }
                 }
 
@@ -331,7 +331,7 @@ class FloatingWindowService : Service() {
         webView = wv
 
         column.addView(header)
-        column.addView(progress)
+        column.addView(progressBar)
         column.addView(divider)
         column.addView(wv)
         root.addView(column, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
