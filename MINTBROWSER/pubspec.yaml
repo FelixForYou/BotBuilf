@@ -1,0 +1,43 @@
+name: mint_browser
+description: "Mint Browser — a fast, private Android browser with a premium dark UI."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.1
+  webview_flutter: ^4.14.1
+  webview_flutter_android: ^4.14.1
+  shared_preferences: ^2.5.6
+  flutter_secure_storage: ^11.2.0
+  share_plus: ^13.3.1
+  lucide_icons_flutter: ^4.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-BoldItalic.ttf
+          weight: 700
+          style: italic
