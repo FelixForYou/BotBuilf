@@ -99,7 +99,7 @@ class SettingsScreen extends ConsumerWidget {
                             'Darken web pages',
                             s.darkenPages,
                             (v) => n.update((x) => x.copyWith(darkenPages: v)),
-                            subtitle: 'In dark mode, for sites without a dark theme',
+                            subtitle: 'For sites without a dark theme',
                           ),
                         ]),
                         const SectionLabel('Privacy'),

@@ -58,7 +58,7 @@ class _AddressPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.mint;
     final showingPage = !tab.showHome && tab.url.isNotEmpty;
-    final text = showingPage ? UrlUtils.display(tab.url) : 'Search or type URL';
+    final text = showingPage ? UrlUtils.display(tab.url) : 'Search or URL';
     final IconData leading = tab.isPrivate
         ? LucideIcons.venetianMask
         : !showingPage

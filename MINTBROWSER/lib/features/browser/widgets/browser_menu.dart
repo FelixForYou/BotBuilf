@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -49,7 +48,7 @@ void toggleBookmark(BuildContext context, BookmarksNotifier notifier, BrowserTab
   );
 }
 
-Future<void> showBrowserMenu(BuildContext context, WidgetRef ref) {
+Future<void> showBrowserMenu(BuildContext context) {
   return showMintSheet<void>(context, builder: (_) => const _BrowserMenu());
 }
 
@@ -68,7 +67,6 @@ class _BrowserMenu extends ConsumerWidget {
     final activeDownloads = ref.watch(downloadsProvider.select((d) => d.where((e) => e.isActive).length));
     final hasPage = !tab.showHome && UrlUtils.isWeb(tab.url);
     final nav = Navigator.of(context);
-    final router = GoRouter.of(context);
     // Actions run after the sheet is gone, so use long-lived handles.
     final host = rootNavigatorKey.currentContext ?? context;
     final bookmarks = ref.read(bookmarksProvider.notifier);

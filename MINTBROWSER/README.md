@@ -2,6 +2,16 @@
 
 Browser Android berbasis Flutter dengan UI gelap minimalis (hitam/charcoal + aksen mint `#55DDC0`), animasi bergaya iOS, dan fitur browser yang benar‑benar bekerja di atas **Android System WebView**.
 
+## Tampilan
+
+| Onboarding | Tab baru | Menu | Tab |
+| --- | --- | --- | --- |
+| ![](docs/screenshots/01_onboarding.png) | ![](docs/screenshots/02_home.png) | ![](docs/screenshots/04_menu.png) | ![](docs/screenshots/05_tabs.png) |
+| **Settings** | **Error** | **Tab privat** | **Mode terang** |
+| ![](docs/screenshots/06_settings.png) | ![](docs/screenshots/07_error.png) | ![](docs/screenshots/03_home_private.png) | ![](docs/screenshots/08_home_light.png) |
+
+Dirender dengan `flutter test --tags screenshots --run-skipped --update-goldens test/screenshots` (font Inter & Lucide asli, 360×780 dp).
+
 ## Fitur
 
 | Fitur | Implementasi |

@@ -47,7 +47,7 @@ class AppearanceScreen extends ConsumerWidget {
                   GroupedTile(
                     icon: LucideIcons.sunMoon,
                     title: 'Darken web pages',
-                    subtitle: 'In dark mode, for sites without a dark theme',
+                    subtitle: 'For sites without a dark theme',
                     trailing: MintSwitch(
                       value: s.darkenPages,
                       onChanged: (v) => n.update((x) => x.copyWith(darkenPages: v)),

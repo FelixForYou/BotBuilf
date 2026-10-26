@@ -165,7 +165,7 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> with SingleTicker
                         onAddress: () => _openSearch(tab),
                         onNewTab: () => _tabs.newTab(private: tab.isPrivate),
                         onTabs: () => _openTabs(tab),
-                        onMenu: () => showBrowserMenu(context, ref),
+                        onMenu: () => showBrowserMenu(context),
                       ),
                     ),
                     Stack(
