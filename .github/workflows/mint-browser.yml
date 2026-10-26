@@ -1,0 +1,78 @@
+# Analyze, test and build Mint Browser (MINTBROWSER/) into an APK and AAB.
+#
+# Release signing (optional) — repository secrets:
+#   MINT_KEYSTORE_BASE64   base64 of the upload keystore (.jks)
+#   MINT_KEYSTORE_PASSWORD, MINT_KEY_ALIAS, MINT_KEY_PASSWORD
+# Without them the build is signed with the debug key (fine for testing,
+# not accepted by Google Play).
+name: Mint Browser
+
+on:
+  push:
+    paths:
+      - "MINTBROWSER/**"
+      - ".github/workflows/mint-browser.yml"
+  pull_request:
+    paths:
+      - "MINTBROWSER/**"
+  workflow_dispatch:
+
+concurrency:
+  group: mint-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: MINTBROWSER
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.8
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.MINT_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "MINT_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          else
+            echo "::notice::No signing secrets set; release builds use the debug key."
+          fi
+
+      - name: Build APK and App Bundle
+        env:
+          MINT_KEYSTORE_PASSWORD: ${{ secrets.MINT_KEYSTORE_PASSWORD }}
+          MINT_KEY_ALIAS: ${{ secrets.MINT_KEY_ALIAS }}
+          MINT_KEY_PASSWORD: ${{ secrets.MINT_KEY_PASSWORD }}
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mint-browser-release
+          path: |
+            MINTBROWSER/build/app/outputs/flutter-apk/app-release.apk
+            MINTBROWSER/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

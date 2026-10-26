@@ -226,7 +226,7 @@ class WebEngine implements TabLifecycleListener {
         isPrivate: s.isPrivate,
         privateProfile: _privateProfile,
         blockThirdPartyCookies: settings.blockThirdPartyCookies || s.isPrivate,
-        darken: settings.darkenPages,
+        darken: _darken(settings),
       );
     } catch (e) {
       debugPrint('WebView hook failed: $e');
@@ -410,12 +410,12 @@ class WebEngine implements TabLifecycleListener {
           await c.setUserAgent(next.desktopMode ? _desktopUserAgent : null);
         }
         if ((prev.blockThirdPartyCookies != next.blockThirdPartyCookies ||
-                prev.darkenPages != next.darkenPages) &&
+                _darken(prev) != _darken(next)) &&
             s.nativeId != null) {
           await _bridge.updateWebView(
             webViewId: s.nativeId!,
             blockThirdPartyCookies: next.blockThirdPartyCookies || s.isPrivate,
-            darken: next.darkenPages,
+            darken: _darken(next),
           );
         }
         if (prev.desktopMode != next.desktopMode || prev.javaScript != next.javaScript) {
@@ -426,6 +426,17 @@ class WebEngine implements TabLifecycleListener {
         // A session discarded while applying; it picks up settings on recreate.
       }
     }
+  }
+
+  /// Darkening only makes sense while the app itself is dark.
+  bool _darken(AppSettings s) {
+    if (!s.darkenPages) return false;
+    return switch (s.appearance) {
+      AppearanceMode.dark => true,
+      AppearanceMode.light => false,
+      AppearanceMode.system =>
+        WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark,
+    };
   }
 
   // ── Lifecycle ───────────────────────────────────────────────────────────
