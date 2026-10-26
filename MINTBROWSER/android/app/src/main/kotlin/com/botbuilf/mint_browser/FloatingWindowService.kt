@@ -231,7 +231,7 @@ class FloatingWindowService : Service() {
                 if (event.keyCode == KeyEvent.KEYCODE_BACK) {
                     if (event.action == KeyEvent.ACTION_UP) {
                         val wv = webView
-                        if (wv != null && wv.canGoBack()) wv.goBack() else setFocusable(false)
+                        if (wv != null && wv.canGoBack()) wv.goBack() else setWindowFocusable(false)
                     }
                     return true
                 }
@@ -242,7 +242,7 @@ class FloatingWindowService : Service() {
         root.clipToOutline = true
         root.elevation = dp(12).toFloat()
         root.setOnTouchListener { _, e ->
-            if (e.actionMasked == MotionEvent.ACTION_OUTSIDE) setFocusable(false)
+            if (e.actionMasked == MotionEvent.ACTION_OUTSIDE) setWindowFocusable(false)
             false
         }
 
@@ -323,7 +323,7 @@ class FloatingWindowService : Service() {
                 }
             }
             setOnTouchListener { _, e ->
-                if (e.actionMasked == MotionEvent.ACTION_DOWN) setFocusable(true)
+                if (e.actionMasked == MotionEvent.ACTION_DOWN) setWindowFocusable(true)
                 false
             }
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
@@ -350,7 +350,7 @@ class FloatingWindowService : Service() {
         wm.addView(root, params)
     }
 
-    private fun setFocusable(focusable: Boolean) {
+    private fun setWindowFocusable(focusable: Boolean) {
         val w = window ?: return
         val f = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         val next = if (focusable) params.flags and f.inv() else params.flags or f
@@ -435,7 +435,7 @@ class FloatingWindowService : Service() {
     @SuppressLint("ClickableViewAccessibility")
     private fun minimizeToBubble() {
         val w = window ?: return
-        setFocusable(false)
+        setWindowFocusable(false)
         w.animate().alpha(0f).scaleX(0.6f).scaleY(0.6f).setDuration(180).withEndAction {
             w.visibility = View.GONE
         }.start()
