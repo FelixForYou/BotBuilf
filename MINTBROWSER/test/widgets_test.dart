@@ -93,4 +93,14 @@ void main() {
     expect(container.read(settingsProvider).saveHistory, isFalse);
     expect(find.byType(MintSwitch), findsNWidgets(6));
   });
+
+  test('cleartext block gets its own explanation', () {
+    final d = describeError(const PageError(
+      url: 'http://142.93.212.112/index.php',
+      type: 'unknown',
+      description: 'net::ERR_CLEARTEXT_NOT_PERMITTED',
+    ));
+    expect(d.title, 'This page isn’t encrypted');
+    expect(d.message, contains('142.93.212.112'));
+  });
 }

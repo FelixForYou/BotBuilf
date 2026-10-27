@@ -8,6 +8,15 @@ import '../web/web_engine.dart';
 /// Copy for each failure type: title, message, tip, short reason.
 ({String title, String message, String tip, String reason}) describeError(PageError e) {
   final host = UrlUtils.display(e.url).isEmpty ? 'this site' : UrlUtils.display(e.url);
+  // Plain-HTTP pages blocked by Android's cleartext policy.
+  if (e.description.contains('ERR_CLEARTEXT_NOT_PERMITTED')) {
+    return (
+      title: 'This page isn’t encrypted',
+      message: '$host uses plain HTTP, which this device blocked.',
+      tip: 'Try the https:// address if the site has one.',
+      reason: 'Not secure',
+    );
+  }
   return switch (e.type) {
     'hostLookup' => (
         title: 'This site can’t be reached',
