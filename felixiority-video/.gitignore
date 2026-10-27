@@ -1,5 +1,4 @@
 node_modules/
-out/stills/
-out/render.log
+out/
 *.zip
 .DS_Store
