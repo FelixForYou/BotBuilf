@@ -1,0 +1,31 @@
+{
+  "name": "felixiority-showreel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FELIXIORITY — 60s brand motion showreel (Remotion)",
+  "scripts": {
+    "sfx": "node scripts/generate-sfx.mjs",
+    "studio": "remotion studio",
+    "render": "remotion render FelixiorityShowreel out/felixiority-showreel.mp4",
+    "still": "remotion still FelixiorityShowreel out/still.png --frame=120",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.539",
+    "@remotion/fonts": "^4.0.539",
+    "@remotion/paths": "^4.0.539",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539"
+  },
+  "devDependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
+    "@remotion/bundler": "^4.0.539",
+    "@remotion/renderer": "^4.0.539",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
