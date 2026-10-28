@@ -70,11 +70,16 @@ export const S02Tools: React.FC = () => {
     [380, 6, E.inOut],
     [450, 0, E.inOut],
   ]);
-  const camX = mix(-250 + Math.sin(n / 90) * 10, PIVOT.x - 960, toBridge);
+  // mulai dengan dashboard di tengah (di balik circle reveal), lalu bergeser memberi ruang teks
+  const camBaseX = keys(n, [
+    [-30, 300],
+    [70, -250, E.out],
+  ]);
+  const camX = mix(camBaseX + Math.sin(n / 90) * 10, PIVOT.x - 960, toBridge);
   const camY = mix(-40 + Math.cos(n / 80) * 6, PIVOT.y - 540, toBridge);
 
   // komponen dashboard masuk dari kedalaman
-  const enter = (i: number) => sp(n, -28 + i * 6, SPRING.smooth);
+  const enter = (i: number) => sp(n, -40 + i * 4, SPRING.smooth);
   const fallAway = prog(n, 430, 478, E.in);
 
   const piece = (r: Rect, i: number, key: string, children: React.ReactNode, opts: { keep?: boolean; radius?: number } = {}) => {

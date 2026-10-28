@@ -3,3 +3,5 @@ out/*.png
 .DS_Store
 out/qa
 out/sheet.png
+out/render.log
+out/*.zip.tmp

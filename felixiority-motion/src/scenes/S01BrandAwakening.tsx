@@ -40,7 +40,7 @@ export const S01BrandAwakening: React.FC = () => {
   ]);
 
   // -------------------------------------------------------------- titik & garis
-  const dotIn = sp(f, 6, SPRING.pop);
+  const dotIn = sp(f, -4, SPRING.pop);
   const dotPulse = Math.sin(Math.max(0, f - 20) / 7) * 0.08 * (1 - prog(f, 20, 60));
   const draw = (i: number) => prog(f, 34 + i * 5, 96 + i * 5, E.inOut);
   const erase = (i: number) => prog(f, 92 + i * 4, 140 + i * 4, E.inOut);
