@@ -1,0 +1,32 @@
+{
+  "name": "felixiority-motion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FELIXIORITY — 60 detik brand motion showreel (Remotion)",
+  "scripts": {
+    "dev": "remotion studio",
+    "studio": "remotion studio",
+    "assets": "python3 scripts/cutout_logo.py public/logo/felixiority-original.jpg public/logo && python3 scripts/generate_sfx.py public/sfx",
+    "render": "remotion render FelixiorityShowreel out/felixiority-showreel.mp4",
+    "still": "remotion still FelixiorityShowreel out/still.png --frame=200",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.539",
+    "@remotion/fonts": "4.0.539",
+    "@remotion/media-utils": "4.0.539",
+    "@remotion/motion-blur": "4.0.539",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "remotion": "4.0.539"
+  },
+  "devDependencies": {
+    "@fontsource/instrument-serif": "5.3.0",
+    "@fontsource/inter": "5.3.0",
+    "@remotion/bundler": "4.0.539",
+    "@remotion/renderer": "4.0.539",
+    "@types/react": "19.1.12",
+    "geist": "1.8.2",
+    "typescript": "5.8.3"
+  }
+}
