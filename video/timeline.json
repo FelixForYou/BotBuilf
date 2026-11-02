@@ -1,0 +1,278 @@
+[
+{
+"p": 0,
+"s": 1.43,
+"e": 7.87,
+"t": "Halo semuanya!"
+},
+{
+"p": 0,
+"s": 8.27,
+"e": 13.71,
+"t": "Di video kali ini, kita akan belajar cara menjalankan bot Telegram berbasis Node.js di panel Pterodactyl, supaya bot kamu bisa online dua puluh empat jam nonstop."
+},
+{
+"p": 1,
+"s": 14.17,
+"e": 16.33,
+"t": "Pertama, kita buat dulu botnya di Telegram."
+},
+{
+"p": 1,
+"s": 16.79,
+"e": 18.16,
+"t": "Buka Telegram, lalu cari BotFather."
+},
+{
+"p": 1,
+"s": 18.77,
+"e": 19.72,
+"t": "Ketik perintah new bot."
+},
+{
+"p": 1,
+"s": 20.11,
+"e": 23.11,
+"t": "Masukkan nama bot, lalu username bot yang harus diakhiri dengan kata bot."
+},
+{
+"p": 1,
+"s": 23.75,
+"e": 26.53,
+"t": "Setelah itu, BotFather akan memberikan sebuah token."
+},
+{
+"p": 1,
+"s": 27.03,
+"e": 33.31,
+"t": "Simpan token ini baik-baik dan jangan dibagikan ke siapa pun, karena token inilah kunci untuk mengendalikan bot kamu."
+},
+{
+"p": 2,
+"s": 33.95,
+"e": 36.05,
+"t": "Langkah kedua, siapkan kode botnya."
+},
+{
+"p": 2,
+"s": 36.58,
+"e": 40.98,
+"t": "Kita butuh dua file utama, yaitu package dot json dan index dot js."
+},
+{
+"p": 2,
+"s": 41.55,
+"e": 45.09,
+"t": "Di package dot json, kita masukkan library telegraf dan dotenv."
+},
+{
+"p": 2,
+"s": 45.63,
+"e": 50.85,
+"t": "Di index dot js, kita tulis kode bot sederhana yang membalas perintah start, help, dan ping."
+},
+{
+"p": 2,
+"s": 51.49,
+"e": 54.23,
+"t": "Lalu buat juga file dot env untuk menyimpan token bot."
+},
+{
+"p": 2,
+"s": 54.86,
+"e": 57.69,
+"t": "Sebelum pindah ke panel, sebaiknya coba dulu di komputer sendiri."
+},
+{
+"p": 2,
+"s": 58.37,
+"e": 63.11,
+"t": "Kalau sudah jalan, matikan bot di komputer, karena satu token hanya bisa dipakai di satu tempat."
+},
+{
+"p": 3,
+"s": 63.8,
+"e": 66.36,
+"t": "Langkah ketiga, siapkan server di Pterodactyl."
+},
+{
+"p": 3,
+"s": 66.95,
+"e": 69.35,
+"t": "Pastikan kamu punya server dengan egg Node.js."
+},
+{
+"p": 3,
+"s": 69.91,
+"e": 73.11,
+"t": "Kalau kamu beli dari penyedia hosting, biasanya server ini sudah disiapkan."
+},
+{
+"p": 3,
+"s": 73.7,
+"e": 76.82,
+"t": "Pilih versi Node.js yang sesuai, misalnya versi dua puluh."
+},
+{
+"p": 4,
+"s": 77.47,
+"e": 79.65,
+"t": "Langkah keempat, upload file bot ke server."
+},
+{
+"p": 4,
+"s": 80.25,
+"e": 84.92,
+"t": "Cara paling mudah, kompres folder bot jadi file zip, tapi jangan ikutkan folder node modules."
+},
+{
+"p": 4,
+"s": 85.52,
+"e": 89.04,
+"t": "Buka menu Files di panel, klik Upload, lalu pilih file zip tadi."
+},
+{
+"p": 4,
+"s": 89.69,
+"e": 93.31,
+"t": "Setelah terupload, klik titik tiga di samping file, lalu pilih Unarchive."
+},
+{
+"p": 4,
+"s": 93.95,
+"e": 98.94,
+"t": "Pastikan file package dot json dan index dot js berada langsung di folder utama, bukan di dalam subfolder."
+},
+{
+"p": 4,
+"s": 99.58,
+"e": 102.54,
+"t": "Setelah itu, file zip-nya boleh dihapus."
+},
+{
+"p": 5,
+"s": 103.2,
+"e": 105.3,
+"t": "Langkah kelima, atur startup."
+},
+{
+"p": 5,
+"s": 105.82,
+"e": 111.47,
+"t": "Buka menu Startup, lalu pastikan bagian Main File diisi dengan index dot js."
+},
+{
+"p": 5,
+"s": 112.16,
+"e": 117.02,
+"t": "Panel akan otomatis menjalankan npm install setiap kali server dinyalakan, jadi kamu tidak perlu install library secara manual."
+},
+{
+"p": 6,
+"s": 117.35,
+"e": 120.0,
+"t": "Langkah keenam, jalankan botnya."
+},
+{
+"p": 6,
+"s": 120.96,
+"e": 123.36,
+"t": "Buka menu Console, lalu klik tombol Start."
+},
+{
+"p": 6,
+"s": 123.97,
+"e": 126.84,
+"t": "Tunggu sampai muncul tulisan bahwa bot sudah berjalan."
+},
+{
+"p": 6,
+"s": 127.46,
+"e": 130.19,
+"t": "Sekarang buka Telegram, kirim perintah start ke bot kamu."
+},
+{
+"p": 6,
+"s": 130.91,
+"e": 134.09,
+"t": "Kalau bot membalas, selamat, bot kamu sudah online!"
+},
+{
+"p": 7,
+"s": 134.69,
+"e": 138.2,
+"t": "Ada beberapa masalah yang sering muncul."
+},
+{
+"p": 7,
+"s": 139.11,
+"e": 143.69,
+"t": "Kalau muncul error cannot find module, berarti library belum terinstall atau file berada di subfolder."
+},
+{
+"p": 7,
+"s": 144.03,
+"e": 147.85,
+"t": "Kalau muncul error conflict, berarti bot masih menyala di tempat lain dengan token yang sama."
+},
+{
+"p": 7,
+"s": 148.48,
+"e": 153.7,
+"t": "Kalau muncul error unauthorized, berarti token kamu salah."
+},
+{
+"p": 7,
+"s": 154.4,
+"e": 158.08,
+"t": "Dan kalau server sering mati sendiri, kemungkinan RAM-nya kurang."
+},
+{
+"p": 8,
+"s": 158.75,
+"e": 162.34,
+"t": "Terakhir, beberapa tips."
+},
+{
+"p": 8,
+"s": 163.28,
+"e": 164.91,
+"t": "Jangan pernah bagikan token bot kamu."
+},
+{
+"p": 8,
+"s": 165.55,
+"e": 167.49,
+"t": "Gunakan menu Backups sebelum mengubah file penting."
+},
+{
+"p": 8,
+"s": 168.18,
+"e": 175.97,
+"t": "Dan kamu bisa memakai menu Schedules untuk restart bot secara otomatis setiap hari."
+},
+{
+"p": 9,
+"s": 177.15,
+"e": 182.96,
+"t": "Jadi, ringkasnya: buat bot di BotFather, siapkan kodenya, upload ke panel Pterodactyl, atur Main File, lalu klik Start."
+},
+{
+"p": 9,
+"s": 183.35,
+"e": 185.72,
+"t": "Mudah, kan?"
+},
+{
+"p": 10,
+"s": 186.35,
+"e": 186.84,
+"t": "Sekian video kali ini."
+},
+{
+"p": 10,
+"s": 187.52,
+"e": 191.64,
+"t": "Semoga bermanfaat, dan sampai jumpa di video berikutnya!"
+}
+]
