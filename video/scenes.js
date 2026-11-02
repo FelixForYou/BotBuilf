@@ -56,13 +56,6 @@ function ptSub(active) {
    SCENE 0 — Intro (0 – 14.17)
    ===================================================================== */
 scene(0, 14.17, `
-<div class="abs" style="left:0;right:0;top:250px;display:flex;justify-content:center;align-items:center;gap:46px">
-  <div ${A({ in: 0.25, fx: 'pop', d: 0.6 })}>${I.tg(150)}</div>
-  <div ${A({ in: 0.5, fx: 'pop' })} style="font-size:64px;color:#55657c;font-weight:300">+</div>
-  <div ${A({ in: 0.6, fx: 'pop', d: 0.6 })}>${I.node(150)}</div>
-  <div ${A({ in: 0.85, fx: 'pop' })} style="font-size:64px;color:#55657c;font-weight:300">+</div>
-  <div ${A({ in: 0.95, fx: 'pop', d: 0.6 })}>${I.panel(150)}</div>
-</div>
 <div class="abs" style="left:0;right:0;top:500px;text-align:center">
   <div class="big-title" ${A({ in: 1.5, fx: 'up', d: 0.7 })}>Menjalankan Bot Telegram</div>
   <div class="big-title grad" ${A({ in: 1.9, fx: 'up', d: 0.7 })} style="margin-top:8px">Node.js di Panel Pterodactyl</div>
@@ -301,7 +294,7 @@ scene(77.47, 103.20, `
   </div>
   <div ${A({ in: 80.3, fx: 'fade' })} style="position:absolute;left:800px;top:470px;font-size:80px;color:#4ea8ff">➜</div>
   <div ${A({ in: 80.5, fx: 'pop', d: 0.6 })} style="position:absolute;left:1010px;top:310px;width:300px;height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px" class="card">
-    <div id="zipico">${I.zip('#facc15').replace('width="24" height="24"','width="150" height="150"')}</div><div class="mono" style="font-size:36px;font-weight:800;color:#facc15">bot.zip</div>
+    <div style="height:200px"></div><div class="mono" style="font-size:36px;font-weight:800;color:#facc15">bot.zip</div>
   </div>
   <div class="callout" ${A({ in: 83.2, fx: 'up' })} style="left:250px;top:800px;width:620px;border-color:rgba(255,93,108,.5)">
     <b class="big" style="margin:0">Jangan ikutkan <span class="mono" style="color:#ff8a95">node_modules</span></b>
@@ -550,11 +543,6 @@ ${recap.map(([ic, b, s, t], i) => `<div class="node" style="left:${320 + i * 320
    SCENE 10 — Outro (186.35 – 192.04)
    ===================================================================== */
 scene(186.35, 192.5, `
-<div class="abs" style="left:0;right:0;top:250px;display:flex;justify-content:center;gap:40px">
-  <div ${A({ in: 186.5, fx: 'pop' })}>${I.tg(110)}</div>
-  <div ${A({ in: 186.65, fx: 'pop' })}>${I.node(110)}</div>
-  <div ${A({ in: 186.8, fx: 'pop' })}>${I.panel(110)}</div>
-</div>
 <div class="abs" style="left:0;right:0;top:450px;text-align:center">
   <div class="big-title" ${A({ in: 186.6, fx: 'up', d: 0.7 })} style="font-size:110px">Terima kasih! 🙏</div>
   <div ${A({ in: 187.6, fx: 'up' })} style="font-size:44px;font-weight:700;margin-top:30px;color:#c9d3e0">Semoga bermanfaat</div>
@@ -581,6 +569,26 @@ const CUR = [
   [106.0, [1400, 990]], [106.8, '#mainin', 1], [107.8, '#mainin'],
   [120.6, [1300, 950]], [121.4, '#startbtn', 1], [122.4, '#startbtn'],
 ];
+/* ---------- Kamera 2.5D per adegan: [t, rotY, rotX, z, tx, ty] ---------- */
+const CAM = {
+  14.17: [[18.4, -4, 3, 0, 0, 0], [19.4, -2, 2, 70, -90, 0], [26.6, -2, 2, 70, -90, 0], [27.5, 4, 2, 30, -30, 0]],
+  33.95: [[41.2, -6, 4, 0, 0, 0], [42.0, 4, 3, 60, 60, 20], [54.4, 3, 3, 60, 60, 20], [55.3, -3, 4, 30, 0, -20], [59.8, 0, 3, 0, 0, 0]],
+  63.80: [[66.6, -5, 4, 20, 0, 20], [73.6, 4, 3, 0, 0, 0], [74.3, -3, 2, 70, -120, 20], [76.9, -3, 2, 70, -120, 20]],
+  77.47: [[85.3, 6, 3, 0, 0, 0], [86.2, -3, 2, 60, -100, 30], [93.6, -3, 2, 60, -80, 10], [94.6, 3, 3, 30, 0, 0]],
+  103.20: [[105.6, -4, 3, 0, 0, 0], [106.6, 4, 3, 70, 150, 0], [111.8, 4, 3, 70, 150, 0], [112.6, 0, 4, 0, 0, 0]],
+  117.35: [[120.6, -4, 3, 0, 0, 0], [121.3, -3, 2, 60, -140, 70], [122.4, -3, 2, 60, -140, 70], [123.3, 3, 3, 20, 30, 0]],
+  127.46: [[128.2, -3, 2, 60, -100, -10], [131.2, -3, 2, 60, -100, -10], [131.8, 0, 2, 0, 0, 0]],
+};
+function camAt(sc, t) {
+  if (sc.s < 1 || sc.s > 186) return [0, 2 * Math.sin(t * 0.4), 0, 0, 0];
+  const k = [[sc.s, -24, 12, -520, 0, 60], [sc.s + 1.3, -6, 4, 0, 0, 0], ...(CAM[sc.s] || [[sc.s + 2, -6, 4, 0, 0, 0]]), [sc.e, 6, 3, -60, 0, 0]];
+  let i = 0;
+  while (i < k.length - 1 && k[i + 1][0] <= t) i++;
+  const a = k[i], b = k[i + 1];
+  if (!b || t <= a[0]) return a.slice(1);
+  const p = E.io(clamp((t - a[0]) / (b[0] - a[0])));
+  return a.slice(1).map((v, j) => v + (b[j + 1] - v) * p);
+}
 const CUR_SEG = [[16.2, 18.7], [66.5, 68.7], [73.9, 76.7], [85.8, 92.9], [99.3, 101.3], [106.0, 107.9], [120.6, 122.5]];
 
 /* =====================================================================
@@ -652,6 +660,9 @@ function applyItem(n, t) {
     if (t > +d.shake + 1.2) op *= 1 - E.out(prog(t, +d.shake + 1.2, 0.5)) * 0.65;
   }
   if (d.in !== undefined || d.out !== undefined || d.fly !== undefined || d.shake !== undefined) {
+    const cl = n.classList;
+    if (cl.contains('callout')) tf = 'translateZ(150px) ' + tf;
+    else if (cl.contains('err') || cl.contains('tip') || cl.contains('node')) tf = 'translateZ(50px) ' + tf;
     n.style.opacity = op.toFixed(3);
     n.style.transform = tf;
   }
@@ -727,7 +738,9 @@ function render(t) {
     const fi = E.out(prog(t, s.s - 0.3, 0.55));
     const fo = 1 - E.io(prog(t, s.e - 0.15, 0.45));
     s.el.style.opacity = Math.min(fi, fo).toFixed(3);
-    s.el.style.transform = `scale(${(1 + 0.03 * (1 - fo)).toFixed(4)})`;
+    const [ry, rx, cz, tx, ty] = camAt(s, t);
+    const wob = Math.sin(t * 0.5) * 1.2;
+    s.el.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,${(cz + 260 * (1 - fo)).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) rotateY(${(ry + wob).toFixed(2)}deg)`;
     for (const n of s.items) applyItem(n, t);
   }
   // HUD
@@ -773,6 +786,7 @@ function render(t) {
   // fade akhir
   document.getElementById('stage').style.opacity = (1 - prog(t, DURATION - 0.6, 0.6)).toFixed(3);
   updateCursor(t);
+  if (window.gl3d) window.gl3d.update(t);
 }
 window.render = render;
 window.DURATION = DURATION;
