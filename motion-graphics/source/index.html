@@ -1,0 +1,249 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+:root{--p:#8b2cff;--pl:#b57bff;--pd:#3a1470}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#050307;font-family:Inter,sans-serif;color:#fff}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,#1a0b2c 0%,#0b0612 45%,#030205 100%)}
+.abs{position:absolute;left:0;top:0}
+.center{position:absolute;left:50%;top:50%}
+.glass{background:linear-gradient(180deg,rgba(48,24,78,.92),rgba(14,8,24,.95));
+  box-shadow:inset 0 0 0 2px rgba(181,123,255,.35),inset 0 2px 0 rgba(255,255,255,.15),0 20px 60px rgba(0,0,0,.6)}
+.pill{position:absolute;height:84px;padding:0 28px 0 18px;border-radius:42px;display:flex;align-items:center;gap:12px;
+  font-weight:700;font-size:46px;letter-spacing:-1px;
+  background:linear-gradient(180deg,#22123a,#0d0717);
+  box-shadow:inset 0 0 0 4px var(--p),inset 0 0 18px rgba(139,44,255,.6),0 0 34px rgba(139,44,255,.55),inset 0 3px 0 rgba(255,255,255,.25)}
+.pill svg{width:44px;height:44px}
+.plabel{position:absolute;font-size:26px;font-weight:600;white-space:nowrap;transform:translateX(-50%);text-shadow:0 0 12px rgba(181,123,255,.6)}
+#ui{position:absolute;left:50%;top:50%;width:1000px;height:640px;margin:-320px 0 0 -500px;transform-style:preserve-3d}
+.side{position:absolute;left:0;top:70px;width:150px;height:520px;border-radius:75px;display:flex;flex-direction:column;align-items:center;gap:34px;padding-top:50px;font-size:30px;font-weight:600;color:#cbb6ea}
+.side .on{background:linear-gradient(180deg,#a65bff,#6d1fd6);color:#fff;border-radius:14px;padding:6px 14px;box-shadow:0 0 24px rgba(139,44,255,.8)}
+.tabs{position:absolute;left:190px;top:0;width:500px;height:56px;border-radius:18px;display:flex;gap:10px;padding:7px}
+.tabs div{flex:1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#cbb6ea;background:rgba(255,255,255,.04)}
+.tabs .on{background:linear-gradient(180deg,#a65bff,#6d1fd6);color:#fff}
+#card{position:absolute;left:190px;top:80px;width:800px;height:270px;border-radius:40px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(140deg,#6a24c8 0%,#2a0f52 45%,#7a35e0 100%);
+  box-shadow:inset 0 0 0 3px rgba(200,160,255,.5),inset 0 0 60px rgba(0,0,0,.5),0 0 70px rgba(139,44,255,.5)}
+#cardtxt{font-size:118px;font-weight:700;letter-spacing:-3px;text-shadow:0 0 30px rgba(255,255,255,.4)}
+.dd{position:absolute;left:190px;width:800px;height:92px;border-radius:26px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;font-size:36px;font-weight:600}
+#bracket{position:absolute;left:0;top:0;width:1920px;height:1080px}
+#big{position:absolute;left:960px;top:330px;transform:translateX(-50%);font-size:150px;font-weight:700;letter-spacing:-5px;display:flex;align-items:flex-start;gap:14px;text-shadow:0 0 40px rgba(181,123,255,.5)}
+#big .tri{width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:30px solid var(--pl);margin-top:40px}
+#prog{position:absolute;left:960px;top:300px;transform:translateX(-50%);font-size:40px;font-weight:600;color:#e4d6ff}
+#icon{position:absolute;left:960px;top:540px;width:240px;height:240px;margin:-120px 0 0 -120px;border-radius:60px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#2b1250,#0c0618);
+  box-shadow:inset 0 0 0 4px var(--p),inset 0 0 40px rgba(139,44,255,.55),0 0 80px rgba(139,44,255,.7),inset 0 4px 0 rgba(255,255,255,.3)}
+#icon img{width:170px}
+#lock{position:absolute;left:50%;top:50%;width:120px;height:140px;margin:-60px 0 0 -60px}
+#dot{position:absolute;left:960px;width:26px;height:70px;margin-left:-13px;border-radius:13px;background:#fff;box-shadow:0 0 30px var(--pl),0 0 60px var(--p)}
+.trail{position:absolute;width:18px;height:18px;margin:-9px;border-radius:50%;border:4px solid var(--pl);box-shadow:0 0 14px var(--p)}
+#newapps{position:absolute;left:960px;top:0;transform:translateX(-50%);text-align:center}
+#play{position:absolute;left:960px;top:540px;height:110px;margin-top:-55px;border-radius:55px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(90deg,#4a12a0,#9b4bff 50%,#4a12a0);box-shadow:0 0 70px rgba(139,44,255,.7),inset 0 4px 0 rgba(255,255,255,.35)}
+#play .t{width:0;height:0;border-top:26px solid transparent;border-bottom:26px solid transparent;border-left:44px solid rgba(255,255,255,.9)}
+#mark{position:absolute;left:960px;top:470px;width:560px;transform:translate(-50%,-50%)}
+#word{position:absolute;left:960px;top:720px;width:780px;transform:translate(-50%,-50%)}
+#url{position:absolute;left:960px;top:540px;transform:translate(-50%,-50%);font-size:84px;font-weight:600;letter-spacing:-1px;white-space:nowrap}
+#url b{color:var(--pl);font-weight:700}
+#url .cur{display:inline-block;width:6px;height:80px;background:var(--pl);vertical-align:middle;margin-left:6px;box-shadow:0 0 16px var(--p)}
+#flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(181,123,255,.9),rgba(139,44,255,0) 60%);opacity:0}
+#fade{position:absolute;inset:0;background:#000;opacity:0}
+</style></head>
+<body>
+<div id="bg"></div>
+
+<!-- Scene A: glass UI -->
+<div id="scA" class="abs" style="width:1920px;height:1080px;perspective:1400px">
+  <div id="ui">
+    <div class="side glass"><div>Edit</div><div class="on">FX</div><div>UI</div><div>SB</div><div>•••</div></div>
+    <div class="tabs glass"><div class="on">T</div><div>&lt;&gt;</div><div>⌕</div></div>
+    <div id="card"><div id="cardtxt">Felixiority</div></div>
+    <div class="dd glass" style="top:380px"><span>In</span><span>⌄</span></div>
+    <div class="dd glass" style="top:490px"><span>Up</span><span>⌄</span></div>
+  </div>
+</div>
+
+<!-- Scene B: stats -->
+<div id="scB" class="abs" style="width:1920px;height:1080px">
+  <svg id="bracket" viewBox="0 0 1920 1080"><path id="bpath" d="M560 600 V560 Q560 540 580 540 H1340 Q1360 540 1360 560 V600 M960 540 V495" fill="none" stroke="#a65bff" stroke-width="5" stroke-linecap="round" style="filter:drop-shadow(0 0 10px #8b2cff)"/></svg>
+  <div id="prog">Progress:</div>
+  <div id="big"><span id="bignum">56</span><div class="tri"></div></div>
+  <div class="pill" id="p1"><svg viewBox="0 0 48 48"><g stroke="#c89bff" stroke-width="4" stroke-linecap="round"><circle cx="24" cy="24" r="8" fill="#c89bff"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M10 10l4 4M34 34l4 4M38 10l-4 4M14 34l-4 4"/></g></svg><span>0</span></div>
+  <div class="pill" id="p2"><svg viewBox="0 0 48 48"><path d="M12 5h24M12 43h24M14 5c0 12 20 12 20 19S14 31 14 43M34 5c0 12-20 12-20 19s20 7 20 19" fill="none" stroke="#c89bff" stroke-width="4" stroke-linecap="round"/><path d="M18 40c2-5 10-5 12 0z" fill="#c89bff"/></svg><span>0</span></div>
+  <div class="pill" id="p3"><svg viewBox="0 0 48 48"><circle cx="24" cy="26" r="17" fill="none" stroke="#c89bff" stroke-width="4"/><path d="M24 26l9-9" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="24" cy="26" r="4" fill="#fff"/><path d="M20 5h8" stroke="#c89bff" stroke-width="4" stroke-linecap="round"/></svg><span>0</span></div>
+  <div class="plabel" id="l1">Creativity</div>
+  <div class="plabel" id="l2">Time-saving</div>
+  <div class="plabel" id="l3">Efficiency</div>
+</div>
+
+<!-- Scene C: icon unlock -->
+<div id="scC" class="abs" style="width:1920px;height:1080px">
+  <div id="trails"></div>
+  <div id="dot"></div>
+  <div id="icon"><img id="iconmark" src="mark.png">
+    <svg id="lock" viewBox="0 0 120 140"><path id="shackle" d="M32 66V44a28 28 0 0 1 56 0v22" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/><rect x="16" y="62" width="88" height="70" rx="18" fill="#fff"/><circle cx="60" cy="94" r="9" fill="#6d1fd6"/></svg>
+  </div>
+  <div id="newapps">
+    <div id="na1" style="font-size:34px;font-weight:600;margin-bottom:180px">New Apps</div>
+    <div id="na2" style="font-size:30px;font-weight:600;color:#d8c4ff">Unlocked</div>
+    <div id="na3" style="font-size:40px;font-weight:600;margin-top:34px;white-space:nowrap"><span id="capt"></span> <span style="color:var(--pl)">›</span></div>
+  </div>
+</div>
+
+<!-- Scene D: play bar -->
+<div id="scD" class="abs" style="width:1920px;height:1080px"><div id="play"><div class="t"></div></div></div>
+
+<!-- Scene E: logo + url -->
+<div id="scE" class="abs" style="width:1920px;height:1080px">
+  <img id="mark" src="mark.png"><img id="word" src="word.png">
+  <div id="url"><span id="urlt"></span><span class="cur" id="cur"></span></div>
+</div>
+<div id="flash"></div>
+<div id="fade"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>cl((t-a)/(b-a));
+const oC=x=>1-Math.pow(1-x,3);
+const oQ=x=>1-Math.pow(1-x,5);
+const ioC=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const oB=x=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const lerp=(a,b,k)=>a+(b-a)*k;
+const vis=(el,o)=>{el.style.opacity=o;el.style.visibility=o<=0.001?'hidden':'visible'};
+const css=(el,o)=>Object.assign(el.style,o);
+
+// trails
+const trails=[];for(let i=0;i<9;i++){const d=document.createElement('div');d.className='trail';$('trails').appendChild(d);trails.push(d)}
+const BL=$('bpath').getTotalLength();$('bpath').style.strokeDasharray=BL;
+
+const DUR=14;
+function render(t){
+  // ---------- Scene A 0 - 2.7
+  {
+    const on=t<2.75;vis($('scA'),on?1:0);
+    if(on){
+      const k=oQ(seg(t,0,1.5));
+      const rx=lerp(68,6,k), ry=lerp(-18,-4,k), ty=lerp(420,0,k), s=lerp(.55,1.0,k);
+      const out=ioC(seg(t,1.9,2.7));
+      const s2=s*lerp(1,2.6,out), rx2=rx-6*out;
+      css($('ui'),{transform:`translateY(${ty}px) rotateX(${rx2}deg) rotateY(${ry*(1-out)}deg) scale(${s2})`,filter:`blur(${out*18}px)`,opacity:1-out*.9});
+      const ck=oC(seg(t,.5,1.5));
+      css($('cardtxt'),{filter:`blur(${(1-ck)*14}px)`,transform:`skewX(${(1-ck)*-18}deg) translateX(${(1-ck)*60}px)`,opacity:.3+.7*ck});
+      $('scA').style.opacity=cl(t/.25);
+    }
+  }
+  // ---------- Scene B 2.6 - 5.8
+  {
+    const on=t>2.55&&t<5.9;vis($('scB'),on?1:0);
+    if(on){
+      const p=[$('p1'),$('p2'),$('p3')],l=[$('l1'),$('l2'),$('l3')];
+      const vals=[67,80,94],widths=[200,200,200];
+      const spread=ioC(seg(t,3.25,3.75));
+      const down=ioC(seg(t,4.25,4.7));
+      const xs=[lerp(960,560,spread),960,1360];
+      const baseY=lerp(500,600,down);
+      const starts=[2.6,3.45,3.6];
+      const outk=ioC(seg(t,5.35,5.85));
+      for(let i=0;i<3;i++){
+        const a=seg(t,starts[i],starts[i]+.45);
+        const sc=a<=0?0:oB(a);
+        const op=cl(a*3)*(i===0?1:1)*(1-outk);
+        const n=Math.round(oC(seg(t,starts[i]+.05,starts[i]+.9))*vals[i]);
+        p[i].querySelector('span').textContent=n;
+        const w=p[i].offsetWidth;
+        css(p[i],{left:(xs[i]-w/2)+'px',top:(baseY-42)+'px',transform:`scale(${sc*(1+outk*.3)})`,opacity:op,filter:`blur(${(1-cl(a*2))*8+outk*14 + (down>0&&down<1?3*Math.sin(down*Math.PI):0)}px)`});
+        const la=oC(seg(t,starts[i]+.2,starts[i]+.6));
+        css(l[i],{left:xs[i]+'px',top:(baseY+52+(1-la)*20)+'px',opacity:la*(1-down)*(1-outk)});
+      }
+      // bracket
+      const bd=oC(seg(t,4.5,4.95));
+      $('bpath').style.strokeDashoffset=BL*(1-bd);
+      $('bpath').style.opacity=(bd>0?1:0)*(1-outk);
+      const bk=oC(seg(t,4.6,5.0));
+      const bn=Math.round(lerp(56,100,ioC(seg(t,4.7,5.3))));
+      $('bignum').textContent=bn;
+      css($('big'),{opacity:bk*(1-outk),transform:`translateX(-50%) translateY(${(1-bk)*30}px) scale(${1+outk*.4})`,filter:`blur(${(1-bk)*10+outk*16}px)`,top:'300px'});
+      const pk=oC(seg(t,4.95,5.2));
+      css($('prog'),{opacity:pk*(1-outk),top:(275-(1-pk)*10)+'px'});
+    }
+  }
+  // ---------- Scene C 5.8 - 8.7
+  {
+    const on=t>5.75&&t<8.75;vis($('scC'),on?1:0);
+    if(on){
+      // dot drop
+      const dk=oC(seg(t,5.8,6.15));
+      const dOut=seg(t,6.15,6.3);
+      css($('dot'),{top:lerp(300,505,dk)+'px',opacity:cl(seg(t,5.8,5.9)*1)*(1-dOut),transform:`scaleY(${lerp(1.4,.5,dOut)})`});
+      // icon appear
+      const ik=seg(t,6.2,6.6);
+      let isc=ik<=0?0:oB(ik)*0.55;
+      // grow after unlock
+      const g=ioC(seg(t,7.0,7.35));
+      isc=lerp(isc,1,g);
+      // shrink to top for new apps
+      const sh=ioC(seg(t,7.75,8.15));
+      const iy=lerp(540,330,sh);
+      isc=lerp(isc,.42,sh);
+      const outk=ioC(seg(t,8.35,8.7));
+      css($('icon'),{top:iy+'px',transform:`scale(${isc})`,opacity:cl(ik*3)*(1-outk),filter:`blur(${outk*14}px)`});
+      // lock
+      const lockIn=oC(seg(t,6.35,6.6)), open=oB(seg(t,6.75,7.0)), lockOut=seg(t,7.05,7.3);
+      $('shackle').setAttribute('transform',`translate(${open*26} ${-open*14}) rotate(${-open*25} 88 66)`);
+      css($('lock'),{opacity:lockIn*(1-lockOut),transform:`scale(${lerp(.6,1,lockIn)*(1+lockOut*.5)})`});
+      css($('iconmark'),{opacity:cl(seg(t,7.0,7.3)),filter:`blur(${(1-cl(seg(t,7.0,7.3)))*10}px)`});
+      // trails (sweep left -> right under icon)
+      for(let i=0;i<trails.length;i++){
+        const tk=seg(t,6.95+i*.035,7.6+i*.035);
+        const x=lerp(560,1360,i/(trails.length-1));
+        const fade=Math.sin(Math.PI*tk);
+        css(trails[i],{left:x+'px',top:(720+Math.sin(i*1.3+t*6)*10)+'px',opacity:fade*(1-sh),transform:`scale(${lerp(1.4,.5,i/trails.length)}) rotate(${i*40}deg)`,borderRadius:i%3===1?'4px':'50%'});
+      }
+      // new apps text
+      const n1=oC(seg(t,7.85,8.15)),n2=oC(seg(t,7.95,8.25)),n3=seg(t,8.0,8.35);
+      css($('newapps'),{top:'200px',opacity:1-outk});
+      css($('na1'),{opacity:n1,transform:`translateY(${(1-n1)*15}px)`});
+      css($('na2'),{opacity:n2,transform:`translateY(${(1-n2)*15}px)`});
+      const cap='Felixiority capabilities';
+      $('capt').textContent=cap.slice(0,Math.round(n3*cap.length));
+      css($('na3'),{opacity:n3>0?1:0});
+    }
+  }
+  // ---------- Scene D 8.6 - 9.8
+  {
+    const on=t>8.55&&t<9.85;vis($('scD'),on?1:0);
+    if(on){
+      const a=oC(seg(t,8.6,8.85)), w=ioC(seg(t,8.8,9.3)), o=seg(t,9.45,9.8);
+      const W=lerp(110,1100,w);
+      css($('play'),{width:W+'px',marginLeft:(-W/2)+'px',transform:`scale(${lerp(.3,1,a)*(1+o*.6)})`,opacity:a*(1-o),filter:`blur(${o*20}px)`});
+      $('play').style.background=`linear-gradient(90deg,#3a0f80,#a35cff ${lerp(0,100,seg(t,8.9,9.5))}%,#3a0f80)`;
+    }
+    $('flash').style.opacity=Math.sin(Math.PI*seg(t,9.5,9.95))*0.85;
+  }
+  // ---------- Scene E 9.7 - 13
+  {
+    const on=t>9.65;vis($('scE'),on?1:0);
+    if(on){
+      const m=oQ(seg(t,9.7,10.4));
+      const up=ioC(seg(t,11.3,11.75));
+      css($('mark'),{opacity:cl(m*1.5)*(1-up),transform:`translate(-50%,-50%) scale(${lerp(1.35,1,m)*(1-up*.3)}) translateY(${-up*60}px)`,filter:`blur(${(1-m)*22+up*18}px) drop-shadow(0 0 ${30*m}px rgba(139,44,255,.6))`});
+      const w=oC(seg(t,10.15,10.8));
+      css($('word'),{opacity:w*(1-up),clipPath:`inset(0 ${(1-w)*100}% 0 0)`,transform:`translate(-50%,-50%) translateX(${(1-w)*-40}px)`,filter:`blur(${up*14}px)`, letterSpacing:0});
+      const u=seg(t,11.65,12.3);
+      const txt='felixiority.xyz';
+      const nchar=Math.round(u*txt.length);
+      const s=txt.slice(0,nchar);
+      $('urlt').innerHTML=s.length>11?'felixiority<b>'+s.slice(11)+'</b>':s;
+      const ua=oC(seg(t,11.55,11.8));
+      const end=seg(t,13.3,13.9);
+      css($('url'),{opacity:ua*(1-end),transform:`translate(-50%,-50%) scale(${lerp(.9,1,ua)})`,filter:`blur(${(1-ua)*10}px)`});
+      $('cur').style.opacity=(u<1||Math.floor(t*3)%2===0)?1:0;
+    }
+  }
+  $('fade').style.opacity=seg(t,13.6,14);
+}
+window.render=render;window.DUR=DUR;
+render(0);
+</script>
+</body></html>
