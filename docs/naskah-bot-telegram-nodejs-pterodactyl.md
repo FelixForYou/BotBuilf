@@ -118,16 +118,16 @@ bot.catch((err, ctx) => {
   console.error(`Error pada update ${ctx.updateType}:`, err);
 });
 
-bot.launch().then(() => console.log('Bot berjalan (mode polling)...'));
 console.log('Menyalakan bot...');
+bot.launch(() => console.log('Bot berjalan (mode polling)...'));
 
 // Berhenti dengan rapi saat server di-stop dari panel
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
-> Catatan: `bot.launch()` pada Telegraf v4 baru selesai (resolve) ketika bot berhenti, jadi log
-> "Menyalakan bot..." adalah penanda bahwa proses sudah jalan.
+> Catatan: Promise dari `bot.launch()` pada Telegraf v4 baru selesai ketika bot **berhenti**, jadi
+> gunakan callback `onLaunch` (Telegraf ≥ 4.16) seperti di atas untuk mencetak log saat bot sudah online.
 
 ### 4.3 `.env`
 
