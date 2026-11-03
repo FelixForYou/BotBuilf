@@ -1,0 +1,4 @@
+251db4c5d59885cde84391ed68617625bf94e289bf2231edde3c23b8d8ca657e  FxB-RestApi-flutter-source-v1.0.0.zip
+c88e29dc4f15124201f459b5409ad2d33ab74534cc34690ed9a9414316aa1dc6  FxB-RestApi-v1.0.0-arm64-v8a.apk
+5c9f6e5f04d2b56eb39423797611e61ae1869fa3e9b334845977ec3d320cff20  FxB-RestApi-v1.0.0-armeabi-v7a.apk
+81b60a27a6b36dc094c875579ab13093f75bead0b8ad57fda7961eb4a16a5ccd  FxB-RestApi-v1.0.0-universal.apk
