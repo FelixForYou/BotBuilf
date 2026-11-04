@@ -1,0 +1,5 @@
+node_modules
+out/*.png
+out/frames
+.cache
+out/_s_*
