@@ -32,6 +32,50 @@ const Bubble: React.FC<{ text: string; side: "user" | "bot"; w?: number }> = ({ 
   </div>
 );
 
+const CHAT: { user: boolean; text: string }[] = [
+  { user: true, text: "Halo, ada jadwal hari ini?" }, { user: false, text: "Ada. Rapat pukul 10.00" },
+  { user: true, text: "/info" }, { user: false, text: "Asisten Bot siap membantu." },
+  { user: true, text: "Ingatkan jam 9 ya" }, { user: false, text: "Siap, pengingat dibuat." },
+  { user: true, text: "/jadwal besok" }, { user: false, text: "Besok: kirim laporan." },
+  { user: true, text: "Terima kasih!" }, { user: false, text: "Sama-sama." },
+];
+/** Phone mock-up: header + clipped message list; each new message pops in and the list scrolls one step. */
+const PhoneChat: React.FC<{ f: number; start: number }> = ({ f, start }) => {
+  const W = 380, H = 660, ROW = 64, VIEW = 7; // rows visible in the screen
+  const at = (k: number) => (k < 2 ? start - 20 : start + 26 + (k - 2) * 26);
+  let scroll = 0;
+  CHAT.forEach((_, k) => { if (k >= VIEW) scroll += clamp01(spr(f, at(k) - 2, SNAP)) * ROW; });
+  return (
+    <div style={{ width: W, height: H, borderRadius: 56, background: "#0f1012", padding: 10, boxSizing: "border-box", boxShadow: "0 30px 80px rgba(10,10,12,0.22)" }}>
+      <div style={{ position: "relative", width: W - 20, height: H - 20, borderRadius: 46, background: "#eef3f7", clipPath: "inset(0 round 46px)", fontFamily: FONT }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 104, background: C.telegram, display: "flex", alignItems: "flex-end", gap: 12, padding: "0 20px 14px", boxSizing: "border-box", color: "#fff", zIndex: 2 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 20, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="Bot" size={22} color="#fff" /></div>
+          <div><div style={{ fontSize: 18, fontWeight: 700 }}>Asisten Bot</div><div style={{ fontSize: 13, opacity: 0.85 }}>bot · contoh fiktif</div></div>
+        </div>
+        <div style={{ position: "absolute", left: 125, top: 12, width: 110, height: 28, borderRadius: 14, background: "#0f1012", zIndex: 3 }} />
+        <div style={{ position: "absolute", left: 0, right: 0, top: 104, bottom: 64, clipPath: "inset(0)" }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 14, transform: `translateY(${-scroll}px)` }}>
+            {CHAT.map((m, k) => {
+              const q = clamp01(spr(f, at(k), POP));
+              if (f < at(k)) return null;
+              return (
+                <div key={k} style={{ position: "absolute", top: k * ROW, [m.user ? "right" : "left"]: 14, maxWidth: 260, padding: "10px 14px", borderRadius: 16,
+                  borderBottomRightRadius: m.user ? 5 : 16, borderBottomLeftRadius: m.user ? 16 : 5, background: m.user ? "#d9f2ff" : "#fff", color: C.ink, fontSize: 16, lineHeight: "20px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.08)", whiteSpace: "nowrap", opacity: q, transform: `translateY(${(1 - q) * 18}px) scale(${lerp(0.85, 1, q)})`, transformOrigin: m.user ? "right bottom" : "left bottom" }}>
+                  {m.text}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div style={{ position: "absolute", left: 14, right: 14, bottom: 12, height: 40, borderRadius: 20, background: "#fff", display: "flex", alignItems: "center", padding: "0 14px", color: "#9aa0a6", fontSize: 14, gap: 8 }}>
+          Pesan<div style={{ flex: 1 }} /><Icon name="Send" size={18} color={C.telegram} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ---- white world camera: whip after the message, orbit, then dive behind the server */
 const camW = (f: number) =>
   rig(f, { x: 0, y: -40, z: -150 }, [
@@ -144,19 +188,9 @@ export const S01: React.FC = () => {
                 {(clamp01(spr(f, T.hanya - 4, { stiffness: 60, damping: 14 })) * 0.32).toFixed(2).replace(".", ",")} dtk
               </div>
             </Obj>
-            {/* "di layar": phone frame + growing message traffic */}
-            <Obj x={-150} y={20} z={-20} w={380} h={640} ry={10} o={inOut(f, T.layar - 6, DIVE - 20, PANEL, 12)} s={lerp(0.8, 1, clamp01(spr(f, T.layar - 6, PANEL)))}>
-              <div style={{ width: 380, height: 640, borderRadius: 54, border: "3px solid rgba(10,10,12,0.75)", background: "rgba(255,255,255,0.55)", boxShadow: "0 30px 80px rgba(10,10,12,0.12)", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", left: 140, top: 14, width: 100, height: 22, borderRadius: 11, background: "rgba(10,10,12,0.8)" }} />
-                {Array.from({ length: 12 }).map((_, k) => {
-                  const at = T.layar + 16 + k * 18;
-                  const q = clamp01(spr(f, at, POP));
-                  const user = k % 2 === 0;
-                  const lift = Math.max(0, f - (T.layar + 16 + 5 * 18)) * (74 / 18);
-                  return <div key={k} style={{ position: "absolute", [user ? "right" : "left"]: 22, top: 70 + k * 74 - lift, height: 54, width: 190 + (k % 3) * 30, borderRadius: 18,
-                    background: user ? C.telegram : "#fff", border: user ? undefined : "1px solid rgba(0,0,0,0.08)", opacity: q, transform: `scale(${lerp(0.6, 1, q)})`, transformOrigin: user ? "right" : "left" }} />;
-                })}
-              </div>
+            {/* "di layar": a phone with a real (simulated) chat that keeps receiving messages */}
+            <Obj x={-150} y={20} z={12} w={380} h={660} ry={10} o={inOut(f, T.layar - 6, DIVE - 20, PANEL, 12)} s={lerp(0.8, 1, clamp01(spr(f, T.layar - 6, PANEL)))}>
+              <PhoneChat f={f} start={T.layar - 6} />
             </Obj>
             {/* server card with a dark back side ("di baliknya") */}
             <Obj x={SX} y={0} w={300} h={260} ry={turn * 180} s={lerp(0.6, 1, serverIn)} o={clamp01(serverIn * 2)} style={{ transformStyle: "preserve-3d" }}>
@@ -176,7 +210,7 @@ export const S01: React.FC = () => {
             <Obj x={b.x} y={b.y - 34} z={b.z} w={320} h={60} s={lerp(0.2, 1, pop) * (1 - absorbed * 0.7)} o={clamp01(pop * 3) * (1 - absorbed)}>
               <MBlur dx={bd.x - cwd.x} dy={bd.y}><Bubble text="Halo, ada jadwal hari ini?" side="user" /></MBlur>
             </Obj>
-            <Obj x={r.x} y={r.y - 40} z={r.z} w={330} h={60} s={lerp(0.3, 1, clamp01(spr(f, T.bot - 8, POP)))} o={clamp01((f - T.bot + 8) / 6)}>
+            <Obj x={r.x} y={r.y - 40} z={r.z} w={330} h={60} s={lerp(0.3, 1, clamp01(spr(f, T.bot - 8, POP)))} o={clamp01((f - T.bot + 8) / 6) * (1 - clamp01((f - T.layar + 6) / 10))}>
               <MBlur dx={rd.x - cwd.x} dy={rd.y}><Bubble text="Ada. Rapat pukul 10.00" side="bot" w={330} /></MBlur>
             </Obj>
           </Stage>
