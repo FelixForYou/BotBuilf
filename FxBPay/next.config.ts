@@ -25,6 +25,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  agentRules: false,
   reactStrictMode: true,
   serverExternalPackages: ["pg", "nodemailer"],
   async headers() {

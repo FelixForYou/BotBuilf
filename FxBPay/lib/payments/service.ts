@@ -157,7 +157,8 @@ export async function createPayment(userId: string, env: Env, input: CreatePayme
 export type StartCheckoutResult =
   | { kind: "redirect"; url: string }
   | { kind: "qris"; paymentCode: string }
-  | { kind: "pending_check"; message: string };
+  | { kind: "pending_check"; message: string }
+  | { kind: "rejected"; message: string };
 
 /**
  * Dipanggil saat pembeli menekan "Bayar dengan DANA". Order DANA dibuat sekali (lazy) dan dipakai ulang.
@@ -205,7 +206,9 @@ export async function startCheckout(publicId: string, clientIp = ""): Promise<St
     if (!isSnapSuccess(body?.responseCode)) {
       await transition(tx, p, "FAILED", "system", `Create Order ditolak DANA: ${body?.responseCode ?? res.httpStatus} ${body?.responseMessage ?? ""}`.trim(), { providerStatus: body?.responseCode ?? null });
       await notifyAdmins("integration", "Create Order DANA gagal", `${p.env.toUpperCase()} ${p.partnerReferenceNo}: ${body?.responseCode ?? res.httpStatus} ${body?.responseMessage ?? ""}`, { env: p.env, href: `/admin/transaksi/${p.id}` }, tx);
-      throw new AppError("provider_rejected", `DANA menolak pembuatan pesanan (${body?.responseCode ?? res.httpStatus}). Silakan hubungi merchant.`, 502);
+      await notifyUser(p.userId, "integration", "Gangguan integrasi DANA", `Pesanan ${p.partnerReferenceNo} ditolak DANA (${body?.responseCode ?? res.httpStatus}). Buat link baru atau hubungi admin.`, { env: p.env, href: `/app/pembayaran/${p.id}` }, tx);
+      // Jangan throw di sini: status FAILED & notifikasi harus ikut ter-commit.
+      return { kind: "rejected", message: `DANA menolak pembuatan pesanan (${body?.responseCode ?? res.httpStatus}). Silakan hubungi merchant.` };
     }
     if (p.paymentMethod === "qris") {
       const code = body?.additionalInfo?.paymentCode;

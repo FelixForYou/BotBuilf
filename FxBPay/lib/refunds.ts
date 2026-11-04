@@ -6,7 +6,7 @@
 import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db, type Tx } from "./db";
-import { paymentEvents, payments, refunds } from "./db/schema";
+import { payments, refunds } from "./db/schema";
 import { AppError, notFound } from "./errors";
 import { postJournal } from "./ledger";
 import { formatRupiah } from "./money";
@@ -137,8 +137,4 @@ export async function finalizeRefund(id: string, result: "success" | "failed", i
 async function otherPending(tx: Tx, paymentId: string, exceptId: string) {
   const rows = await tx.select({ id: refunds.id }).from(refunds).where(and(eq(refunds.paymentId, paymentId), inArray(refunds.status, ["PENDING", "UNCERTAIN"])));
   return rows.some((x) => x.id !== exceptId);
-}
-
-export async function listRefundEvents(paymentId: string) {
-  return db.select().from(paymentEvents).where(eq(paymentEvents.paymentId, paymentId));
 }
