@@ -29,8 +29,9 @@ export const allSfx: SfxCue[] = [
 /** Incoming scene fades in over the overlap while sharing objects with the outgoing one. */
 const Fader: React.FC<{ children: React.ReactNode; first: boolean }> = ({ children, first }) => {
   const f = useCurrentFrame();
-  const o = first ? 1 : interpolate(f, [0, OVERLAP], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  return <AbsoluteFill style={{ opacity: o }}>{children}</AbsoluteFill>;
+  // Scenes hand over with in-scene transitions (match cuts, sweeps, morphs): no crossfade.
+  void f; void first; void interpolate; void OVERLAP;
+  return <AbsoluteFill>{children}</AbsoluteFill>;
 };
 
 export const Video: React.FC = () => (

@@ -25,7 +25,7 @@ export const segSpeechEnd = (id: SegId) => sec(byId[id].speechEnd);
 export const LEAD = 36;
 const order: SegId[] = ["s01", "s02", "s03", "s04", "s05", "s06", "s07", "s08", "s09", "s10"];
 /** Scene boundaries in absolute frames. Scenes overlap by OVERLAP frames for continuity. */
-export const OVERLAP = 30;
+export const OVERLAP = 0;
 export const sceneRange = (id: SegId): { from: number; dur: number } => {
   const i = order.indexOf(id);
   const from = i === 0 ? 0 : segStart(id) - LEAD;

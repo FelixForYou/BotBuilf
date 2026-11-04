@@ -8,9 +8,19 @@ import { interpolate } from "remotion";
 export type Cam = { x?: number; y?: number; z?: number; rx?: number; ry?: number; rz?: number; persp?: number };
 
 /** A 3D world whose origin is the screen centre. Camera moves the world. */
-export const Stage: React.FC<{ cam?: Cam; children: React.ReactNode; style?: React.CSSProperties }> = ({ cam = {}, children, style }) => {
+export const Stage: React.FC<{ cam?: Cam; children: React.ReactNode; style?: React.CSSProperties; blur?: [number, number] }> = ({ cam = {}, children, style, blur }) => {
   const { x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, persp = 1600 } = cam;
+  const id = "stg" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
+  const bx = blur ? Math.min(14, Math.abs(blur[0]) * 0.3) : 0;
+  const by = blur ? Math.min(14, Math.abs(blur[1]) * 0.3) : 0;
+  const on = bx > 0.6 || by > 0.6;
   return (
+    <AbsoluteFill style={{ filter: on ? `url(#${id})` : undefined }}>
+    {on && (
+      <svg width={0} height={0} style={{ position: "absolute" }}>
+        <filter id={id} x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation={`${bx.toFixed(2)} ${by.toFixed(2)}`} /></filter>
+      </svg>
+    )}
     <AbsoluteFill style={{ perspective: persp, perspectiveOrigin: "50% 50%", overflow: "hidden", ...style }}>
       <div
         style={{
@@ -25,6 +35,7 @@ export const Stage: React.FC<{ cam?: Cam; children: React.ReactNode; style?: Rea
       >
         {children}
       </div>
+    </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -82,19 +93,20 @@ export const Words: React.FC<{
   size?: number; color?: string; weight?: number; accent?: number[]; accentColor?: string; spacing?: number;
   align?: "center" | "left"; style?: React.CSSProperties; dur?: number; mono?: boolean;
 }> = ({ f, text, at, times, stagger = 6, out, outLen = 24, size = 34, color = C.ink, weight = 600, accent = [], accentColor = C.orange,
-  spacing = -0.02, align = "center", style, dur = 26, mono }) => {
+  spacing = -0.02, align = "center", style, dur = 15, mono }) => {
   const words = text.split(" ");
-  const o = out === undefined ? 1 : 1 - p(f, out, out + outLen);
-  const outBlur = out === undefined ? 0 : p(f, out, out + outLen) * 10;
+  const oq = out === undefined ? 0 : Math.min(1, Math.max(0, (f - out) / Math.min(outLen, 14)) ** 2);
+  const o = 1 - oq;
+  const outBlur = oq * 9;
   return (
     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: align === "center" ? "center" : "flex-start", gap: `0 ${size * 0.28}px`,
-      fontFamily: mono ? MONO : FONT, fontSize: size, fontWeight: weight, letterSpacing: `${spacing}em`, color, lineHeight: 1.15, opacity: o, filter: outBlur > 0.05 ? `blur(${outBlur}px)` : undefined, ...style }}>
+      fontFamily: mono ? MONO : FONT, fontSize: size, fontWeight: weight, letterSpacing: `${spacing}em`, color, lineHeight: 1.15, opacity: o, filter: outBlur > 0.05 ? `blur(${outBlur}px)` : undefined, transform: `translateY(${-oq * size * 0.5}px)`, ...style }}>
       {words.map((w, i) => {
         const t0 = times?.[i] ?? at + i * stagger;
-        const q = p(f, t0, t0 + dur, easeOut);
-        const blur = (1 - q) * 9;
+        const q = p(f, t0 - 3, t0 - 3 + dur, easeOut);
+        const blur = (1 - q) * 7;
         return (
-          <span key={i} style={{ display: "inline-block", opacity: q, transform: `translateY(${(1 - q) * size * 0.45}px)`,
+          <span key={i} style={{ display: "inline-block", opacity: q, transform: `translateY(${(1 - q) * size * 0.3}px) scale(${0.96 + 0.04 * q})`,
             filter: blur > 0.05 ? `blur(${blur}px)` : undefined, color: accent.includes(i) ? accentColor : undefined }}>
             {w}
           </span>

@@ -3,3 +3,4 @@ node_modules/
 out/*.tmp*
 out/render.log
 out/test.mp4
+out/clip_*.mp4

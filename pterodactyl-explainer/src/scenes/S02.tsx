@@ -1,10 +1,12 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { C, FONT, MONO, softShadow } from "../lib/theme";
-import { easeBack, easeIn, easeIO, easeOut, kf, life, mix, p, rand } from "../lib/anim";
+import { rand } from "../lib/anim";
+import { arc, breathe, clamp01, DRIFT, GLIDE, inOut, lerp, out, PANEL, POP, rig, SNAP, spr, vel, WHIP } from "../lib/motion";
 import { makeLocal } from "../lib/time";
 import { s, SfxCue } from "../lib/sfx";
-import { Card, GlowWave, Label, Obj, Stage, Words } from "../components/Primitives";
+import { Card, GlowWave, Label, Obj, Stage, Words, WarmLight } from "../components/Primitives";
+import { MBlur, Sweep, SwapText } from "../components/Motion";
 import { Icon } from "../components/Icon";
 import { Browser } from "../components/UI";
 import { PteroMark } from "../components/Logos";
@@ -15,23 +17,24 @@ const T = {
   dipelajari: L.c("dipelajari"), dikembangkan: L.c("dikembangkan"), pengembangan: L.c("Pengembangannya"), kontributor: L.c("kontributor"),
   proyek: L.c("Proyek"), sejak: L.c("sejak"), dua: L.c("dua ribu"), tujuan: L.c("Tujuan"), mempermudah: L.c("mempermudah"), game: L.c("server game"),
   web: L.c("antarmuka web"), nyala: L.c("Menyalakan"), mati: L.c("mematikan"), pantau: L.c("memantau"), browser: L.c("browser"),
-  lalu: L.c("Lalu"), bot: L.c("bot"), end: L.dur,
+  lalu: L.c("Lalu"), bagaimana: L.c("bagaimana"), bot: L.c("bot"), end: L.dur,
 };
+const M = { ptero: -460, code: 0, year: 760, web: 1460 }; // markers along the timeline (world x)
+const SWEEP = T.lalu - 20;
 
 const CODE = ["class ServerManager {", "  start(id) { … }", "  stop(id) { … }", "  status(id) { … }", "}"];
 
-/** Digit roller for the year. */
 const Roll: React.FC<{ f: number; at: number; value: string; size: number }> = ({ f, at, value, size }) => (
   <div style={{ display: "flex", fontFamily: FONT, fontWeight: 700, fontSize: size, letterSpacing: "-0.05em", color: C.ink, height: size * 1.05, overflow: "hidden" }}>
     {value.split("").map((d, i) => {
-      const q = p(f, at + i * 7, at + i * 7 + 50, easeOut);
+      const q = clamp01(spr(f, at + i * 4, { stiffness: 120, damping: 17 }));
       const target = Number(d);
-      const from = (target + 6) % 10;
-      const pos = mix(from + 10 * (i % 2 ? 1 : 2), target + 20, q);
+      const pos = lerp(target + 10, target + 20, q);
+      const speed = Math.abs(lerp(target + 10, target + 20, clamp01(spr(f - 1, at + i * 4, { stiffness: 120, damping: 17 }))) - pos);
       return (
         <div key={i} style={{ height: size * 1.05, overflow: "hidden" }}>
-          <div style={{ transform: `translateY(${-(pos % 30) * size * 1.05}px)`, filter: `blur(${(1 - q) * 4}px)` }}>
-            {Array.from({ length: 30 }).map((_, k) => <div key={k} style={{ height: size * 1.05, lineHeight: `${size * 1.05}px` }}>{k % 10}</div>)}
+          <div style={{ transform: `translateY(${-pos * size * 1.05}px)`, filter: speed > 0.05 ? `blur(${Math.min(6, speed * 20)}px)` : undefined }}>
+            {Array.from({ length: 31 }).map((_, k) => <div key={k} style={{ height: size * 1.05, lineHeight: `${size * 1.05}px` }}>{k % 10}</div>)}
           </div>
         </div>
       );
@@ -39,136 +42,180 @@ const Roll: React.FC<{ f: number; at: number; value: string; size: number }> = (
   </div>
 );
 
+const cam = (f: number) =>
+  rig(f, { x: 0, y: 0, z: 0 }, [
+    { at: 2, to: { x: M.ptero + 120, z: -240, rx: 14, ry: 8, y: -150 }, feel: GLIDE },
+    { at: T.ptero + 20, to: { x: M.ptero + 40, ry: -4 }, feel: DRIFT },
+    { at: T.kode - 16, to: { x: M.code, z: -280, rx: 10, ry: -6, y: -170 }, feel: GLIDE },
+    { at: T.pengembangan - 6, to: { z: -60, ry: 8, rx: 14, y: -160 }, feel: DRIFT },
+    { at: T.proyek - 4, to: { x: M.year, ry: -10, z: -300, rx: 8, y: -150 }, feel: WHIP },
+    { at: T.dua + 30, to: { ry: 4, z: -340 }, feel: DRIFT },
+    { at: T.tujuan - 10, to: { x: M.web, ry: -8, z: -220, rx: 4, y: -200 }, feel: WHIP },
+    { at: T.nyala - 10, to: { y: -220, z: -330, ry: 6 }, feel: GLIDE },
+    { at: T.pantau, to: { y: -190, z: -300, ry: -4 }, feel: GLIDE },
+  ]);
+
 export const S02: React.FC = () => {
   const f = useCurrentFrame();
-  const camX = kf(f, [0, T.artinya - 20, T.proyek - 30, T.sejak + 20, T.tujuan - 20, T.mempermudah + 10], [-420, -380, 0, 640, 640, 1320]);
-  const camZ = kf(f, [0, T.artinya, T.proyek, T.sejak + 40, T.tujuan, T.nyala, T.lalu, T.end], [-220, -280, -180, -340, -220, -300, -220, 1100]);
-  const camRy = kf(f, [0, T.proyek, T.sejak + 40, T.tujuan, T.lalu], [4, -3, 3, -4, 0]);
-  const toBlack = p(f, T.lalu - 10, T.lalu + 40, easeIn);
-  const lineReveal = mix(0.55, 1, p(f, 0, 90, easeOut));
+  const { v: c, d: cd } = vel((ff) => breathe(cam(ff), ff, 1.1, 1), f);
+  const black = f >= SWEEP + 16;
 
-  const contributors = Array.from({ length: 9 }).map((_, i) => {
-    const a = (i / 9) * Math.PI * 2 + 0.4;
-    const r = 250 + rand(i) * 60;
-    return { x: Math.cos(a) * r, y: -170 + Math.sin(a) * r * 0.45, t: T.pengembangan + i * 7 };
+  const tag = (at: number, i: number) => {
+    const q = clamp01(spr(f, at - 6, { stiffness: 160, damping: 16 }));
+    const [x, y, z] = arc(q, [M.ptero, 0, 0], [M.ptero + (i ? 260 : -200), -260, 200], [M.ptero + (i ? 110 : -90), -110, 40]);
+    return { x, y, z, q };
+  };
+  const contributors = Array.from({ length: 10 }).map((_, i) => {
+    const at = T.pengembangan + i * 4;
+    const q = clamp01(spr(f, at, { stiffness: 90, damping: 15 }));
+    const a0 = rand(i) * Math.PI * 2;
+    const orbit = (f - at) * 0.012 + (i / 10) * Math.PI * 2;
+    const R = 300 + rand(i + 4) * 40;
+    const tx = M.code + Math.cos(orbit) * R, ty = -200 + Math.sin(orbit) * R * 0.32, tz = Math.sin(orbit) * 160;
+    const sx = M.code + Math.cos(a0) * 1400, sy = -600 + Math.sin(a0) * 600, sz = 600;
+    const leave = out(f, T.proyek - 2 + i * 2, 14);
+    return { x: lerp(sx, tx, q) + leave * 900, y: lerp(sy, ty, q), z: lerp(sz, tz, q), o: clamp01(q * 2) * (1 - leave), front: Math.sin(orbit) > 0 };
   });
+  const codeUp = spr(f, T.kode - 18, PANEL);
+  const browserUp = spr(f, T.tujuan - 6, PANEL);
 
   return (
     <AbsoluteFill style={{ background: C.white, fontFamily: FONT }}>
-      <Stage cam={{ x: camX, z: camZ, ry: camRy, y: -40 }}>
-        {/* timeline axis inherited from scene 1's flattening panel */}
-        <Obj x={450} y={0} w={3400} h={2}>
-          <div style={{ width: `${lineReveal * 100}%`, height: 2, background: C.orange, marginLeft: `${(1 - lineReveal) * 50}%`, boxShadow: "0 0 12px rgba(255,106,43,0.5)" }} />
-        </Obj>
-        {/* moving ticks along the axis keep the line alive */}
-        {Array.from({ length: 34 }).map((_, i) => (
-          <Obj key={i} x={-1200 + i * 100 + ((f * 0.4) % 100)} y={0} w={2} h={12} o={0.25 * lineReveal}><div style={{ width: 2, height: 12, background: C.ink }} /></Obj>
-        ))}
+      {!black && (
+        <>
+          <Stage cam={c} blur={[cd.x, cd.y]}>
+            {/* timeline: the folded panel edge from scene 1 */}
+            <Obj x={600} y={0} w={4200} h={2}><div style={{ width: 4200, height: 2, background: C.orange, boxShadow: "0 0 12px rgba(255,106,43,0.5)" }} /></Obj>
+            {Array.from({ length: 42 }).map((_, i) => (
+              <Obj key={i} x={-1500 + i * 100} y={0} w={2} h={14} o={0.22 * clamp01(f / 20)}><div style={{ width: 2, height: 14, background: C.ink }} /></Obj>
+            ))}
+            {[M.ptero, M.code, M.year, M.web].map((x, i) => {
+              const q = clamp01(spr(f, 6 + i * 5, POP));
+              return <Obj key={x} x={x} y={0} w={20} h={20} s={q}><div style={{ width: 20, height: 20, borderRadius: 10, background: i === 2 ? C.orange : C.ink, boxShadow: i === 2 ? "0 0 0 8px rgba(255,106,43,0.18)" : undefined }} /></Obj>;
+            })}
 
-        {/* A: free + open source tags */}
-        <Obj x={-420} y={-150} w={600} h={120} o={life(f, T.ptero - 10, 30, T.proyek, 40)}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, opacity: p(f, T.ptero - 10, T.ptero + 20) }}>
-              <PteroMark size={46} draw={p(f, T.ptero - 10, T.ptero + 50)} />
-              <span style={{ fontSize: 40, fontWeight: 700, letterSpacing: "-0.03em", color: C.ink }}>Pterodactyl</span>
-            </div>
-            <div style={{ display: "flex", gap: 14 }}>
-              {[["Gratis", T.gratis], ["Open source", T.open]].map(([t, at]) => {
-                const q = p(f, (at as number) - 6, (at as number) + 24, easeBack);
-                return <div key={t as string} style={{ transform: `scale(${q}) translateY(${(1 - q) * 20}px)`, opacity: q }}><Label size={22} bg={C.ink} color="#fff">{t}</Label></div>;
-              })}
-            </div>
-          </div>
-        </Obj>
-        <Obj x={-420} y={0} w={18} h={18} o={lineReveal}><div style={{ width: 18, height: 18, borderRadius: "50%", background: C.orange, boxShadow: "0 0 0 6px rgba(255,106,43,0.18)" }} /></Obj>
+            {/* Pterodactyl, free + open source */}
+            <Obj x={M.ptero} y={-250} w={520} h={80} o={inOut(f, T.ptero - 12, T.proyek - 20, SNAP, 12)}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+                <PteroMark size={54} draw={clamp01((f - T.ptero + 12) / 26)} />
+                <SwapText f={f} items={[{ at: T.ptero - 6, text: "Pterodactyl" }]} size={44} weight={700} />
+              </div>
+            </Obj>
+            {[["Gratis", T.gratis], ["Open source", T.open]].map(([t, at], i) => {
+              const g = tag(at as number, i);
+              const leave = out(f, T.proyek - 24 + i * 4, 12);
+              return (
+                <Obj key={t as string} x={g.x} y={g.y - leave * 200} z={g.z} w={260} h={60} s={lerp(0.3, 1, g.q)} o={clamp01(g.q * 3) * (1 - leave)}>
+                  <div style={{ display: "flex", justifyContent: "center" }}><Label size={24} bg={C.ink} color="#fff">{t}</Label></div>
+                </Obj>
+              );
+            })}
 
-        {/* B: open source code + contributors */}
-        <Obj x={0} y={-190} w={420} h={230} o={life(f, T.kode - 14, 30, T.sejak, 40)} ry={kf(f, [T.kode, T.proyek], [-14, 10])} s={mix(0.85, 1, p(f, T.kode - 14, T.kode + 30, easeOut))}>
-          <Card w={420} h={230} tone="light" radius={18}>
-            <div style={{ padding: "18px 22px", fontFamily: MONO, fontSize: 18, lineHeight: "34px", color: C.ink }}>
-              {CODE.map((l, i) => (
-                <div key={i} style={{ opacity: p(f, T.kode + i * 6, T.kode + i * 6 + 20), whiteSpace: "pre", color: i === 0 || i === 4 ? C.ember : undefined }}>{l}</div>
-              ))}
-            </div>
-            <div style={{ position: "absolute", right: 16, bottom: 12, fontSize: 12, fontFamily: MONO, color: C.gray, letterSpacing: "0.08em" }}>ILUSTRASI</div>
-          </Card>
-        </Obj>
-        <Obj x={0} y={70} w={600} h={60} o={life(f, T.terbuka - 6, 24, T.proyek - 10, 30)}>
-          <Words f={f} text="Kode sumber terbuka" at={T.kode} times={[T.kode, T.kode + 10, T.terbuka]} size={30} accent={[2]} />
-        </Obj>
-        {contributors.map((c, i) => {
-          const q = life(f, c.t, 30, T.sejak - 10 + i * 2, 30);
-          return (
-            <React.Fragment key={i}>
-              <Obj x={c.x * q} y={-190 + (c.y + 190) * q} w={52} h={52} o={q}>
-                <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#fff", boxShadow: softShadow(), display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* code card stands up out of the line */}
+            <Obj x={M.code} y={-200} w={440} h={240} rx={lerp(-90, 0, codeUp)} o={clamp01(codeUp * 4) * (1 - out(f, T.proyek + 4, 14))} z={-out(f, T.proyek + 4, 14) * 500}
+              style={{ transformOrigin: "50% 100%" }}>
+              <Card w={440} h={240} tone="light" radius={18} shadowA={1.3}>
+                <div style={{ padding: "18px 22px", fontFamily: MONO, fontSize: 19, lineHeight: "36px", color: C.ink }}>
+                  {CODE.map((l, i) => {
+                    const at = T.kode - 4 + i * 5;
+                    const chars = Math.floor(clamp01((f - at) / 10) * l.length);
+                    const hi = f > T.terbuka - 4 && i > 0 && i < 4;
+                    return <div key={i} style={{ whiteSpace: "pre", color: i === 0 || i === 4 ? C.ember : undefined, background: hi ? `rgba(255,106,43,${0.12 * clamp01((f - T.terbuka + 4 - i * 3) / 8)})` : undefined, borderRadius: 4 }}>{l.slice(0, chars)}</div>;
+                  })}
+                </div>
+                <div style={{ position: "absolute", right: 16, bottom: 12, fontSize: 12, fontFamily: MONO, color: C.gray, letterSpacing: "0.08em" }}>ILUSTRASI</div>
+              </Card>
+            </Obj>
+            {contributors.map((p, i) => (
+              <Obj key={i} x={p.x} y={p.y} z={p.z} w={54} h={54} o={p.o}>
+                <div style={{ width: 54, height: 54, borderRadius: "50%", background: "#fff", boxShadow: softShadow(), display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Icon name="User" size={26} color={i % 3 === 0 ? C.orange : C.ink} />
                 </div>
               </Obj>
-            </React.Fragment>
-          );
-        })}
-        <Obj x={0} y={0} w={18} h={18} o={lineReveal}><div style={{ width: 18, height: 18, borderRadius: "50%", background: C.ink }} /></Obj>
+            ))}
 
-        {/* C: 2015 */}
-        <Obj x={640} y={-150} w={700} h={260} o={life(f, T.dua - 30, 30, T.mempermudah - 10, 40)}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <div style={{ fontSize: 22, fontWeight: 600, color: C.gray, letterSpacing: "0.2em", textTransform: "uppercase", opacity: p(f, T.sejak - 10, T.sejak + 20) }}>Open source sejak</div>
-            <Roll f={f} at={T.dua - 24} value="2015" size={180} />
-          </div>
-        </Obj>
-        <Obj x={640} y={0} w={26} h={26} o={p(f, T.sejak - 20, T.sejak + 10)} s={1 + 0.15 * Math.sin(f * 0.1)}>
-          <div style={{ width: 26, height: 26, borderRadius: "50%", background: C.orange, boxShadow: "0 0 0 10px rgba(255,106,43,0.15), 0 0 30px rgba(255,106,43,0.6)" }} />
-        </Obj>
-
-        {/* D/E: browser-based management (no game shown) */}
-        <Obj x={1320} y={-170 + (1 - p(f, T.tujuan - 20, T.tujuan + 40, easeOut)) * 80} w={760} h={440} o={p(f, T.tujuan - 20, T.tujuan + 30)} rx={kf(f, [T.tujuan, T.nyala], [12, 0])} ry={kf(f, [T.tujuan, T.lalu], [-10, 6])}>
-          <div style={{ boxShadow: softShadow(1.4), borderRadius: 16 }}>
-            <Browser w={760} h={440} url="panel.contoh.id">
-              <div style={{ padding: 26, display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ fontSize: 15, color: C.gray, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase" }}>Proses server</div>
-                {([["Power", "Nyalakan", T.nyala, C.ok], ["Square", "Matikan", T.mati, C.err], ["Activity", "Pantau", T.pantau, C.orange]] as const).map(([ic, t, at, col], i) => {
-                  const on = p(f, at - 8, at + 18, easeOut);
-                  return (
-                    <div key={t} style={{ display: "flex", alignItems: "center", gap: 16, height: 76, borderRadius: 14, padding: "0 20px", background: on > 0.01 ? `rgba(255,255,255,1)` : C.paper,
-                      border: `1.5px solid ${on > 0.01 ? col : "rgba(0,0,0,0.05)"}`, boxShadow: on > 0.01 ? `0 10px 30px ${col}33` : "none", opacity: p(f, T.tujuan + 20 + i * 10, T.tujuan + 40 + i * 10),
-                      transform: `translateX(${(1 - p(f, T.tujuan + 20 + i * 10, T.tujuan + 50 + i * 10, easeOut)) * 40}px) scale(${1 + on * 0.02})` }}>
-                      <Icon name={ic} size={30} color={on > 0.01 ? col : C.gray} draw={Math.max(0.3, on)} />
-                      <div style={{ fontSize: 22, fontWeight: 600, color: C.ink }}>{t}</div>
-                      <div style={{ flex: 1 }} />
-                      {ic === "Activity" ? (
-                        <svg width={160} height={40}>
-                          <path d={Array.from({ length: 40 }).map((_, k) => `${k ? "L" : "M"}${k * 4},${20 + Math.sin(k * 0.5 + f * 0.15) * 10 * on}`).join(" ")} stroke={col} strokeWidth={2.2} fill="none" />
-                        </svg>
-                      ) : (
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 600, color: on > 0.5 ? col : C.gray }}>
-                          <div style={{ width: 12, height: 12, borderRadius: 6, background: on > 0.5 ? col : "#d4d4d4", boxShadow: on > 0.5 ? `0 0 10px ${col}` : "none" }} />
-                          {ic === "Power" ? "aktif" : "berhenti"}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+            {/* 2015 */}
+            <Obj x={M.year} y={-190} w={760} h={280} o={inOut(f, T.sejak - 14, T.tujuan - 8, SNAP, 12)} z={-out(f, T.tujuan - 8, 12) * 300}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <SwapText f={f} items={[{ at: T.proyek + 2, text: "Proyek ini" }, { at: T.sejak - 8, text: "Open source sejak" }]} size={24} weight={600} color={C.gray} spacing={0.14} />
+                <Roll f={f} at={T.dua - 26} value="2015" size={190} />
               </div>
-            </Browser>
-          </div>
-        </Obj>
-        <Obj x={1320} y={0} w={18} h={18} o={lineReveal}><div style={{ width: 18, height: 18, borderRadius: "50%", background: C.ink }} /></Obj>
-        <Obj x={1320} y={150} w={1000} h={60} o={life(f, T.mempermudah - 10, 30, T.lalu - 20, 30)}>
-          <Words f={f} text="Berawal dari pengelolaan server game." at={T.mempermudah} times={[T.mempermudah - 6, T.mempermudah + 6, T.mempermudah + 16, T.game, T.game + 10]} size={36} accent={[3, 4]} />
-        </Obj>
-        <Obj x={1320} y={215} w={800} h={40} o={life(f, T.browser - 10, 30, T.lalu - 20, 30)}>
-          <Words f={f} text="lewat antarmuka web" at={T.web} size={22} color={C.gray} weight={500} />
-        </Obj>
-      </Stage>
+            </Obj>
+            {f > T.sejak - 20 && (
+              <Obj x={M.year} y={0} w={120} h={120}>
+                {[0, 1].map((k) => {
+                  const ph = ((f - T.sejak + 20 + k * 30) % 60) / 60;
+                  return <div key={k} style={{ position: "absolute", left: 60 - 60 * ph, top: 60 - 60 * ph, width: 120 * ph, height: 120 * ph, borderRadius: "50%", border: `2px solid ${C.orange}`, opacity: 1 - ph }} />;
+                })}
+              </Obj>
+            )}
 
-      {/* F: black flip + question */}
-      <AbsoluteFill style={{ background: C.black, opacity: toBlack }}>
-        <GlowWave f={f} y={640} amp={50} reveal={p(f, T.lalu + 10, T.end - 10, easeOut)} o={0.85} />
-        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
-          <Words f={f} text="Lalu, bagaimana dengan bot?" at={T.lalu} times={[T.lalu + 6, T.lalu + 40, T.lalu + 56, T.bot]} size={46} color="#fff" accent={[3]} />
+            {/* browser rises from the marker */}
+            <Obj x={M.web} y={lerp(0, -250, browserUp)} w={780} h={450} s={lerp(0.04, 1, browserUp)} rx={lerp(30, 0, browserUp)} ry={lerp(-25, -6, browserUp)}>
+              <div style={{ boxShadow: softShadow(1.5), borderRadius: 16 }}>
+                <Browser w={780} h={450} url="panel.contoh.id">
+                  <div style={{ padding: 26, display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontSize: 15, color: C.gray, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", opacity: clamp01((f - T.tujuan - 10) / 10) }}>Proses server</div>
+                    {([["Power", "Nyalakan", T.nyala, C.ok], ["Square", "Matikan", T.mati, C.err], ["Activity", "Pantau", T.pantau, C.orange]] as const).map(([ic, t, at, col], i) => {
+                      const rowIn = clamp01(spr(f, T.tujuan + 14 + i * 5, SNAP));
+                      const on = clamp01(spr(f, at - 8, POP));
+                      return (
+                        <div key={t} style={{ display: "flex", alignItems: "center", gap: 16, height: 80, borderRadius: 14, padding: "0 20px", background: on > 0.02 ? "#fff" : C.paper,
+                          border: `1.5px solid ${on > 0.02 ? col : "rgba(0,0,0,0.05)"}`, boxShadow: on > 0.02 ? `0 12px 30px ${col}33` : "none", opacity: rowIn,
+                          transform: `translateX(${(1 - rowIn) * 60}px) scale(${1 + on * 0.025 - Math.max(0, on - 1) * 0.5})` }}>
+                          <Icon name={ic} size={32} color={on > 0.02 ? col : C.gray} draw={Math.max(0.35, Math.min(1, on))} />
+                          <div style={{ fontSize: 23, fontWeight: 600, color: C.ink }}>{t}</div>
+                          <div style={{ flex: 1 }} />
+                          {ic === "Activity" ? (
+                            <svg width={170} height={44}>
+                              <path d={Array.from({ length: 44 }).map((_, k) => `${k ? "L" : "M"}${k * 4},${22 + Math.sin(k * 0.55 + f * 0.2) * 12 * Math.min(1, on)}`).join(" ")} stroke={col} strokeWidth={2.4} fill="none" />
+                            </svg>
+                          ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 17, fontWeight: 600, color: on > 0.5 ? col : C.gray }}>
+                              <div style={{ width: 12, height: 12, borderRadius: 6, background: on > 0.5 ? col : "#d4d4d4", boxShadow: on > 0.5 ? `0 0 10px ${col}` : "none" }} />
+                              {ic === "Power" ? "aktif" : "berhenti"}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Browser>
+              </div>
+            </Obj>
+          </Stage>
+
+          <AbsoluteFill style={{ alignItems: "center" }}>
+            <div style={{ position: "absolute", top: 830 }}>
+              <SwapText f={f} items={[{ at: T.kode - 6, text: "Kode sumber terbuka" }, { at: T.pengembangan - 4, text: "Dikembangkan bersama kontributor" }]} size={32}
+                style={{ opacity: 1 - out(f, T.proyek - 6, 10) }} />
+            </div>
+            <div style={{ position: "absolute", top: 830 }}>
+              <Words f={f} text="Berawal dari pengelolaan server game." at={T.mempermudah} times={[T.mempermudah - 10, T.mempermudah, T.mempermudah + 10, T.game, T.game + 10]} size={38} accent={[3, 4]} out={SWEEP - 6} outLen={10} />
+            </div>
+            <div style={{ position: "absolute", top: 892 }}>
+              <Words f={f} text="lewat antarmuka web" at={T.web} stagger={4} size={22} color={C.gray} weight={500} out={SWEEP - 6} outLen={10} />
+            </div>
+          </AbsoluteFill>
+        </>
+      )}
+
+      {/* black world after a panel passes the lens */}
+      {black && (
+        <AbsoluteFill style={{ background: C.black }}>
+          <WarmLight f={f} o={0.25} y={640} r={800} />
+          <GlowWave f={f} y={640} amp={lerp(60, 0, clamp01(spr(f, T.end - 34, GLIDE)))} reveal={clamp01((f - SWEEP - 10) / 30)} speed={0.04}
+            o={1 - clamp01((f - T.end + 16) / 14)} />
+          {/* the wave contracts into the dot that becomes scene 3's process object */}
+          <div style={{ position: "absolute", left: 960 - 14, top: 640 - 14 - clamp01(spr(f, T.end - 26, SNAP)) * 100, width: 28, height: 28, borderRadius: 14, background: C.orange,
+            boxShadow: "0 0 30px rgba(255,106,43,0.9), 0 0 80px rgba(255,77,18,0.6)", opacity: clamp01((f - T.end + 30) / 8), transform: `scale(${clamp01(spr(f, T.end - 30, POP))})` }} />
+          <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+            <Words f={f} text="Lalu, bagaimana dengan bot?" at={T.lalu} times={[T.lalu + 2, T.bagaimana, T.bagaimana + 14, T.bot]} size={48} color="#fff" accent={[3]} out={T.end - 30} outLen={12} />
+          </AbsoluteFill>
         </AbsoluteFill>
-      </AbsoluteFill>
+      )}
+      <Sweep f={f} at={SWEEP} half="in" dir="left" />
+      <Sweep f={f} at={SWEEP + 16} half="out" dir="left" />
     </AbsoluteFill>
   );
 };
@@ -176,11 +223,13 @@ export const S02: React.FC = () => {
 export const sfx02 = (): SfxCue[] => {
   const o = L.from;
   return [
-    s(o + 4, "line_draw", 0.35, 0.9), s(o + T.gratis - 4, "click_soft", 0.4), s(o + T.open - 4, "click_soft", 0.4, 1.1),
-    s(o + T.kode - 14, "panel_slide", 0.35), s(o + T.kode + 4, "type_short", 0.3),
-    s(o + T.pengembangan, "data_tick", 0.3), s(o + T.pengembangan + 30, "data_tick", 0.25, 1.2),
-    s(o + T.proyek - 30, "panel_pass", 0.35, 0.9), s(o + T.dua - 24, "data_flow", 0.35, 0.8), s(o + T.dua + 26, "settle_light", 0.35),
-    s(o + T.tujuan - 24, "panel_slide", 0.4, 0.85), s(o + T.nyala - 8, "click_low", 0.45), s(o + T.mati - 8, "click_low", 0.45, 0.9), s(o + T.pantau - 8, "data_tick", 0.35),
-    s(o + T.lalu - 14, "swell_deep", 0.5, 1.1), s(o + T.bot - 4, "text_in", 0.3),
+    s(o + 2, "whip_low", 0.3, 1.1), s(o + 6, "stack_ticks", 0.3), s(o + T.ptero - 6, "scramble", 0.25),
+    s(o + T.gratis - 6, "msg_out", 0.25, 1.3), s(o + T.gratis + 8, "impact_glass", 0.3), s(o + T.open - 6, "msg_out", 0.25, 1.4), s(o + T.open + 8, "impact_glass", 0.3, 1.1),
+    s(o + T.kode - 18, "flip", 0.35), s(o + T.kode - 2, "type_short", 0.28), s(o + T.terbuka - 4, "data_tick", 0.25),
+    s(o + T.pengembangan, "stack_ticks", 0.3, 0.9), s(o + T.pengembangan + 20, "data_flow", 0.22),
+    s(o + T.proyek - 4, "whip_fast", 0.4), s(o + T.dua - 26, "scramble", 0.3, 0.8), s(o + T.dua + 4, "impact_soft", 0.35),
+    s(o + T.tujuan - 10, "whip_fast", 0.38, 0.9), s(o + T.tujuan - 4, "panel_lift", 0.3, 1.2), s(o + T.tujuan + 14, "stack_ticks", 0.25, 1.1),
+    s(o + T.nyala - 8, "click_low", 0.45), s(o + T.mati - 8, "click_low", 0.45, 0.9), s(o + T.pantau - 8, "data_tick", 0.35),
+    s(o + SWEEP, "lens_pass", 0.45), s(o + SWEEP + 26, "line_draw", 0.3, 0.9), s(o + T.bot - 4, "text_in", 0.25), s(o + T.end - 34, "morph_down", 0.35),
   ];
 };

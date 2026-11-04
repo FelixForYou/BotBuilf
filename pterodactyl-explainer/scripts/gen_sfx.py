@@ -192,3 +192,69 @@ save("warp", warp(), 0.36)
 
 # --- closing resolve (long, soft) ------------------------------------------------
 save("resolve", tone([392, 587.3, 784], 3.6, 0.4, 3.0) + 0.3 * air(3.6, 200, 800, 0.6, 0.5, 3), 0.3)
+
+# ===================== revision: motion-matched SFX ==============================
+def whip(dur, f0, f1, q=0.35, peak_at=0.55, curve=2.0):
+    """Doppler-like pass: band sweeps f0->f1, loudness peaks at `peak_at`."""
+    n = int(SR * dur)
+    x = sweep_filter(rng.standard_normal(n), f0, f1, q)
+    tt = np.arange(n) / n
+    e = np.where(tt < peak_at, (tt / peak_at) ** curve, ((1 - tt) / (1 - peak_at)) ** 1.4)
+    return x * e
+
+
+save("whip_fast", whip(0.32, 900, 4200, 0.4, 0.6), 0.32)
+save("whip_low", whip(0.5, 260, 1400, 0.5, 0.55), 0.36)
+save("whip_air", whip(0.42, 2500, 700, 0.35, 0.45), 0.28)
+save("lens_pass", whip(0.7, 120, 900, 0.6, 0.62, 2.6) + 0.5 * np.sin(2 * np.pi * np.cumsum(60 + 140 * np.linspace(0, 1, int(SR * 0.7))) / SR) * np.sin(np.pi * np.linspace(0, 1, int(SR * 0.7))) ** 3, 0.42)
+
+def impact(f=95, dur=0.26, bright=0.35):
+    n = int(SR * dur)
+    tt = t(dur)
+    pitch = f * (1 + 0.6 * np.exp(-tt * 45))
+    body = np.sin(2 * np.pi * np.cumsum(pitch) / SR) * env(n, 0.001, 1, 9)
+    tick = bandpass(rng.standard_normal(n), 1800, 7000) * env(n, 0.0005, 1, 60)
+    return body + bright * tick
+
+
+save("impact_soft", impact(), 0.5)
+save("impact_card", impact(160, 0.2, 0.6), 0.45)
+save("impact_glass", impact(320, 0.18, 0.2) + 0.3 * tone([1900, 2850], 0.18, 0.002, 9), 0.4)
+
+def flip(dur=0.34):
+    n = int(SR * dur)
+    x = np.zeros(n)
+    for i in range(7):
+        p0 = int((i / 7) ** 1.3 * (dur - 0.04) * SR)
+        g = bandpass(rng.standard_normal(int(SR * 0.03)), 900 + i * 250, 4000 + i * 300) * env(int(SR * 0.03), 0.001, 1, 14)
+        x[p0:p0 + len(g)] += g * (1 - i / 9)
+    return x + 0.3 * whip(dur, 500, 2400, 0.4, 0.4)
+
+
+save("flip", flip(), 0.38)
+
+def morph(dur=0.6, f0=300, f1=900):
+    n = int(SR * dur)
+    fr = np.linspace(f0, f1, n) * (1 + 0.04 * np.sin(np.linspace(0, 30, n)))
+    ph = 2 * np.pi * np.cumsum(fr) / SR
+    s1 = np.sin(ph) + 0.4 * np.sin(2 * ph + 0.5)
+    e = np.sin(np.pi * np.linspace(0, 1, n)) ** 1.5
+    return s1 * e * 0.5 + 0.3 * whip(dur, f0 * 2, f1 * 3, 0.3, 0.5)
+
+
+save("morph_up", morph(), 0.3)
+save("morph_down", morph(0.5, 900, 260), 0.3)
+
+def ticks(count, span, f=2600, spread=600):
+    n = int(SR * span)
+    x = np.zeros(n)
+    for i in range(count):
+        p0 = int((i / count) * (span - 0.03) * SR)
+        g = np.sin(2 * np.pi * (f + i * spread / count) * t(0.018)) * env(int(SR * 0.018), 0.0008, 1, 14)
+        x[p0:p0 + len(g)] += g * (0.6 + 0.4 * rng.random())
+    return x
+
+
+save("stack_ticks", ticks(5, 0.32), 0.3)
+save("scramble", ticks(14, 0.28, 3600, 1800) * 0.7 + 0.2 * bandpass(rng.standard_normal(int(SR * 0.28)), 3000, 9000) * env(int(SR * 0.28), 0.01, 1, 4), 0.22)
+save("rise_short", whip(0.45, 300, 3000, 0.3, 0.92, 3.0), 0.3)
