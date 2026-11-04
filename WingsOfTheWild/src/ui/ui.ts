@@ -286,8 +286,11 @@ export class UI {
     el.querySelector('[data-a=continue]')?.addEventListener('click', () => { this.g.audio.init(); this.g.continueGame(); });
     $(el, '[data-a=new]').addEventListener('click', () => {
       this.g.audio.init();
-      if (s && !confirm('Mulai permainan baru? Progres lama akan ditimpa.')) return;
-      this.showNewGame();
+      if (!s) { this.showNewGame(); return; }
+      const c = this.screen(`<div class="panel"><h2>Mulai dari awal?</h2><p>Progres lama (level ${s.level}) akan ditimpa saat permainan baru dimulai.</p>
+        <div class="row"><button class="btn" data-a="no">Batal</button><button class="btn primary" data-a="yes">Ya, mulai baru</button></div></div>`);
+      $(c, '[data-a=no]').addEventListener('click', () => this.showTitle(true));
+      $(c, '[data-a=yes]').addEventListener('click', () => this.showNewGame());
     });
     $(el, '[data-a=settings]').addEventListener('click', () => this.showSettings(() => this.showTitle(hasSave)));
     $(el, '[data-a=help]').addEventListener('click', () => this.showHelp(() => this.showTitle(hasSave)));
@@ -438,7 +441,11 @@ export class UI {
     el.querySelectorAll<HTMLElement>('[data-d]').forEach((b) => b.addEventListener('click', () => { s.dayMinutes = +b.dataset.d!; g.applySettings(); this.showSettings(back); }));
     el.querySelectorAll<HTMLInputElement>('[data-k]').forEach((i) => i.addEventListener('change', () => { (s as unknown as Record<string, boolean>)[i.dataset.k!] = i.checked; g.applySettings(); }));
     el.querySelectorAll<HTMLInputElement>('[data-r]').forEach((i) => i.addEventListener('input', () => { (s as unknown as Record<string, number>)[i.dataset.r!] = +i.value; g.applySettings(); }));
-    $(el, '[data-a=reset]').addEventListener('click', () => { if (confirm('Hapus semua progres? Tindakan ini tidak bisa dibatalkan.')) g.resetProgress(); });
+    let armed = false;
+    $(el, '[data-a=reset]').addEventListener('click', (e) => {
+      if (!armed) { armed = true; (e.target as HTMLElement).textContent = 'Klik sekali lagi untuk menghapus permanen'; return; }
+      g.resetProgress();
+    });
     $(el, '[data-a=back]').addEventListener('click', back);
   }
 
