@@ -4,8 +4,8 @@ Usage: python3 scripts/build_timeline.py"""
 import json, os, re, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VO = os.path.join(ROOT, "public", "audio", "vo")
-FIRST_START = 1.0   # s, narration begins after the opening text has started moving
-GAP = 1.25          # s of breathing room between segments
+FIRST_START = 1.5   # s, narration begins after the opening text has started moving
+GAP = 2.1           # s of breathing room between segments (sized for the recorded narration)
 TOTAL = 300.0
 segs = json.load(open(os.path.join(ROOT, "scripts", "narration.json")))
 import importlib.util

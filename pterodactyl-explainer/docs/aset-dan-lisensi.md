@@ -8,8 +8,9 @@
 | Ilustrasi server, container, CPU, RAM, folder, terminal, jaringan, egg | `src/components/Illustrations.tsx` | Dibuat khusus untuk proyek ini (SVG, dianimasikan per bagian) | Milik proyek |
 | Font Inter | `public/fonts/inter-*.woff2` | @fontsource/inter | SIL OFL 1.1 (`public/fonts/LICENSE-Inter.txt`) |
 | Font JetBrains Mono | `public/fonts/jetbrains-mono-*.woff2` | @fontsource/jetbrains-mono | SIL OFL 1.1 (`public/fonts/LICENSE-JetBrainsMono.txt`) |
-| Narasi (10 berkas) | `public/audio/vo/*.mp3` + `*.words.json` | Microsoft Edge TTS, suara `id-ID-ArdiNeural`, dibuat dengan `scripts/gen_tts.py` | Suara sintetis; periksa ketentuan layanan Microsoft sebelum distribusi komersial. Bisa diganti rekaman manusia (lihat README). |
-| SFX (24 berkas) | `public/audio/sfx/*.wav` | Disintesis secara prosedural oleh `scripts/gen_sfx.py` (noise + oscillator + envelope) | Milik proyek, tanpa sampel pihak ketiga |
+| Narasi (10 berkas) | `public/audio/vo/*.mp3` + `*.words.json` | Direkam dengan Google AI Studio, **Gemini 3.8 Flash TTS (voice replication)**, dari suara yang pemiliknya sudah memberi izin (termasuk rekaman persetujuan yang disyaratkan Google). Timing kata diukur ulang dengan faster-whisper + `scripts/align_words.py` | Audio ber-watermark SynthID dari Google; ikuti ketentuan Gemini API dan izin pemilik suara |
+| Narasi TTS awal (cadangan) | `public/audio/vo_tts/` | Microsoft Edge TTS `id-ID-ArdiNeural` (`scripts/gen_tts.py`) | Suara sintetis; tidak dipakai di render final |
+| SFX (37 berkas) | `public/audio/sfx/*.wav` | Disintesis secara prosedural oleh `scripts/gen_sfx.py` (noise + oscillator + envelope) | Milik proyek, tanpa sampel pihak ketiga |
 | Musik | — | Tidak ada musik (sesuai brief) | — |
 
 Semua data di layar (nama bot "Asisten Bot", log console, grafik, percakapan, file) adalah **fiktif/simulasi**.
