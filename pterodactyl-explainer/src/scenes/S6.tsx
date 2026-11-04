@@ -166,7 +166,7 @@ export const S6: React.FC = () => {
             const x = k === 0 ? 520 : 1400;
             return (
               <div key={k} style={{position: 'absolute', left: x - 380, top: 250, width: 760, height: 560, opacity: clamp01(a3) * codeMode,
-                transform: `rotateY(${(k === 0 ? 8 : -8) * (1 - clamp01(a3)) + (k === 0 ? 4 : -4)}deg) translateY(${(1 - clamp01(a3)) * 60}px)`}}>
+                transform: `rotateY(${(k === 0 ? 8 : -8) * (1 - clamp01(a3)) + (k === 0 ? 4 : -4) + drift(f, 40 + k, 3, 0.9)}deg) rotateX(${drift(f, 44 + k, 2, 0.7)}deg) translateY(${(1 - clamp01(a3)) * 60 + drift(f, 48 + k, 10, 0.8)}px) scale(${1 + 0.04 * ip(f, [tCode, dur], [0, 1], E.linear)})`}}>
                 <Panel w={760} h={560} bg={k === 0 ? '#0d1014' : '#151a21'} glow={0.8 * clamp01(a3)} radius={26}>
                   {k === 0 ? (
                     <div style={{padding: 40}}>

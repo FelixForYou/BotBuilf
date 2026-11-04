@@ -138,7 +138,7 @@ export const S8: React.FC = () => {
             ]} />
           </div>
           {/* hasil: container + aplikasi */}
-          <div style={{position: 'absolute', left: 760, top: 560, transform: `translate(-50%, -50%) scale(${0.6 + 0.4 * toBox}) rotateY(${(1 - toBox) * -70}deg)`, opacity: toBox}}>
+          <div style={{position: 'absolute', left: 760, top: 560 + drift(f, 52, 12, 0.8), transform: `translate(-50%, -50%) scale(${(0.6 + 0.4 * toBox) * (1 + 0.05 * ip(f, [tStart + 100, tDep], [0, 1], E.linear))}) rotateY(${(1 - toBox) * -70 + drift(f, 53, 6, 0.8)}deg) rotateX(${drift(f, 54, 3, 0.6)}deg)`, opacity: toBox}}>
             <div style={{position: 'relative'}}>
               <ContainerBox size={520} draw={toBox} open={ip(f, [tStart + 100, tStart + 140], [0, 1])} color={C.ink} glow={C.coral} label="lingkungan container" />
               <div style={{position: 'absolute', left: 260, top: 250, transform: `translate(-50%, -50%) scale(${sp(f, tStart + 110, {damping: 12})})`, width: 150, height: 150, borderRadius: 36,
@@ -148,7 +148,7 @@ export const S8: React.FC = () => {
             </div>
           </div>
           {/* egg bukan kode bot */}
-          <div style={{position: 'absolute', left: 1420, top: 560, transform: `translate(-50%, -50%) scale(${clamp01(notIn)})`, opacity: clamp01(notIn),
+          <div style={{position: 'absolute', left: 1420, top: 560 + drift(f, 56, 14, 0.9), transform: `translate(-50%, -50%) scale(${clamp01(notIn)}) rotate(${drift(f, 57, 3, 0.7)}deg)`, opacity: clamp01(notIn),
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20}}>
             <div style={{position: 'relative', width: 150, height: 150, borderRadius: 36, background: '#fff', border: '2px dashed #d4d4d8', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
               <Icon i={FileCode} size={70} color={C.gray} />
