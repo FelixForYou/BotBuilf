@@ -3,3 +3,4 @@ out/*.png
 out/frames
 .cache
 out/_s_*
+out/render.log
