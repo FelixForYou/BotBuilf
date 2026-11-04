@@ -122,41 +122,64 @@ def main():
     def ts(x):
         ms = int(round(x * 1000))
         return f"{ms//3600000:02d}:{ms//60000%60:02d}:{ms//1000%60:02d},{ms%1000:03d}"
-    with open(os.path.join(ROOT, 'deliverables/subtitles.srt'), 'w') as f:
-        for k, (a, b, txt) in enumerate(srt, 1):
-            # pecah baris panjang menjadi maks 2 baris ~42 karakter
-            words, rows, cur = txt.split(), [], ''
-            for w in words:
-                if len(cur) + len(w) + 1 > 46 and cur:
-                    rows.append(cur); cur = w
-                else:
-                    cur = (cur + ' ' + w).strip()
-            rows.append(cur)
-            if len(rows) > 2:
-                # bagi menjadi beberapa cue proporsional
-                chunks = [' '.join(rows[i:i+2]) for i in range(0, len(rows), 2)]
-                tot = sum(len(c) for c in chunks)
-                t0 = a
-                for c in chunks:
-                    t1 = t0 + (b - a) * len(c) / tot
-                    srt_rows, cc = [], ''
-                    for w in c.split():
-                        if len(cc) + len(w) + 1 > 46 and cc:
-                            srt_rows.append(cc); cc = w
-                        else:
-                            cc = (cc + ' ' + w).strip()
-                    srt_rows.append(cc)
-                    f.write(f"{{n}}\n{ts(t0)} --> {ts(t1)}\n" + '\n'.join(srt_rows) + '\n\n')
-                    t0 = t1
+    def wrap(words, width=42):
+        rows, cur = [], ''
+        for w in words:
+            if cur and len(cur) + 1 + len(w) > width:
+                rows.append(cur); cur = w
             else:
-                f.write(f"{{n}}\n{ts(a)} --> {ts(b)}\n" + '\n'.join(rows) + '\n\n')
-    # nomori ulang cue
-    raw = open(os.path.join(ROOT, 'deliverables/subtitles.srt')).read()
-    k = [0]
-    def num(_):
-        k[0] += 1
-        return str(k[0])
-    open(os.path.join(ROOT, 'deliverables/subtitles.srt'), 'w').write(re.sub(r'\{n\}', num, raw))
+                cur = (cur + ' ' + w).strip()
+        if cur:
+            rows.append(cur)
+        return rows
+
+    def fits(t):
+        return len(wrap(t.split())) <= 2
+
+    def chunks(txt):
+        """potongan <= 2 baris x 42 karakter, mengutamakan batas kalimat lalu koma."""
+        if fits(txt):
+            return [txt]
+        out = []
+        for part in re.split(r'(?<=[.?!:])\s+', txt):
+            if fits(part):
+                out.append(part)
+                continue
+            cur = ''
+            for sp_ in re.split(r'(?<=,)\s+', part):
+                cand = (cur + ' ' + sp_).strip()
+                if fits(cand):
+                    cur = cand
+                    continue
+                if cur:
+                    out.append(cur)
+                cur = sp_
+                while not fits(cur):
+                    ws = cur.split()
+                    half = len(ws) // 2
+                    out.append(' '.join(ws[:half]))
+                    cur = ' '.join(ws[half:])
+            if cur:
+                out.append(cur)
+        merged = []
+        for c in out:
+            if merged and fits(merged[-1] + ' ' + c):
+                merged[-1] = merged[-1] + ' ' + c
+            else:
+                merged.append(c)
+        return merged
+
+    n = 0
+    with open(os.path.join(ROOT, 'deliverables/subtitles.srt'), 'w') as f:
+        for a_, b_, txt in srt:
+            cs = chunks(txt)
+            tot = sum(len(c) for c in cs)
+            t0 = a_
+            for c in cs:
+                t1 = t0 + (b_ - a_) * len(c) / tot
+                n += 1
+                f.write(f"{n}\n{ts(t0)} --> {ts(t1)}\n" + '\n'.join(wrap(c.split())) + '\n\n')
+                t0 = t1
     open(os.path.join(ROOT, 'deliverables/naskah-narasi.md'), 'w').write('\n'.join(md) + '\n')
     if not estimate:
         import soundfile as sf
