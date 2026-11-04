@@ -209,6 +209,7 @@ export const Flow: React.FC<{
   f: number; d: string; color?: string; reveal?: number; pulses?: number; pulseSpeed?: number; width?: number; dashed?: boolean; o?: number; pulseColor?: string; glowOn?: boolean;
 }> = ({ f, d, color = C.orange, reveal = 1, pulses = 0, pulseSpeed = 0.006, width = 3, dashed = true, o = 1, pulseColor, glowOn = true }) => {
   const id = "fl" + React.useId().replace(/[^a-zA-Z0-9]/g, "");
+  if (reveal <= 0.002 || o <= 0.002) return null;
   return (
     <svg width={1920} height={1080} style={{ position: "absolute", left: -960, top: -540, overflow: "visible", opacity: o }}>
       <g transform="translate(960 540)">

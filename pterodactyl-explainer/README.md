@@ -18,9 +18,11 @@ Dibuat dengan Remotion 4 + React 18 + TypeScript. Tanpa musik; narasi + SFX pros
 scripts/narration.json     naskah per segmen (sumber kebenaran teks)
 scripts/gen_tts.py         narasi -> public/audio/vo/*.mp3 + timing per kata (edge-tts, id-ID-ArdiNeural)
 scripts/build_timeline.py  menata segmen di timeline 300 dtk dari rekaman asli -> src/data/timeline.json + SRT
-scripts/gen_sfx.py         sintesis 24 SFX -> public/audio/sfx/*.wav
+scripts/gen_sfx.py         sintesis 37 SFX -> public/audio/sfx/*.wav
 scripts/stills.sh          render still preview
 src/lib/time.ts            cue(): frame persis sebuah kata di rekaman, dipakai semua adegan untuk sinkronisasi
+src/lib/motion.ts          spring berkarakter (SNAP/POP/PANEL/WHIP/GLIDE), rig kamera, lintasan melengkung, kecepatan
+src/components/Motion.tsx  motion blur terarah, SwapText, Sweep (lewat lensa), CircleReveal, Barrel
 src/components/            primitif gerak (Stage/kamera 3D, Words, GlowWave, DashedGrid, Flow), ikon, logo, UI, ilustrasi SVG
 src/scenes/S01..S10.tsx    10 adegan + daftar SFX masing-masing
 ```

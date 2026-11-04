@@ -92,8 +92,8 @@ export const S03: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ background: C.black, fontFamily: FONT }}>
-      <LightStreak f={f} o={0.25 + contIn * 0.2} angle={-30} seed={7} />
-      <WarmLight f={f} o={0.25 + contIn * 0.25} y={600} r={900} />
+      <LightStreak f={f} o={(0.25 + contIn * 0.2) * clamp01(f / 30)} angle={-30} seed={7} />
+      <WarmLight f={f} o={0.25 + contIn * 0.25} y={lerp(640, 600, clamp01(f / 40))} r={lerp(800, 900, clamp01(f / 40))} />
       <div style={{ position: "absolute", inset: 0, transform: `translateX(${-c.x * 0.3}px)`, opacity: 0.6 * (1 - finale * 0.5) }}>
         <GlowWave f={f + 1800} y={880} amp={22} reveal={clamp01((f - T.keduanya) / 40)} speed={0.03} width={0.7} />
       </div>
@@ -111,7 +111,8 @@ export const S03: React.FC = () => {
         {/* the process object (born from scene 2's dot) */}
         <Obj x={0} y={lerp(0, -40, morph)} w={size} h={size} s={1 + 0.1 * Math.exp(-Math.max(0, f - T.program) / 10) * (f > T.program ? 1 : 0)} z={0}>
           <div style={{ width: size, height: size, borderRadius: lerp(14, 38, morph), background: "linear-gradient(160deg, rgba(255,138,92,0.34), rgba(255,77,18,0.14))", border: `2px solid ${C.orange}`,
-            boxShadow: glow(0.9), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, overflow: "hidden" }}>
+            boxShadow: glow(0.9), display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, overflow: "hidden", position: "relative" }}>
+            <div style={{ position: "absolute", inset: 0, borderRadius: lerp(14, 38, morph), background: C.orange, opacity: 1 - clamp01(morph * 1.4) }} />
             <div style={{ transform: `scale(${clamp01(morph)})` }}><Icon name="Bot" size={72} color="#fff" stroke={1.5} draw={clamp01((f - 10) / 24)} /></div>
             <SwapText f={f} items={[{ at: T.program - 2, text: "Program" }, { at: T.proses - 6, text: "Proses" }]} size={23} color="#fff" />
           </div>

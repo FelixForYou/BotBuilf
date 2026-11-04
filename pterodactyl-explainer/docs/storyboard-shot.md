@@ -1,17 +1,46 @@
-# Storyboard & daftar shot (sesuai implementasi)
+# Storyboard & koreografi (revisi 2)
 
-Waktu mengikuti rekaman narasi sebenarnya. Setiap adegan overlap 0,5 dtk dengan adegan berikutnya dan
-disambungkan lewat objek yang sama (kolom "Sambungan"). Total **60 shot**.
+Revisi ini membangun ulang gerak, bukan mempercepat playback. Prinsip yang dipakai, dipelajari langsung
+dari video referensi (dianalisis per 0,1 dtk):
 
-| Adegan | Waktu | Shot (gerak utama · gerak pendukung) | Sambungan keluar |
-|---|---|---|---|
-| S01 Pembuka | 00:00–00:25 | 1 "Pesan masuk." blur-in · garis putus-putus berjalan · 2 "Bot membalas." · 3 gelembung Telegram terbang di jalur ke server yang tergambar · kamera ikut pan · 4 balasan keluar sisi lain · 5 "Apa yang bekerja di baliknya?" + dorongan kamera · 6 circle reveal dari server ke hitam · 7 gelombang jingga + aplikasi, perangkat, server aktif · 8 panel melayang naik (glow, tilt 3D) · 9 judul "Pterodactyl Panel" dengan logo resmi, panel mundur | panel memipih jadi garis jingga |
-| S02 Asal-usul | 00:25–00:55 | 10 garis waktu, tag Gratis/Open source · 11 kartu kode terbuka · 12 kontributor berkumpul · 13 kamera pan ke penanda 2015, angka berputar · 14 browser abstrak "Berawal dari pengelolaan server game." · 15 kartu nyalakan/matikan/pantau menyala bergantian · 16 flip hitam "Lalu, bagaimana dengan bot?" | gelombang jingga |
-| S03 Game → bot | 00:55–01:27 | 17 gelombang runtuh jadi objek proses · 18 "Server game" & "Bot" menyatu → Program → Proses · 19 container tergambar di sekeliling proses · 20 label runtime Node.js → Python · 21 chip dependensi/sumber daya/koneksi berlabuh · 22 cabang ke Telegram & WhatsApp dengan pulsa · 23 kartu kode "tetap perlu disesuaikan" · 24 tiga pernyataan bercentang | container → lantai sistem |
-| S04 Arsitektur | 01:27–02:00 | 25 lantai VPS naik · 26 modul CPU/RAM/penyimpanan/jaringan berdiri dari lantai · 27 Panel (browser) melayang di atas · 28 jalur perintah Panel → Wings · 29 Wings memunculkan container · 30 kamera masuk ke container, kode bot berjalan · 31 mundur: pesan tidak lewat panel (silang) · 32 jalur pesan Telegram/WhatsApp langsung ke bot | panel UI membesar |
-| S05 Mengawasi | 02:00–02:30 | 33 kepingan berkumpul jadi panel Pterodactyl · 34 header Asisten Bot (fiktif) · 35 console streaming, error disorot · 36 grafik CPU & RAM tumbuh + catatan CPU rendah ≠ jaminan · 37 tab berubah ke File manager · 38 tarik mundur, grid melengkung (barrel) · 39 Start/Stop/Restart, status berubah | crossfade ke putih |
-| S06 Telegram | 02:30–03:02 | 40 jendela chat masuk · 41 /jadwal → proses → balasan (pulsa dua arah, spinner) · 42 tiga kartu kegunaan (lonceng berayun) · 43 console + grafik RAM mengikuti chat · 44 kode = logika, panel = proses | gelembung pesan di tengah |
-| S07 WhatsApp | 03:02–03:31 | 45 gelembung biru berubah hijau, latar menjadi hitam · 46 bot informasi WhatsApp · 47 rantai aplikasi → integrasi & autentikasi (tersensor) → layanan · 48 zona tanggung jawab · 49 dua status: proses aktif vs koneksi platform; Running ≠ membalas | crossfade ke putih |
-| S08 Sumber daya | 03:31–04:03 | 50 kartu sumber daya terbuka · 51 CPU memproses pesan · 52 RAM terisi data · 53 penyimpanan: folder terbuka · 54 egg tergambar, resep muncul, berubah jadi container + bot · 55 meter kapasitas bergantung kode/fitur/aktivitas/dependensi | — |
-| S09 Batas panel | 04:03–04:34 | 56 console error disorot → kode → perbaikan · 57 panel tidak membuat bot / RAM gratis · 58 mesin, jaringan, platform (berkedip: tanpa jaminan) · 59 software gratis vs hosting berbiaya | kartu melebur ke klaster |
-| S10 Penutup | 04:34–05:00 | 60 klaster server, container, console, grafik, chat; kamera mundur & orbit; pesan terakhir melintas; logo + "Kenali proses di balik botmu." + kredit; fade terencana ke frame 18.000 | — |
+- **Spring berkarakter per objek** (`src/lib/motion.ts`): `SNAP` untuk chip/teks, `POP` untuk elemen kecil,
+  `PANEL` untuk kartu berat (overshoot tipis), `WHIP` untuk pan kamera cepat, `GLIDE`/`DRIFT` untuk dolly yang perlu dibaca.
+- **Rig kamera berbasis spring yang saling tumpang-tindih**: gerakan berikutnya dimulai sebelum gerakan lama selesai,
+  ditambah `breathe()` (orbit halus) agar tidak ada shot yang membeku.
+- **Lintasan melengkung 3D** (`arc`): pesan, chip, kartu bergerak lewat depan/belakang kamera, bukan geser lurus.
+- **Motion blur terarah dari kecepatan nyata** (`MBlur`, blur pada `Stage`): hanya aktif saat bergerak cepat; teks di layar tetap tajam.
+- **Pergantian teks di tempat seperti referensi** (`SwapText`: huruf teracak lalu terkunci).
+- **Tanpa crossfade antaradegan**: frame terakhir adegan = frame pertama adegan berikutnya (diverifikasi per titik potong).
+
+## Sambungan antaradegan
+
+| Potong | Teknik | Objek penghubung |
+|---|---|---|
+| S01 → S02 | lipatan panel + banjir putih | panel melipat jadi tepi → garis jingga = garis waktu |
+| S02 → S03 | panel lewat lensa + shape morph | gelombang menyusut jadi titik → titik jadi objek proses |
+| S03 → S04 | lens pass | container melesat menembus kamera → permukaan gelap lantai VPS |
+| S04 → S05 | match cut | browser Panel terbang ke lensa → jendela Pterodactyl |
+| S05 → S06 | wipe oleh garis | garis grafik RAM memanjang, menyeret latar putih |
+| S06 → S07 | circle reveal + color morph | gelembung Telegram berubah hijau, dunia hitam mengembang darinya |
+| S07 → S08 | card flip ke lensa | kartu status berputar 180°, sisi belakang putih = kartu sumber daya |
+| S08 → S09 | shape morph | bar kapasitas menyusut jadi garis bawah → tepi atas console |
+| S09 → S10 | split past camera | kartu biaya terbelah melewati kamera → klaster penutup |
+
+Transisi di dalam adegan: lens sweep horizontal (S02) dan vertikal (S09), server berputar memperlihatkan
+"baliknya" lalu kamera menembusnya (S01), kamera masuk ke container dan menemukan kode bot (S04),
+kartu console berputar dan sisi belakangnya adalah kode bot (S06), egg berubah menjadi container (S08).
+
+## Shot per adegan
+
+| Adegan | Waktu | Koreografi utama |
+|---|---|---|
+| S01 | 00:00–00:25 | titik mengetik → "Pesan masuk." → gelembung meletup dari teks dan terbang melengkung ke server (kamera whip) → teks teracak jadi "Bot membalas." dan balasan kembali → stopwatch "sekejap" → tarik mundur ke ponsel + lalu lintas pesan → server berputar, kamera menembus sisi belakangnya → aplikasi, perangkat & server datang melengkung → aplikasi berubah bentuk menjadi panel (ikon bot follow-through ke header, isi panel ber-stagger) → judul + logo → panel melipat |
+| S02 | 00:25–00:55 | garis waktu memiring ke 3D, penanda meletup → tag Gratis/Open source melengkung naik → kartu kode berdiri dari garis → kontributor berdatangan dan mengorbit → whip ke 2015, angka berputar dengan blur → browser tumbuh dari penanda, baris proses menyala → panel hitam menyapu lensa → pertanyaan, gelombang menyusut |
+| S03 | 00:55–01:27 | titik → objek proses → label game/bot tersedot → Program → Proses → container datang dari depan lensa → runtime Node.js → Python → tiga chip berlabuh melengkung → kamera menyusuri cabang Telegram/WhatsApp → kartu kode mengayun masuk → tiga centang → container menembus lensa |
+| S04 | 01:27–02:00 | kamera mundur dari lantai VPS → modul berdiri satu per satu (isi beranimasi) → Panel turun dari depan lensa → paket "start" melaju ke Wings, container meletup saat tiba → kamera menyelam ke container, kode bot berjalan → pesan memantul dari Panel lalu berbelok langsung ke bot → Panel melesat ke lensa |
+| S05 | 02:00–02:30 | jendela Pterodactyl dari dekat → mundur dan orbit → badan panel membuka jadi grid barrel 2×2; titik belah whip ke console, grafik, file → grid menyatu kembali → dolly ke tombol power, status berganti → garis RAM menyeret latar putih |
+| S06 | 02:30–03:02 | garis tertarik ke jendela chat → /jadwal terbang ke proses, balasan kembali → tumpukan kartu kegunaan melayang diagonal → /info terbang ke console dan menjadi baris log → console berputar: sisi belakangnya kode bot → kartu panel masuk → gelembung baru |
+| S07 | 03:02–03:31 | gelembung berubah hijau, circle reveal → gelembung masuk ke chat WhatsApp → rantai aplikasi/integrasi/platform tersusun dari tiga arah → garis zona tanggung jawab → rantai melebur jadi dua kartu status → koneksi terputus, pesan belum terbalas → kartu flip ke lensa |
+| S08 | 03:31–04:03 | kartu putih menjauh → terbuka jadi tiga lapisan → whip CPU (pesan melintas chip), RAM (blok data jatuh), penyimpanan (berkas melengkung keluar folder) → egg turun, resep mengalir ke daftar → egg jadi container, bot masuk → faktor kapasitas melengkung masuk, bar merespons → bar menyusut |
+| S09 | 04:03–04:34 | garis bawah → console mengembang dari garis → error disorot, dolly → baris error terlepas jadi baris kode → perbaikan diketik → dua kartu "tidak" berayun masuk → sapuan vertikal ke hitam → mesin/jaringan/platform melengkung masuk, tautan putus-sambung → kartu biaya → terbelah melewati kamera |
+| S10 | 04:34–05:00 | kartu klaster datang dari kiri bawah, klaster terus reshuffle diagonal, kamera melacak kartu yang disebut → pesan terakhir menyinggahi chat → server → container → klaster menyebar melewati kamera → judul, kredit, fade terencana di frame 18.000 |

@@ -105,7 +105,7 @@ export const S06: React.FC = () => {
       <div style={{ position: "absolute", left: lerp(0, 380, clamp01(spr(f, 0, WHIP))), right: lerp(0, 1540, clamp01(spr(f, 0, WHIP))), top: 538, height: 4, background: C.telegram, borderRadius: 2,
         opacity: 1 - clamp01((f - 10) / 8), boxShadow: "0 0 18px rgba(38,165,228,0.8)" }} />
       <Stage cam={c} blur={[cd.x, cd.y]}>
-        <Obj x={chatX} y={CHAT.y} w={500} h={760} ry={lerp(50, 14, chatQ) + (f > T.tapi ? 6 : 0)} s={1 - outro * 0.3} o={1 - outro}>
+        <Obj x={chatX} y={CHAT.y} w={500} h={760} ry={lerp(50, 14, chatQ) + (f > T.tapi ? 6 : 0)} s={1 - outro * 0.3} o={clamp01(chatQ * 4) * (1 - outro)}>
           <div style={{ boxShadow: softShadow(1.6), borderRadius: 26 }}>
             <ChatWindow f={f} platform="telegram" title="Asisten Bot" subtitle="bot · contoh fiktif" msgs={msgs} w={500} h={760} />
           </div>

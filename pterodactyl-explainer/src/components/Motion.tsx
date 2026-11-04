@@ -79,7 +79,7 @@ export const Sweep: React.FC<{ f: number; at: number; len?: number; half: "in" |
   f, at, len = 16, half, dir = "left", color = C.black, glowEdge = true }) => {
   const t = clamp01((f - at) / len);
   if (half === "out" && (t >= 1 || f < at)) return null;
-  if (half === "in" && f < at) return null;
+  if (half === "in" && (f < at || f >= at + len)) return null;
   // in: offscreen -> centred (accelerating); out: centred -> offscreen opposite side (decelerating)
   const e = half === "in" ? t * t : 1 - (1 - t) * (1 - t);
   const horiz = dir === "left" || dir === "right";
