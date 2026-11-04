@@ -40,7 +40,7 @@ export const S8: React.FC = () => {
 
   // egg
   const eggIn = sp(f, tEgg - 6, {damping: 14});
-  const recipe = ip(f, [tRecipe, tStart + 40], [0, 1], E.linear);
+  const recipe = ip(f, [tEgg + 24, tStart + 30], [0, 1], E.linear);
   const toBox = ip(f, [tStart + 50, tStart + 100], [0, 1], E.inOut);
   const eggOut = ip(f, [tDep - 20, tDep + 20], [0, 1], E.inOut);
   const notIn = sp(f, tNot - 6, {damping: 15});
@@ -119,7 +119,7 @@ export const S8: React.FC = () => {
       {/* egg: resep -> container */}
       {f > tEgg - 20 && eggOut < 1 && (
         <AbsoluteFill style={{perspective: 1800, opacity: 1 - eggOut}}>
-          <div style={{position: 'absolute', left: 760, top: 560, transform: `translate(-50%, -50%) rotateY(${toBox * 70 - 8 + drift(f, 22, 1.5, 0.6)}deg) scale(${clamp01(eggIn) * (1 - toBox * 0.4)})`,
+          <div style={{position: 'absolute', left: 760, top: 560, transform: `translate(-50%, -50%) rotateY(${toBox * 70 - 8 + ip(f, [tEgg, tStart + 50], [0, 14], E.inOut) + drift(f, 22, 3, 0.8)}deg) rotateX(${drift(f, 23, 3, 0.7)}deg) scale(${clamp01(eggIn) * (1 - toBox * 0.4) * (1 + 0.08 * ip(f, [tEgg, tStart + 50], [0, 1], E.inOut))})`,
             opacity: 1 - toBox, width: 760, height: 520, borderRadius: 30, background: '#fffaf6', border: `2px solid ${C.coral}`, boxShadow: '0 30px 90px rgba(0,0,0,0.12)', padding: 44, boxSizing: 'border-box'}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 18, marginBottom: 26}}>
               <div style={{width: 76, height: 76, borderRadius: 22, background: '#fff', border: '1px solid #f1d9cb', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
