@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
-import {Cpu, Layers, Loader, Network, Package, Settings2, Egg, CircleCheck, Container as ContainerIc, X} from 'lucide-react';
+import {Cpu, Layers, Loader, Network, Package, Settings2, Egg, CircleCheck, X} from 'lucide-react';
 import {Chip, KText, Stage} from '../components/core';
 import {ContainerBox, Icon, NodeLogo, PythonLogo, TelegramLogo, WhatsAppLogo} from '../components/graphics';
 import {WSvg, At, cpath, cbez, Pt} from '../components/world';
@@ -43,7 +43,8 @@ export const S3: React.FC = () => {
   // kamera mengorbit ringan sepanjang shot 12–13
   const orbit = kf(f, [tEnv - 20, tImg, tRun, tBut], [0, -10, 8, 0], E.inOut) + drift(f, 6, 1.2, 0.5);
   const camScale = kf(f, [0, tEnv, tImg, tRun + 40, tBut, tC1, LE(3), dur], [1.15, 1, 0.95, 0.82, 0.82, 0.78, 0.78, 6], E.inOut);
-  const camX = kf(f, [tRun - 10, tRun + 60, tBut + 10, tC1], [0, -220, -220, -380], E.inOut);
+  const camX = kf(f, [tRun - 10, tRun + 60, tBut + 10, tC1], [0, 220, 220, 420], E.inOut);
+  const brFade = 1 - ip(f, [tC1 - 20, tC1 + 20], [0, 0.85]);
   const zoomOut = ip(f, [LE(3) + 4, dur], [0, 1], E.in);
 
   // label "server game" vs "bot"
@@ -170,16 +171,16 @@ export const S3: React.FC = () => {
           })}
           {/* label lapisan di sisi container setelah masuk */}
           <At x={0} y={-300} o={ip(f, [tCfg + 50, tCfg + 80], [0, 1]) * (1 - zoomOut)}>
-            <div style={{display: 'flex', gap: 10, fontFamily: FONT, fontSize: 20, fontWeight: 600, color: C.gray}}>
+            <div style={{display: 'flex', gap: 10, fontFamily: FONT, fontSize: 30, fontWeight: 600, color: C.gray}}>
               image · egg · konfigurasi
             </div>
           </At>
 
           {/* cabang ke Telegram & WhatsApp */}
-          <WSvg>
+          <WSvg o={brFade}>
             {[brA, brB].map((b, i) => (
               <g key={i}>
-                <path d={cpath(b[0], b[1], b[2], b[3])} stroke={C.ink} strokeOpacity={0.15} strokeWidth={3} fill="none" />
+                <path d={cpath(b[0], b[1], b[2], b[3])} stroke={C.ink} strokeOpacity={0.15 * brDraw} strokeWidth={3} fill="none" />
                 <path d={cpath(b[0], b[1], b[2], b[3])} stroke={i ? C.whatsapp : C.telegram} strokeWidth={3} fill="none"
                   strokeDasharray={800} strokeDashoffset={800 * (1 - brDraw)} />
               </g>
@@ -190,18 +191,18 @@ export const S3: React.FC = () => {
             if (f < tTg + 20) return null;
             const q = cbez(tt, b[0], b[1], b[2], b[3]);
             return (
-              <At key={i} x={q[0]} y={q[1]} z={10}>
+              <At key={i} x={q[0]} y={q[1]} z={10} o={brFade}>
                 <div style={{width: 14, height: 14, borderRadius: 7, background: i ? C.whatsapp : C.telegram, boxShadow: `0 0 14px ${i ? C.whatsapp : C.telegram}`}} />
               </At>
             );
           })}
-          <At x={720} y={-240} s={clamp01(tgIn)}>
+          <At x={720} y={-240} s={clamp01(tgIn)} o={brFade}>
             <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
               <TelegramLogo size={86} reveal={tgIn} />
               <span style={{fontFamily: FONT, fontSize: 34, fontWeight: 650, color: C.ink}}>Telegram</span>
             </div>
           </At>
-          <At x={730} y={240} s={clamp01(waIn)}>
+          <At x={730} y={240} s={clamp01(waIn)} o={brFade}>
             <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
               <WhatsAppLogo size={86} reveal={waIn} />
               <span style={{fontFamily: FONT, fontSize: 34, fontWeight: 650, color: C.ink}}>WhatsApp</span>
@@ -229,7 +230,7 @@ export const S3: React.FC = () => {
         const a = sp(f, c.t - 6, {damping: 16});
         const done = ip(f, [c.t + 24, c.t + 40], [0, 1]);
         return (
-          <div key={i} style={{position: 'absolute', left: 1180, top: 330 + i * 140, opacity: clamp01(a) * (1 - zoomOut * 2), transform: `translateX(${(1 - a) * 80}px)`,
+          <div key={i} style={{position: 'absolute', left: 1060, top: 360 + i * 130, opacity: clamp01(a) * (1 - zoomOut * 2), transform: `translateX(${(1 - a) * 80}px)`,
             display: 'flex', alignItems: 'center', gap: 26}}>
             <div style={{width: 64, height: 64, borderRadius: 32, background: done > 0.5 ? C.ink : '#f1f1f1', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transform: `scale(${1 + 0.15 * Math.sin(Math.PI * done)})`}}>
@@ -275,4 +276,3 @@ export const S3: React.FC = () => {
   );
 };
 
-const _ic = ContainerIc;

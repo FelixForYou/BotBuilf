@@ -109,7 +109,7 @@ def main():
                 raw = os.path.join(td, 'raw.wav')
                 subprocess.run([sys.executable, '-m', 'piper', '-m', os.path.join(a.model, onnx), '-c', os.path.join(a.model, onnx + '.json'),
                                 '-f', raw, '--length-scale', str(ls), '--noise-scale', '0.6', '--noise-w-scale', '0.7',
-                                '--sentence-silence', '0.28'], input=respell(text).encode(), check=True,
+                                '--sentence-silence', '0.2'], input=respell(text).encode(), check=True,
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 y, sr = sf.read(raw)
             out, sr2 = to_male(y, sr)

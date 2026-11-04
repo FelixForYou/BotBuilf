@@ -61,9 +61,9 @@ def main():
         allclips.append(clips)
     # 2) batas section fleksibel: kebutuhan minimum + sisa waktu dibagi
     #    proporsional terhadap durasi storyboard, total tetap 300 detik.
-    GAP_MIN, TAIL_MIN = 0.42, 0.75
+    GAP_MIN, TAIL_MIN = 0.36, 0.55
     def lead_of(s):
-        return 0.9 if s['id'] == 's1' else 0.5
+        return 0.8 if s['id'] == 's1' else 0.4
     need = [lead_of(s) + sum(c[2] for c in cl) + GAP_MIN * (len(cl) - 1) + TAIL_MIN
             for s, cl in zip(script['sections'], allclips)]
     nominal = [s['end'] - s['start'] for s in script['sections']]

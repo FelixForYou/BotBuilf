@@ -6,34 +6,34 @@
    "id": "s1",
    "title": "Pembuka: di balik balasan bot",
    "start": 0,
-   "end": 1448,
+   "end": 1447,
    "lines": [
     {
      "text": "Pesan masuk. Bot membalas.",
      "subtitle": "Pesan masuk. Bot membalas.",
-     "start": 54,
-     "end": 186,
+     "start": 48,
+     "end": 168,
      "file": "s1_0.wav"
     },
     {
      "text": "Kelihatannya sederhana. Tapi, apa sebenarnya yang bekerja di balik balasan itu?",
      "subtitle": "Kelihatannya sederhana. Tapi, apa sebenarnya yang bekerja di balik balasan itu?",
-     "start": 211,
-     "end": 511,
+     "start": 189,
+     "end": 487,
      "file": "s1_1.wav"
     },
     {
      "text": "Bot adalah aplikasi. Ia perlu berjalan di perangkat atau server yang terus aktif, agar bisa menerima dan membalas pesan.",
      "subtitle": "Bot adalah aplikasi. Ia perlu berjalan di perangkat atau server yang terus aktif, agar bisa menerima dan membalas pesan.",
-     "start": 536,
-     "end": 997,
+     "start": 509,
+     "end": 956,
      "file": "s1_2.wav"
     },
     {
      "text": "Untuk mengawasi aplikasi seperti itu, banyak pengelola memakai panel. Salah satunya, Pterodactyl Panel.",
      "subtitle": "Untuk mengawasi aplikasi seperti itu, banyak pengelola memakai panel. Salah satunya, Pterodactyl Panel.",
-     "start": 1023,
-     "end": 1451,
+     "start": 978,
+     "end": 1404,
      "file": "s1_3.wav"
     }
    ]
@@ -41,42 +41,42 @@
   {
    "id": "s2",
    "title": "Asal-usul Pterodactyl",
-   "start": 1448,
-   "end": 3237,
+   "start": 1447,
+   "end": 3238,
    "lines": [
     {
      "text": "Pterodactyl adalah panel pengelolaan server yang gratis dan open source. Kode sumbernya terbuka, dan bisa dipelajari siapa saja.",
      "subtitle": "Pterodactyl adalah panel pengelolaan server yang gratis dan open source. Kode sumbernya terbuka, dan bisa dipelajari siapa saja.",
-     "start": 1478,
-     "end": 1989,
+     "start": 1471,
+     "end": 1963,
      "file": "s2_0.wav"
     },
     {
      "text": "Sejarah proyek ini dimulai sejak tahun dua ribu lima belas.",
      "subtitle": "Sejarah proyek ini dimulai sejak tahun 2015.",
-     "start": 2014,
-     "end": 2244,
+     "start": 1984,
+     "end": 2214,
      "file": "s2_1.wav"
     },
     {
      "text": "Tujuan awalnya cukup spesifik: mempermudah pengelolaan server game melalui antarmuka web.",
      "subtitle": "Tujuan awalnya cukup spesifik: mempermudah pengelolaan server game melalui antarmuka web.",
-     "start": 2269,
-     "end": 2615,
+     "start": 2236,
+     "end": 2571,
      "file": "s2_2.wav"
     },
     {
      "text": "Server bisa dinyalakan, dipantau, dan diatur langsung dari browser, dengan setiap server berjalan di dalam container yang terisolasi.",
      "subtitle": "Server bisa dinyalakan, dipantau, dan diatur langsung dari browser, dengan setiap server berjalan di dalam container yang terisolasi.",
-     "start": 2640,
-     "end": 3130,
+     "start": 2593,
+     "end": 3077,
      "file": "s2_3.wav"
     },
     {
      "text": "Lalu, bagaimana dengan bot?",
      "subtitle": "Lalu, bagaimana dengan bot?",
-     "start": 3156,
-     "end": 3251,
+     "start": 3098,
+     "end": 3197,
      "file": "s2_4.wav"
     }
    ]
@@ -84,35 +84,35 @@
   {
    "id": "s3",
    "title": "Dari server game ke aplikasi bot",
-   "start": 3237,
-   "end": 5277,
+   "start": 3238,
+   "end": 5255,
    "lines": [
     {
      "text": "Dari sudut pandang komputer, bot dan server game sama-sama program yang sedang berjalan.",
      "subtitle": "Dari sudut pandang komputer, bot dan server game sama-sama program yang sedang berjalan.",
-     "start": 3267,
-     "end": 3578,
+     "start": 3262,
+     "end": 3560,
      "file": "s3_0.wav"
     },
     {
      "text": "Keduanya butuh lingkungan runtime, seperti Node.js atau Python, dependensi pendukung, sumber daya, dan koneksi jaringan.",
      "subtitle": "Keduanya butuh lingkungan runtime, seperti Node.js atau Python, dependensi pendukung, sumber daya, dan koneksi jaringan.",
-     "start": 3603,
-     "end": 4115,
+     "start": 3582,
+     "end": 4073,
      "file": "s3_1.wav"
     },
     {
      "text": "Karena itu, dengan image container, egg, dan konfigurasi yang sesuai, lingkungan yang dikelola Pterodactyl juga bisa menjalankan bot Telegram atau WhatsApp.",
      "subtitle": "Karena itu, dengan image container, egg, dan konfigurasi yang sesuai, lingkungan yang dikelola Pterodactyl juga bisa menjalankan bot Telegram atau WhatsApp.",
-     "start": 4140,
-     "end": 4711,
+     "start": 4094,
+     "end": 4650,
      "file": "s3_2.wav"
     },
     {
      "text": "Tapi bukan berarti semua kode bot langsung jalan begitu saja. Lingkungannya harus sesuai, prosesnya harus berjalan, dan botnya harus berhasil terhubung.",
      "subtitle": "Tapi bukan berarti semua kode bot langsung jalan begitu saja. Lingkungannya harus sesuai, prosesnya harus berjalan, dan botnya harus berhasil terhubung.",
-     "start": 4736,
-     "end": 5301,
+     "start": 4671,
+     "end": 5215,
      "file": "s3_3.wav"
     }
    ]
@@ -120,42 +120,42 @@
   {
    "id": "s4",
    "title": "Cara kerjanya secara konseptual",
-   "start": 5277,
-   "end": 7662,
+   "start": 5255,
+   "end": 7653,
    "lines": [
     {
      "text": "Mari lihat susunannya. Di lapisan paling bawah ada VPS, atau mesin server. Dari sinilah CPU, RAM, penyimpanan, dan jaringan berasal.",
      "subtitle": "Mari lihat susunannya. Di lapisan paling bawah ada VPS, atau mesin server. Dari sinilah CPU, RAM, penyimpanan, dan jaringan berasal.",
-     "start": 5307,
-     "end": 5887,
+     "start": 5279,
+     "end": 5848,
      "file": "s4_0.wav"
     },
     {
      "text": "Di atasnya ada Panel, antarmuka pengelolaan yang dibuka lewat browser.",
      "subtitle": "Di atasnya ada Panel, antarmuka pengelolaan yang dibuka lewat browser.",
-     "start": 5912,
-     "end": 6172,
+     "start": 5870,
+     "end": 6124,
      "file": "s4_1.wav"
     },
     {
      "text": "Perintah dari Panel diteruskan ke Wings, layanan di mesin node yang mengelola container.",
      "subtitle": "Perintah dari Panel diteruskan ke Wings, layanan di mesin node yang mengelola container.",
-     "start": 6198,
-     "end": 6507,
+     "start": 6145,
+     "end": 6460,
      "file": "s4_2.wav"
     },
     {
      "text": "Container menyediakan lingkungan proses yang terpisah, dan di dalamnya, kode bot berjalan.",
      "subtitle": "Container menyediakan lingkungan proses yang terpisah, dan di dalamnya, kode bot berjalan.",
-     "start": 6533,
-     "end": 6864,
+     "start": 6482,
+     "end": 6806,
      "file": "s4_3.wav"
     },
     {
      "text": "Perhatikan, ada dua jalur yang berbeda. Perintah pengelolaan bergerak dari Panel ke Wings. Sedangkan pesan pengguna datang dari layanan Telegram atau WhatsApp langsung ke aplikasi bot, tanpa melewati dashboard panel.",
      "subtitle": "Perhatikan, ada dua jalur yang berbeda. Perintah pengelolaan bergerak dari Panel ke Wings. Sedangkan pesan pengguna datang dari layanan Telegram atau WhatsApp langsung ke aplikasi bot, tanpa melewati dashboard panel.",
-     "start": 6889,
-     "end": 7696,
+     "start": 6828,
+     "end": 7612,
      "file": "s4_4.wav"
     }
    ]
@@ -163,42 +163,42 @@
   {
    "id": "s5",
    "title": "Satu tempat untuk mengawasi bot",
-   "start": 7662,
-   "end": 9654,
+   "start": 7653,
+   "end": 9644,
    "lines": [
     {
      "text": "Bagi pengelola, panel menjadi satu tempat untuk mengawasi bot. Ambil contoh bot Telegram fiktif bernama Asisten Bot.",
      "subtitle": "Bagi pengelola, panel menjadi satu tempat untuk mengawasi bot. Ambil contoh bot Telegram fiktif bernama Asisten Bot.",
-     "start": 7692,
-     "end": 8134,
+     "start": 7677,
+     "end": 8102,
      "file": "s5_0.wav"
     },
     {
      "text": "Console menampilkan output dan pesan error dari aplikasi, jadi kamu bisa membaca apa yang sedang terjadi.",
      "subtitle": "Console menampilkan output dan pesan error dari aplikasi, jadi kamu bisa membaca apa yang sedang terjadi.",
-     "start": 8159,
-     "end": 8569,
+     "start": 8124,
+     "end": 8516,
      "file": "s5_1.wav"
     },
     {
      "text": "Grafik CPU dan RAM memperlihatkan pemakaian sumber daya dari waktu ke waktu. Angka yang rendah tidak menjamin bot cepat, tapi membantu membaca pola.",
      "subtitle": "Grafik CPU dan RAM memperlihatkan pemakaian sumber daya dari waktu ke waktu. Angka yang rendah tidak menjamin bot cepat, tapi membantu membaca pola.",
-     "start": 8594,
-     "end": 9155,
+     "start": 8538,
+     "end": 9094,
      "file": "s5_2.wav"
     },
     {
      "text": "File manager dipakai untuk mengelola berkas aplikasi.",
      "subtitle": "File manager dipakai untuk mengelola berkas aplikasi.",
-     "start": 9180,
-     "end": 9403,
+     "start": 9116,
+     "end": 9331,
      "file": "s5_3.wav"
     },
     {
      "text": "Lalu kontrol start, stop, dan restart mengatur jalannya proses.",
      "subtitle": "Lalu kontrol start, stop, dan restart mengatur jalannya proses.",
-     "start": 9428,
-     "end": 9675,
+     "start": 9353,
+     "end": 9595,
      "file": "s5_4.wav"
     }
    ]
@@ -206,35 +206,35 @@
   {
    "id": "s6",
    "title": "Kehidupan sebuah bot Telegram",
-   "start": 9654,
-   "end": 11438,
+   "start": 9644,
+   "end": 11403,
    "lines": [
     {
      "text": "Sekarang, lihat keseharian bot itu. Seorang pengguna mengirim perintah sederhana.",
      "subtitle": "Sekarang, lihat keseharian bot itu. Seorang pengguna mengirim perintah sederhana.",
-     "start": 9684,
-     "end": 10017,
+     "start": 9668,
+     "end": 9986,
      "file": "s6_0.wav"
     },
     {
      "text": "Aplikasi menerima pesan, memprosesnya, lalu mengirim balasan. Di console, aktivitas itu tercatat, dan pemakaian sumber daya ikut naik sedikit.",
      "subtitle": "Aplikasi menerima pesan, memprosesnya, lalu mengirim balasan. Di console, aktivitas itu tercatat, dan pemakaian sumber daya ikut naik sedikit.",
-     "start": 10042,
-     "end": 10609,
+     "start": 10008,
+     "end": 10553,
      "file": "s6_1.wav"
     },
     {
      "text": "Bot seperti ini bisa menjawab pertanyaan, mengirim notifikasi, atau membantu admin mengelola komunitas.",
      "subtitle": "Bot seperti ini bisa menjawab pertanyaan, mengirim notifikasi, atau membantu admin mengelola komunitas.",
-     "start": 10634,
-     "end": 11022,
+     "start": 10575,
+     "end": 10958,
      "file": "s6_2.wav"
     },
     {
      "text": "Tapi ingat, kemampuan membalas berasal dari kode bot. Panel membantu mengelola proses yang menjalankannya.",
      "subtitle": "Tapi ingat, kemampuan membalas berasal dari kode bot. Panel membantu mengelola proses yang menjalankannya.",
-     "start": 11047,
-     "end": 11453,
+     "start": 10980,
+     "end": 11359,
      "file": "s6_3.wav"
     }
    ]
@@ -242,35 +242,35 @@
   {
    "id": "s7",
    "title": "Bot WhatsApp dan kebutuhan koneksi",
-   "start": 11438,
-   "end": 13449,
+   "start": 11403,
+   "end": 13407,
    "lines": [
     {
      "text": "Hal serupa berlaku untuk bot WhatsApp, misalnya bot informasi yang menerima pertanyaan dan menyiapkan jawaban.",
      "subtitle": "Hal serupa berlaku untuk bot WhatsApp, misalnya bot informasi yang menerima pertanyaan dan menyiapkan jawaban.",
-     "start": 11468,
-     "end": 11872,
+     "start": 11427,
+     "end": 11826,
      "file": "s7_0.wav"
     },
     {
      "text": "Bot WhatsApp butuh integrasi dan autentikasi sesuai metode yang digunakan. Pterodactyl mengelola proses aplikasinya, sedangkan hubungan dengan platform ditangani oleh integrasi bot.",
      "subtitle": "Bot WhatsApp butuh integrasi dan autentikasi sesuai metode yang digunakan. Pterodactyl mengelola proses aplikasinya, sedangkan hubungan dengan platform ditangani oleh integrasi bot.",
-     "start": 11897,
-     "end": 12591,
+     "start": 11847,
+     "end": 12513,
      "file": "s7_1.wav"
     },
     {
      "text": "Jadi ada dua status yang perlu diperhatikan: proses aktif, dan koneksi platform terhubung. Status Running belum tentu berarti bot sudah tersambung.",
      "subtitle": "Jadi ada dua status yang perlu diperhatikan: proses aktif, dan koneksi platform terhubung. Status Running belum tentu berarti bot sudah tersambung.",
-     "start": 12616,
-     "end": 13175,
+     "start": 12535,
+     "end": 13082,
      "file": "s7_2.wav"
     },
     {
      "text": "Dan perlu dicatat, Pterodactyl bukan produk resmi WhatsApp maupun Telegram.",
      "subtitle": "Dan perlu dicatat, Pterodactyl bukan produk resmi WhatsApp maupun Telegram.",
-     "start": 13201,
-     "end": 13471,
+     "start": 13103,
+     "end": 13368,
      "file": "s7_3.wav"
     }
    ]
@@ -278,42 +278,42 @@
   {
    "id": "s8",
    "title": "Sumber daya dan lingkungan aplikasi",
-   "start": 13449,
-   "end": 15399,
+   "start": 13407,
+   "end": 15362,
    "lines": [
     {
      "text": "Sekarang, sumber daya. CPU adalah tenaga untuk memproses setiap perintah.",
      "subtitle": "Sekarang, sumber daya. CPU adalah tenaga untuk memproses setiap perintah.",
-     "start": 13479,
-     "end": 13778,
+     "start": 13431,
+     "end": 13727,
      "file": "s8_0.wav"
     },
     {
      "text": "RAM adalah memori kerja, tempat aplikasi menyimpan data sementara saat berjalan.",
      "subtitle": "RAM adalah memori kerja, tempat aplikasi menyimpan data sementara saat berjalan.",
-     "start": 13803,
-     "end": 14106,
+     "start": 13749,
+     "end": 14048,
      "file": "s8_1.wav"
     },
     {
      "text": "Penyimpanan menampung kode, dependensi, log, dan berkas lainnya.",
      "subtitle": "Penyimpanan menampung kode, dependensi, log, dan berkas lainnya.",
-     "start": 14132,
-     "end": 14378,
+     "start": 14069,
+     "end": 14310,
      "file": "s8_2.wav"
     },
     {
      "text": "Lalu ada egg. Anggap egg sebagai resep, yaitu konfigurasi yang menentukan lingkungan, runtime, dan perintah awal aplikasi. Egg bukan kode bot itu sendiri.",
      "subtitle": "Lalu ada egg. Anggap egg sebagai resep, yaitu konfigurasi yang menentukan lingkungan, runtime, dan perintah awal aplikasi. Egg bukan kode bot itu sendiri.",
-     "start": 14403,
-     "end": 15028,
+     "start": 14331,
+     "end": 14943,
      "file": "s8_3.wav"
     },
     {
      "text": "Kebutuhan sumber dayanya bergantung pada kode, fitur, jumlah aktivitas, dan dependensi bot.",
      "subtitle": "Kebutuhan sumber dayanya bergantung pada kode, fitur, jumlah aktivitas, dan dependensi bot.",
-     "start": 15053,
-     "end": 15419,
+     "start": 14965,
+     "end": 15322,
      "file": "s8_4.wav"
     }
    ]
@@ -321,35 +321,35 @@
   {
    "id": "s9",
    "title": "Yang dapat dan tidak dapat diselesaikan panel",
-   "start": 15399,
-   "end": 16977,
+   "start": 15362,
+   "end": 16956,
    "lines": [
     {
      "text": "Misalkan muncul error di console. Panel membantu kamu melihat masalahnya, lalu menghentikan atau menyalakan ulang proses.",
      "subtitle": "Misalkan muncul error di console. Panel membantu kamu melihat masalahnya, lalu menghentikan atau menyalakan ulang proses.",
-     "start": 15429,
-     "end": 15916,
+     "start": 15386,
+     "end": 15867,
      "file": "s9_0.wav"
     },
     {
      "text": "Namun perbaikannya tetap harus dilakukan di kode aplikasi.",
      "subtitle": "Namun perbaikannya tetap harus dilakukan di kode aplikasi.",
-     "start": 15941,
-     "end": 16160,
+     "start": 15890,
+     "end": 16106,
      "file": "s9_1.wav"
     },
     {
      "text": "Kelangsungan bot juga ditentukan oleh mesin server, koneksi jaringan, dan layanan platformnya.",
      "subtitle": "Kelangsungan bot juga ditentukan oleh mesin server, koneksi jaringan, dan layanan platformnya.",
-     "start": 16185,
-     "end": 16533,
+     "start": 16129,
+     "end": 16461,
      "file": "s9_2.wav"
     },
     {
      "text": "Software panelnya gratis dan open source, tetapi infrastruktur hosting seperti VPS bisa memiliki biaya.",
      "subtitle": "Software panelnya gratis dan open source, tetapi infrastruktur hosting seperti VPS bisa memiliki biaya.",
-     "start": 16558,
-     "end": 16985,
+     "start": 16484,
+     "end": 16905,
      "file": "s9_3.wav"
     }
    ]
@@ -357,28 +357,28 @@
   {
    "id": "s10",
    "title": "Penutup",
-   "start": 16977,
+   "start": 16956,
    "end": 18000,
    "lines": [
     {
      "text": "Jadi, Pterodactyl berawal dari pengelolaan server game.",
      "subtitle": "Jadi, Pterodactyl berawal dari pengelolaan server game.",
-     "start": 17007,
-     "end": 17220,
+     "start": 16980,
+     "end": 17189,
      "file": "s10_0.wav"
     },
     {
      "text": "Dengan lingkungan yang sesuai, panel ini juga bisa membantu mengelola aplikasi bot Telegram dan WhatsApp.",
      "subtitle": "Dengan lingkungan yang sesuai, panel ini juga bisa membantu mengelola aplikasi bot Telegram dan WhatsApp.",
-     "start": 17245,
-     "end": 17640,
+     "start": 17219,
+     "end": 17596,
      "file": "s10_1.wav"
     },
     {
      "text": "Kenali prosesnya, dan kamu akan lebih paham apa yang bekerja di balik setiap balasan bot.",
      "subtitle": "Kenali prosesnya, dan kamu akan lebih paham apa yang bekerja di balik setiap balasan bot.",
-     "start": 17665,
-     "end": 17989,
+     "start": 17626,
+     "end": 17943,
      "file": "s10_2.wav"
     }
    ]

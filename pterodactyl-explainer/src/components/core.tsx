@@ -375,3 +375,60 @@ export const Curved: React.FC<{w: number; h: number; span: number; strips?: numb
     </div>
   );
 };
+
+/**
+ * Balok 3D (bidang dasar = x/y, z = ke atas). Dipakai di dalam grup preserve-3d.
+ */
+export const Box3D: React.FC<{
+  x?: number; y?: number; z?: number; w: number; d: number; h: number; top?: string; side?: string; front?: string;
+  border?: string; children?: React.ReactNode; o?: number; topStyle?: React.CSSProperties; radius?: number;
+}> = ({x = 0, y = 0, z = 0, w, d, h, top = '#1d232c', side = '#12161c', front = '#171c23', border = 'rgba(255,255,255,0.08)', children, o = 1, topStyle, radius = 6}) => (
+  <div style={{position: 'absolute', left: 0, top: 0, transformStyle: 'preserve-3d', transform: `translate3d(${x}px, ${y}px, ${z}px)`, opacity: o}}>
+    <div style={{position: 'absolute', left: -w / 2, top: -h / 2, width: w, height: h, background: front, border: `1px solid ${border}`, boxSizing: 'border-box',
+      transform: `translateY(${d / 2}px) translateZ(${h / 2}px) rotateX(-90deg)`}} />
+    <div style={{position: 'absolute', left: -h / 2, top: -d / 2, width: h, height: d, background: side, border: `1px solid ${border}`, boxSizing: 'border-box',
+      transform: `translateX(${-w / 2}px) translateZ(${h / 2}px) rotateY(90deg)`}} />
+    <div style={{position: 'absolute', left: -h / 2, top: -d / 2, width: h, height: d, background: side, border: `1px solid ${border}`, boxSizing: 'border-box',
+      transform: `translateX(${w / 2}px) translateZ(${h / 2}px) rotateY(90deg)`}} />
+    <div style={{position: 'absolute', left: -w / 2, top: -d / 2, width: w, height: d, background: top, border: `1px solid ${border}`, boxSizing: 'border-box',
+      borderRadius: radius, transform: `translateZ(${h}px)`, overflow: 'hidden', ...topStyle}}>
+      {children}
+    </div>
+  </div>
+);
+
+/** Berkas tegak (mis. jalur perintah) dari z0 ke z1 di titik (x,y); paket bergerak di sepanjangnya. */
+export const VBeam: React.FC<{x: number; y: number; z0: number; z1: number; color: string; draw?: number; t?: number[]; width?: number; dashed?: boolean; f: number}> = ({
+  x, y, z0, z1, color, draw = 1, t = [], width = 4, dashed = false, f,
+}) => {
+  const len = (z1 - z0) * Math.max(0, Math.min(1, draw));
+  return (
+    <div style={{position: 'absolute', left: 0, top: 0, transformStyle: 'preserve-3d', transform: `translate3d(${x}px, ${y}px, ${z0}px)`}}>
+      <div style={{position: 'absolute', left: -width / 2, top: -len, width, height: len, transformOrigin: '50% 100%', transform: 'rotateX(-90deg)',
+        background: dashed ? `repeating-linear-gradient(0deg, ${color} 0 12px, transparent 12px 22px)` : color, backgroundPositionY: dashed ? f * 0.8 : undefined,
+        boxShadow: `0 0 14px ${color}`}} />
+      {t.map((q, i) => (
+        <div key={i} style={{position: 'absolute', left: -9, top: -9, width: 18, height: 18, borderRadius: 9, background: '#fff',
+          boxShadow: `0 0 16px 4px ${color}`, transform: `translateZ(${(z1 - z0) * q}px) rotateX(-90deg)`, opacity: q <= draw ? 1 : 0}} />
+      ))}
+    </div>
+  );
+};
+
+/** Berkas datar di bidang z dari (x0,y0) ke (x1,y1). */
+export const HBeam: React.FC<{x0: number; y0: number; x1: number; y1: number; z: number; color: string; draw?: number; t?: number[]; width?: number}> = ({
+  x0, y0, x1, y1, z, color, draw = 1, t = [], width = 5,
+}) => {
+  const L = Math.hypot(x1 - x0, y1 - y0);
+  const ang = Math.atan2(y1 - y0, x1 - x0);
+  const dl = L * Math.max(0, Math.min(1, draw));
+  return (
+    <div style={{position: 'absolute', left: 0, top: 0, transformStyle: 'preserve-3d', transform: `translate3d(${x0}px, ${y0}px, ${z}px) rotateZ(${ang}rad)`}}>
+      <div style={{position: 'absolute', left: 0, top: -width / 2, width: dl, height: width, background: color, borderRadius: width, boxShadow: `0 0 16px ${color}`}} />
+      {t.map((q, i) => (
+        <div key={i} style={{position: 'absolute', left: L * q - 10, top: -10, width: 20, height: 20, borderRadius: 10, background: '#fff',
+          boxShadow: `0 0 18px 5px ${color}`, opacity: q <= draw ? 1 : 0}} />
+      ))}
+    </div>
+  );
+};
