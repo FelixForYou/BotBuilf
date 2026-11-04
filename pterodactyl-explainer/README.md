@@ -45,3 +45,13 @@ npm run studio                      # pratinjau interaktif
 
 Untuk mengganti suara TTS dengan rekaman manusia: simpan `public/audio/vo/sXX.mp3` dan
 `sXX.words.json` (`[{"t": detik, "d": durasi, "w": "kata"}]`, mis. dari forced alignment), lalu `npm run timeline`.
+
+## Versi tanpa narasi (default saat ini)
+
+Atas permintaan, video final **tidak memakai suara narator**; audio hanya berisi SFX (dinormalisasi ke −24 LUFS).
+Narasi tetap tersedia di `public/audio/vo/` dan bisa diaktifkan lagi:
+
+```bash
+npx remotion render src/index.ts PterodactylExplainer out/dengan-narasi.mp4 --props='{"narration":true}'
+```
+Subtitle (`subtitles/*.srt`) tetap mengikuti timing narasi asli.

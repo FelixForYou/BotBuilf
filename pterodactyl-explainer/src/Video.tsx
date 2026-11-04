@@ -34,7 +34,9 @@ const Fader: React.FC<{ children: React.ReactNode; first: boolean }> = ({ childr
   return <AbsoluteFill>{children}</AbsoluteFill>;
 };
 
-export const Video: React.FC = () => (
+export type VideoProps = { narration?: boolean };
+
+export const Video: React.FC<VideoProps> = ({ narration = false }) => (
   <AbsoluteFill style={{ background: "#030303" }}>
     {scenes.map(([id, Comp], i) => {
       const { from, dur } = sceneRange(id);
@@ -46,7 +48,7 @@ export const Video: React.FC = () => (
         </Sequence>
       );
     })}
-    {segments.map((sg) => (
+    {narration && segments.map((sg) => (
       <Sequence key={"vo" + sg.id} from={segStart(sg.id as SegId)} durationInFrames={Math.ceil(sg.audioDur * 60) + 2} name={`vo ${sg.id}`}>
         <Audio src={staticFile(`audio/vo/${sg.id}.mp3`)} volume={1} />
       </Sequence>
