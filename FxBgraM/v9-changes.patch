@@ -1,0 +1,1812 @@
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/FxGlassStyle.java b/TMessagesProj/src/main/java/org/telegram/messenger/FxGlassStyle.java
+index 55d6be2..9e49f67 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/FxGlassStyle.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/FxGlassStyle.java
+@@ -1,9 +1,27 @@
+ package org.telegram.messenger;
+ import android.os.Build;
+-/** Clear glass render policy; respects the local power-saving controls. */
++import org.telegram.ui.fxios.FxMotion;
++/** Clear glass render policy; respects the FxBgraM glass level and local power-saving controls. */
+ public final class FxGlassStyle {
+  private FxGlassStyle() {}
+  public static boolean isSupported(){return Build.VERSION.SDK_INT>=31;}
+- public static boolean isEnabled(){return isSupported()&&LiteMode.isEnabled(LiteMode.FLAG_CHAT_BLUR)&&LiteMode.isEnabled(LiteMode.FLAG_LIQUID_GLASS);}
+- public static float tintAlpha(boolean dark){return dark?0.20f:0.24f;}
++ /** Real-time blurred glass (standard or rich level) is active. */
++ public static boolean isEnabled(){return isSupported()&&LiteMode.isEnabled(LiteMode.FLAG_CHAT_BLUR);}
++ /** Refraction lens (rich level) is active. */
++ public static boolean isRefractionEnabled(){return isEnabled()&&LiteMode.isEnabled(LiteMode.FLAG_LIQUID_GLASS);}
++ /** Specular highlight and rim are drawn for every level except "off" (cheap, no blur). */
++ public static boolean highlights(){return FxMotion.glass()>=FxMotion.GLASS_SIMPLE;}
++ /** Tint alpha of a glass surface over blurred content. */
++ public static float tintAlpha(boolean dark){
++  switch(FxMotion.glass()){
++   case FxMotion.GLASS_RICH:return dark?0.20f:0.24f;
++   case FxMotion.GLASS_STANDARD:return dark?0.34f:0.40f;
++   default:return surfaceAlpha(dark);
++  }
++ }
++ /** Alpha of a bar/panel surface; without blur it stays readable (simple glass) or opaque (off). */
++ public static float surfaceAlpha(boolean dark){
++  if(isEnabled())return tintAlpha(dark);
++  return FxMotion.glass()==FxMotion.GLASS_OFF?1f:(dark?0.90f:0.92f);
++ }
+ }
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/LiteMode.java b/TMessagesProj/src/main/java/org/telegram/messenger/LiteMode.java
+index d36ca21..7800162 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/LiteMode.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/LiteMode.java
+@@ -151,6 +151,13 @@ public class LiteMode {
+             // always enabled for tablets
+             return true;
+         }
++        if ((flag & (FLAG_CHAT_BLUR | FLAG_LIQUID_GLASS)) != 0) {
++            // FxBgraM glass quality level can lower (never raise) blur/refraction.
++            flag = org.telegram.ui.fxios.FxMotion.maskLiteFlag(flag);
++            if (flag == 0) {
++                return false;
++            }
++        }
+         return (getValue() & preprocessFlag(flag)) > 0;
+     }
+ 
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarLayout.java
+index e918083..34e2a84 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarLayout.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/ActionBarLayout.java
+@@ -628,6 +628,10 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+     private AccelerateDecelerateInterpolator accelerateDecelerateInterpolator = new AccelerateDecelerateInterpolator();
+ 
+     public float innerTranslationX;
++    // FxBgraM iOS-style parallax of the page underneath during push/pop transitions.
++    private View fxUnderView;
++    private float fxCover;
++    private final Paint fxDimPaint = new Paint();
+ 
+     private boolean maybeStartTracking;
+     protected boolean startedTracking;
+@@ -1186,8 +1190,28 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+         if ((inPreviewMode || transitionAnimationPreviewMode) && child == containerView) {
+             drawPreviewDrawables(canvas, containerView);
+         }
++        float fxDim = 0;
++        if (!inPreviewMode && !transitionAnimationPreviewMode && !isSheet && !newBackTransitions()) {
++            final float parallax = org.telegram.ui.fxios.FxMotion.pageParallax();
++            if (parallax > 0) {
++                float shift = 0;
++                if (fxUnderView != null && child == fxUnderView && transitionAnimationInProgress) {
++                    shift = -parallax * width * fxCover;
++                    fxDim = fxCover;
++                } else if (fxUnderView == null && child == containerViewBack && innerTranslationX > 0) {
++                    shift = -parallax * Math.max(0, width - translationX);
++                }
++                if (shift != 0) {
++                    canvas.translate(shift, 0);
++                }
++            }
++        }
+         final boolean result = super.drawChild(canvas, child, drawingTime);
+         canvas.restoreToCount(restoreCount);
++        if (fxDim > 0) {
++            fxDimPaint.setColor(Color.argb((int) (36 * fxDim), 0, 0, 0));
++            canvas.drawRect(0, 0, getWidth(), getHeight(), fxDimPaint);
++        }
+ 
+         if (translationX != 0 || overrideWidthOffset != -1) {
+             int widthOffset = overrideWidthOffset != -1 ? overrideWidthOffset : width - translationX;
+@@ -1617,7 +1641,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+ 
+         if (!backAnimation) {
+             distToMove = Math.abs(containerView.getMeasuredWidth() - x);
+-            int duration = Math.max((int) (200.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 380 : 50);
++            int duration = Math.max((int) (200.0f / containerView.getMeasuredWidth() * distToMove), newBackTransitions() ? 380 : (org.telegram.ui.fxios.FxMotion.reduced() ? 50 : 140));
+             if (!overrideTransition) {
+                 animatorSet.playTogether(
+                     ObjectAnimator.ofFloat(containerView, View.TRANSLATION_X, (containerView.getMeasuredWidth() + (predictiveBackInProgress ? dp(56) : 0))).setDuration(duration),
+@@ -1625,6 +1649,8 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+                 );
+                 if (newBackTransitions()) {
+                     animatorSet.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
++                } else {
++                    animatorSet.setInterpolator(CubicBezierInterpolator.EASE_OUT);
+                 }
+             }
+         } else {
+@@ -1839,7 +1865,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+                     dt = 18;
+                 }
+                 lastFrameTime = newTime;
+-                float duration=preview&&open?300.0f:320.0f;
++                float duration = preview && open ? 300.0f : org.telegram.ui.fxios.FxMotion.pageDuration(open);
+                 animationProgress += dt / duration;
+                 if (animationProgress > 1.0f) {
+                     animationProgress = 1.0f;
+@@ -1882,7 +1908,10 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+                         interpolated = CubicBezierInterpolator.EASE_OUT_QUINT.getInterpolation(animationProgress);
+                     }
+                 } else {
+-                    interpolated = decelerateInterpolator.getInterpolation(animationProgress);
++                    interpolated = org.telegram.ui.fxios.FxMotion.pageInterpolator().getInterpolation(animationProgress);
++                    fxUnderView = open ? containerViewBack : containerView;
++                    fxCover = open ? interpolated : 1f - interpolated;
++                    invalidate();
+                 }
+                 if (open) {
+                     float clampedInterpolated = MathUtils.clamp(interpolated, 0, 1);
+@@ -3184,6 +3213,8 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+     }
+ 
+     private void onCloseAnimationEnd() {
++        fxUnderView = null;
++        fxCover = 0;
+         if (transitionAnimationInProgress && onCloseAnimationEndRunnable != null) {
+             if (currentAnimation != null) {
+                 AnimatorSet animatorSet = currentAnimation;
+@@ -3222,6 +3253,8 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
+     }
+ 
+     private void onOpenAnimationEnd() {
++        fxUnderView = null;
++        fxCover = 0;
+         if (transitionAnimationInProgress && onOpenAnimationEndRunnable != null) {
+             transitionAnimationInProgress = false;
+             layoutToIgnore = null;
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Adapters/DialogsAdapter.java b/TMessagesProj/src/main/java/org/telegram/ui/Adapters/DialogsAdapter.java
+index cd393c4..6bc4350 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Adapters/DialogsAdapter.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Adapters/DialogsAdapter.java
+@@ -549,6 +549,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
+     private final static boolean ALLOW_UPDATE_IN_BACKGROUND = BuildVars.DEBUG_PRIVATE_VERSION;
+ 
+     public void updateList(Runnable saveScrollPosition) {
++        org.telegram.ui.fxios.FxChatFilter.invalidate();
+         if (isCalculatingDiff) {
+             updateListPending = true;
+             return;
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableSource.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableSource.java
+index effeace..d9098f1 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableSource.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/BlurredBackgroundDrawableSource.java
+@@ -1,14 +1,23 @@
+ package org.telegram.ui.Components.blur3.drawable;
+ 
+ import android.graphics.Canvas;
++import android.graphics.Color;
++import android.graphics.LinearGradient;
++import android.graphics.Paint;
++import android.graphics.Shader;
+ 
+ import androidx.annotation.NonNull;
+ 
++import org.telegram.messenger.FxGlassStyle;
++import org.telegram.ui.ActionBar.Theme;
+ import org.telegram.ui.Components.blur3.source.BlurredBackgroundSource;
+ import org.telegram.ui.Components.blur3.source.BlurredBackgroundSourceWrapped;
+ 
+ public class BlurredBackgroundDrawableSource extends BlurredBackgroundDrawable {
+     private final BlurredBackgroundSource source;
++    // FxBgraM "simple glass": a static specular sheen replaces real-time blur on limited devices.
++    private final Paint fxSheen = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private int fxSheenTop = Integer.MIN_VALUE, fxSheenBottom, fxSheenDark = -1;
+ 
+     public BlurredBackgroundDrawableSource(BlurredBackgroundSource source) {
+         this.source = source;
+@@ -17,6 +26,19 @@ public class BlurredBackgroundDrawableSource extends BlurredBackgroundDrawable {
+     @Override
+     public void draw(@NonNull Canvas canvas) {
+         drawSource(canvas, source);
++        if (alpha > 0 && Color.alpha(backgroundColor) < 255 && FxGlassStyle.highlights() && !FxGlassStyle.isEnabled()
++                && !boundProps.boundsWithPadding.isEmpty()) {
++            final int top = boundProps.boundsWithPadding.top, bottom = boundProps.boundsWithPadding.bottom;
++            final int dark = Theme.isCurrentThemeDark() ? 1 : 0;
++            if (top != fxSheenTop || bottom != fxSheenBottom || dark != fxSheenDark) {
++                fxSheenTop = top; fxSheenBottom = bottom; fxSheenDark = dark;
++                fxSheen.setShader(new LinearGradient(0, top, 0, bottom,
++                    new int[] {dark == 1 ? 0x30FFFFFF : 0x80FFFFFF, 0x00FFFFFF, dark == 1 ? 0x10FFFFFF : 0x14FFFFFF},
++                    new float[] {0f, 0.55f, 1f}, Shader.TileMode.CLAMP));
++            }
++            fxSheen.setAlpha(alpha);
++            canvas.drawPath(boundProps.path, fxSheen);
++        }
+     }
+ 
+     @Override
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProviderThemed.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProviderThemed.java
+index 3816d04..422f2ec 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProviderThemed.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/BlurredBackgroundColorProviderThemed.java
+@@ -13,7 +13,7 @@ public class BlurredBackgroundColorProviderThemed implements BlurredBackgroundCo
+     private float alpha;
+ 
+     public BlurredBackgroundColorProviderThemed(Theme.ResourcesProvider resourcesProvider, int backgroundColorId) {
+-        this(resourcesProvider, backgroundColorId, LiteMode.isEnabled(LiteMode.FLAG_LIQUID_GLASS) ? 0.85f : 0.76f);
++        this(resourcesProvider, backgroundColorId, org.telegram.messenger.FxGlassStyle.surfaceAlpha(resourcesProvider != null ? resourcesProvider.isDark() : org.telegram.ui.ActionBar.Theme.isCurrentThemeDark()));
+     }
+ 
+     public BlurredBackgroundColorProviderThemed(Theme.ResourcesProvider resourcesProvider, int backgroundColorId, float alpha) {
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/impl/BlurredBackgroundProviderImpl.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/impl/BlurredBackgroundProviderImpl.java
+index 10c5a6f..b74ef49 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/impl/BlurredBackgroundProviderImpl.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/blur3/drawable/color/impl/BlurredBackgroundProviderImpl.java
+@@ -22,7 +22,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider mainTabs(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+             .setBackgroundColor((r, isDark) -> {
+-                final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                 final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
+                 final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTabs, r);
+                 return solveSrcColor(colorBg, colorTarget, alpha);
+@@ -49,7 +49,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider topPanel(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+             .setBackgroundColor((r, isDark) -> {
+-                final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                 final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
+                 final int colorTarget = Theme.getColor(Theme.key_glass_targetMainTopPanel, r);
+                 return solveSrcColor(colorBg, colorTarget, alpha);
+@@ -75,7 +75,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider emojiViewButton(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+                 .setBackgroundColor((r, isDark) -> {
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
+                     return Theme.multAlpha(colorBg, alpha);
+                 })
+@@ -112,7 +112,7 @@ public class BlurredBackgroundProviderImpl {
+                     if (!LiteMode.isEnabled(LiteMode.FLAG_CHAT_BLUR)) {
+                         return Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground);
+                     }
+-                    return Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : (isDark ? 0.85f : 0.825f));
++                    return Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : FxGlassStyle.surfaceAlpha(isDark));
+                 })
+                 .setStrokeColorTop(0x44FFFFFF, 0)
+                 .setStrokeColorBottom(0x22FFFFFF, 0)
+@@ -125,7 +125,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider scrimMenuBackground(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+             .setBackgroundColor((r, isDark) ->
+-                Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : (isDark ? 0.85f : 0.825f)))
++                Theme.multAlpha(Theme.getColor(Theme.key_actionBarDefaultSubmenuBackground), FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : FxGlassStyle.surfaceAlpha(isDark)))
+             .setStrokeColorTop(0x44FFFFFF, 0)
+             .setStrokeColorBottom(0x22FFFFFF, 0)
+             .setShadowColor(0x26000000, 0)
+@@ -137,7 +137,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider attachMenuSearch(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+                 .setBackgroundColor((r, isDark) -> {
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
+                     return Theme.multAlpha(colorBg, alpha);
+                 })
+@@ -166,7 +166,7 @@ public class BlurredBackgroundProviderImpl {
+                         return ColorUtils.setAlphaComponent(Theme.getColor(Theme.key_chat_messagePanelBackground, r), 255);
+                     }
+ 
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = Theme.getColor(Theme.key_chat_messagePanelBackground, r);
+                     return Theme.multAlpha(colorBg, alpha);
+                 })
+@@ -186,7 +186,7 @@ public class BlurredBackgroundProviderImpl {
+                             Theme.key_actionBarDefault : Theme.key_chat_topPanelBackground, r), 255);
+                     }
+ 
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = Theme.getColor(Theme.key_chat_topPanelBackground, r);
+                     return Theme.multAlpha(colorBg, alpha);
+                 })
+@@ -206,7 +206,7 @@ public class BlurredBackgroundProviderImpl {
+                             Theme.key_actionBarDefault : Theme.key_chat_topPanelBackground, r), 255);
+                 }
+ 
+-                final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                 final int colorBg = Theme.getColor(Theme.key_chat_topPanelBackground, r);
+                 return Theme.multAlpha(colorBg, alpha);
+             })
+@@ -236,7 +236,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider bulletin(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+             .setBackgroundColor((r, isDark) -> {
+-                final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                 final int colorBg = Theme.getColor(Theme.key_undo_background, r);
+                 return Theme.multAlpha(colorBg, alpha);
+             })
+@@ -255,7 +255,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider inputFieldShareAlert(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+                 .setBackgroundColor((r, isDark) -> {
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = Theme.getColor(Theme.key_windowBackgroundWhite, r);
+                     final int colorTarget = Theme.getColor(Theme.key_chat_messagePanelBackground, r);
+                     return solveSrcColor(colorBg, colorTarget, alpha);
+@@ -271,7 +271,7 @@ public class BlurredBackgroundProviderImpl {
+     public static BlurredBackgroundProvider photoViewer(Theme.ResourcesProvider resourcesProvider) {
+         return new BlurredBackgroundProviderBuilder(resourcesProvider)
+                 .setBackgroundColor((r, isDark) -> {
+-                    final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(isDark) : 0.76f;
++                    final float alpha = FxGlassStyle.surfaceAlpha(isDark);
+                     final int colorBg = 0xFF000000;
+                     final int colorTarget = 0xFF1A1A1A;
+                     return 0; // solveSrcColor(colorBg, colorTarget, alpha);
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
+index 90d8caa..4ebcccc 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java
+@@ -3441,7 +3441,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+         fragmentSearchFieldWatcher.setDoNotCloseAfterFieldEmpty();
+ 
+         if (initialDialogsType == DIALOGS_TYPE_DEFAULT) {
+-            optionsItem = menu.addItem(4, R.drawable.ic_ab_other);
++            optionsItem = menu.addItem(4, org.telegram.ui.fxios.FxChatFilter.isActive() ? R.drawable.fx_filter_24 : R.drawable.ic_ab_other);
+             optionsItem.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
+             optionsItem.setOnClickListener(v -> {
+                 getContactsController().loadGlobalPrivacySetting();
+@@ -10999,7 +10999,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+         }
+         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
+         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
+-            return messagesController.getDialogs(folderId);
++            final ArrayList<TLRPC.Dialog> dialogs = messagesController.getDialogs(folderId);
++            if (folderId == 0 && !onlySelect && initialDialogsType == DIALOGS_TYPE_DEFAULT && org.telegram.ui.fxios.FxChatFilter.isActive()) {
++                return org.telegram.ui.fxios.FxChatFilter.apply(currentAccount, dialogs);
++            }
++            return dialogs;
+         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
+             return messagesController.dialogsServerOnly;
+         } else if (dialogsType == DIALOGS_TYPE_ADD_USERS_TO) {
+@@ -13687,6 +13691,43 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+         }
+     }
+ 
++    private void showFxFilterOptions() {
++        if (optionsItem == null || getParentActivity() == null) {
++            return;
++        }
++        ItemOptions io = ItemOptions.makeOptions(this, optionsItem);
++        io.setColors(getThemedColor(Theme.key_actionBarDefaultTitle), getThemedColor(Theme.key_actionBarDefaultTitle));
++        io.setDimAlpha(0x08);
++        for (int m : org.telegram.ui.fxios.FxChatFilter.MODES) {
++            final int mode = m;
++            io.addChecked(org.telegram.ui.fxios.FxChatFilter.getMode() == mode, org.telegram.ui.fxios.FxChatFilter.iconRes(mode),
++                org.telegram.ui.fxios.FxChatFilter.title(mode), () -> setFxChatFilter(mode));
++        }
++        io.show();
++        io.setTranslationY(-dp(64));
++    }
++
++    private void setFxChatFilter(int mode) {
++        org.telegram.ui.fxios.FxChatFilter.setMode(mode);
++        if (viewPages != null) {
++            for (ViewPage page : viewPages) {
++                if (page != null) {
++                    page.updateList(true);
++                }
++            }
++        }
++        updateFxFilterIndicator();
++        final boolean active = org.telegram.ui.fxios.FxChatFilter.isActive();
++        BulletinFactory.of(this).createSimpleBulletin(org.telegram.ui.fxios.FxChatFilter.iconRes(mode),
++            active ? LocaleController.formatString(R.string.FxFilterApplied, org.telegram.ui.fxios.FxChatFilter.title(mode)) : getString(R.string.FxFilterCleared)).show();
++    }
++
++    private void updateFxFilterIndicator() {
++        if (optionsItem != null) {
++            optionsItem.setIcon(org.telegram.ui.fxios.FxChatFilter.isActive() ? R.drawable.fx_filter_24 : R.drawable.ic_ab_other);
++        }
++    }
++
+     private void showItemOptions() {
+         ItemOptions io = ItemOptions.makeOptions(this, optionsItem);
+         io.setColors(getThemedColor(Theme.key_actionBarDefaultTitle), getThemedColor(Theme.key_actionBarDefaultTitle));
+@@ -13739,6 +13780,15 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
+             return;
+         }
+ 
++        if (initialDialogsType == DIALOGS_TYPE_DEFAULT && !onlySelect) {
++            final int fxMode = org.telegram.ui.fxios.FxChatFilter.getMode();
++            io.add(org.telegram.ui.fxios.FxChatFilter.iconRes(fxMode), getString(R.string.FxFilterChats),
++                org.telegram.ui.fxios.FxChatFilter.isActive() ? org.telegram.ui.fxios.FxChatFilter.title(fxMode) : null,
++                () -> AndroidUtilities.runOnUIThread(this::showFxFilterOptions, 120));
++            io.add(R.drawable.fx_downloads_24, getString(R.string.FxDownloadsTitle), () -> presentFragment(new org.telegram.ui.fxios.FxDownloadsActivity()));
++            io.addGap();
++        }
++
+         final boolean isCurrentThemeDark;
+         if (resourceProvider != null) {
+             isCurrentThemeDark = resourceProvider.isDark();
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java
+index 12b706b..8296897 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/MainTabsLayout.java
+@@ -288,6 +288,31 @@ public class MainTabsLayout extends AnimatedLinearLayout {
+     private boolean fxTouchDragging;
+     private float fxDownX, fxDownY;
+     private final Paint fxRim = new Paint(Paint.ANTI_ALIAS_FLAG);
++    // Lens velocity (tabs per second), "lift" while dragged and cached unit-space shaders.
++    private float fxVelocity, fxLastTrackPosition = Float.NaN, fxLift;
++    private long fxLastTrackTime;
++    private int fxShaderDark = -1;
++    private final android.graphics.Matrix fxShaderMatrix = new android.graphics.Matrix();
++    private void fxTrackVelocity(float position) {
++        final long now = android.os.SystemClock.uptimeMillis();
++        if (!Float.isNaN(fxLastTrackPosition) && now > fxLastTrackTime) {
++            final float raw = (position - fxLastTrackPosition) * 1000f / Math.max(8, now - fxLastTrackTime);
++            fxVelocity = fxVelocity * 0.45f + raw * 0.55f;
++        }
++        fxLastTrackPosition = position;
++        fxLastTrackTime = now;
++    }
++    private void fxEnsureShaders(boolean dark) {
++        final int d = dark ? 1 : 0;
++        if (d == fxShaderDark) return;
++        fxShaderDark = d;
++        fxSheen.setShader(new android.graphics.LinearGradient(0, 0, 1, 1,
++            new int[]{dark ? 0x55FFFFFF : 0xA0FFFFFF, dark ? 0x12FFFFFF : 0x20FFFFFF, dark ? 0x30A8CEFF : 0x18007AFF},
++            new float[]{0f, .48f, 1f}, android.graphics.Shader.TileMode.CLAMP));
++        fxRim.setShader(new android.graphics.LinearGradient(0, 0, 1, 1,
++            new int[]{0xE6FFFFFF, dark ? 0x38FFFFFF : 0x70C3DFFF, 0x9EFFFFFF},
++            new float[]{0f,.5f,1f}, android.graphics.Shader.TileMode.CLAMP));
++    }
+     private final Paint fxSheen = new Paint(Paint.ANTI_ALIAS_FLAG);
+     private final android.graphics.RectF fxLensBounds = new android.graphics.RectF();
+     private org.telegram.ui.Components.blur3.drawable.BlurredBackgroundDrawable fxGlassLens;
+@@ -295,6 +320,7 @@ public class MainTabsLayout extends AnimatedLinearLayout {
+         new FloatPropertyCompat<MainTabsLayout>("fxGlassPosition") {
+             @Override public float getValue(MainTabsLayout v) { return v.fxPagerPosition; }
+             @Override public void setValue(MainTabsLayout v, float position) {
++                v.fxTrackVelocity(position);
+                 v.fxPagerPosition = position;
+                 v.invalidate();
+             }
+@@ -316,21 +342,31 @@ public class MainTabsLayout extends AnimatedLinearLayout {
+     public void setFxSelectedPosition(float position, boolean animated) {
+         if (fxTouchDragging) return;
+         float target = Math.max(0, Math.min(getChildCount() - 1, position));
+-        boolean motion = android.os.Build.VERSION.SDK_INT < 26 || android.animation.ValueAnimator.areAnimatorsEnabled();
++        boolean motion = org.telegram.ui.fxios.FxMotion.animationsEnabled();
+         if (!animated || !fxLensInitialized || !motion) {
+             fxLensSpring.cancel();
+             fxPagerPosition = target;
++            fxVelocity = 0;
+             fxLensInitialized = true;
+             invalidate();
+         } else {
+-            if (fxLensSpring.getSpring() == null) fxLensSpring.setSpring(new SpringForce(target)
+-                .setDampingRatio(0.78f).setStiffness(520f));
++            SpringForce spring = fxLensSpring.getSpring();
++            if (spring == null) {
++                spring = new SpringForce(target);
++                fxLensSpring.setSpring(spring);
++            }
++            spring.setDampingRatio(org.telegram.ui.fxios.FxMotion.tabDamping())
++                .setStiffness(org.telegram.ui.fxios.FxMotion.tabStiffness());
++            fxLastTrackPosition = fxPagerPosition;
++            fxLastTrackTime = android.os.SystemClock.uptimeMillis();
+             fxLensSpring.animateToFinalPosition(target);
+         }
+     }
+     public void setFxPagerPosition(float position) {
+         fxLensSpring.cancel();
+-        fxPagerPosition = Math.max(0, Math.min(Math.max(0, getChildCount() - 1), position));
++        position = Math.max(0, Math.min(Math.max(0, getChildCount() - 1), position));
++        fxTrackVelocity(position);
++        fxPagerPosition = position;
+         fxLensInitialized = true;
+         invalidate();
+     }
+@@ -399,9 +435,24 @@ public class MainTabsLayout extends AnimatedLinearLayout {
+                 left = center - width / 2f + dp(1);
+                 right = center + width / 2f - dp(1);
+             }
+-            float stretch = dp(4) * (float)Math.sin(Math.PI * f);
+-            left = Math.max(getPaddingLeft() - dp(1), left - stretch);
+-            right = Math.min(getWidth() - getPaddingRight() + dp(1), right + stretch);
++            // Liquid deformation: the leading edge stretches with velocity, the trailing edge lags,
++            // the lens flattens slightly while moving and lifts while held under the finger.
++            final float elastic = org.telegram.ui.fxios.FxMotion.lensElasticity();
++            final boolean settled = !fxLensSpring.isRunning() && !fxTouchDragging;
++            if (settled) fxVelocity *= 0.6f;
++            final float speed = Math.min(1f, Math.abs(fxVelocity) / 7f) * elastic;
++            final float between = dp(3) * (float) Math.sin(Math.PI * f) * elastic;
++            final float lead = Math.max(between, dp(12) * speed), trail = Math.max(between, dp(4) * speed);
++            if (fxVelocity >= 0) { right += lead; left -= trail; } else { left -= lead; right += trail; }
++            final float liftTarget = fxTouchDragging && elastic > 0 ? 1f : 0f;
++            fxLift += (liftTarget - fxLift) * 0.35f;
++            if (Math.abs(liftTarget - fxLift) < 0.01f) fxLift = liftTarget;
++            final float lift = dp(3) * fxLift;
++            left -= lift; right += lift;
++            top += dp(2) * speed - lift; bottom -= dp(2) * speed - lift;
++            left = Math.max(getPaddingLeft() - dp(4), left);
++            right = Math.min(getWidth() - getPaddingRight() + dp(4), right);
++            if (!settled || fxLift != liftTarget || Math.abs(fxVelocity) > 0.05f) invalidate();
+             fxLensBounds.set(left, top, right, bottom);
+             float radius = (bottom - top) / 2f;
+             if (fxGlassLens != null && right > left) {
+@@ -409,18 +460,25 @@ public class MainTabsLayout extends AnimatedLinearLayout {
+                 fxGlassLens.setRadius(radius);
+                 fxGlassLens.draw(canvas);
+             }
+-            boolean dark = Theme.isCurrentThemeDark();
+-            fxSheen.setShader(new android.graphics.LinearGradient(left, top, right, bottom,
+-                new int[]{dark ? 0x55FFFFFF : 0xA0FFFFFF, dark ? 0x12FFFFFF : 0x20FFFFFF, dark ? 0x30A8CEFF : 0x18007AFF},
+-                new float[]{0f, .48f, 1f}, android.graphics.Shader.TileMode.CLAMP));
+-            fxSheen.setStyle(Paint.Style.FILL);
+-            canvas.drawRoundRect(fxLensBounds, radius, radius, fxSheen);
+-            fxRim.setStyle(Paint.Style.STROKE);
+-            fxRim.setStrokeWidth(AndroidUtilities.dpf2(1));
+-            fxRim.setShader(new android.graphics.LinearGradient(left, top, right, bottom,
+-                new int[]{0xE6FFFFFF, dark ? 0x38FFFFFF : 0x70C3DFFF, 0x9EFFFFFF},
+-                new float[]{0f,.5f,1f}, android.graphics.Shader.TileMode.CLAMP));
+-            canvas.drawRoundRect(fxLensBounds, radius, radius, fxRim);
++            if (org.telegram.messenger.FxGlassStyle.highlights()) {
++                fxEnsureShaders(Theme.isCurrentThemeDark());
++                fxShaderMatrix.setScale(Math.max(1, right - left), Math.max(1, bottom - top));
++                fxShaderMatrix.postTranslate(left, top);
++                fxSheen.getShader().setLocalMatrix(fxShaderMatrix);
++                fxRim.getShader().setLocalMatrix(fxShaderMatrix);
++                fxSheen.setStyle(Paint.Style.FILL);
++                fxSheen.setAlpha(255);
++                canvas.drawRoundRect(fxLensBounds, radius, radius, fxSheen);
++                fxRim.setStyle(Paint.Style.STROKE);
++                fxRim.setStrokeWidth(AndroidUtilities.dpf2(1));
++                canvas.drawRoundRect(fxLensBounds, radius, radius, fxRim);
++            } else {
++                fxSheen.setShader(null);
++                fxShaderDark = -1;
++                fxSheen.setStyle(Paint.Style.FILL);
++                fxSheen.setColor(Theme.isCurrentThemeDark() ? 0x26FFFFFF : 0x14000000);
++                canvas.drawRoundRect(fxLensBounds, radius, radius, fxSheen);
++            }
+         }
+         for (int i = 0; i < getChildCount(); i++) {
+             if (getChildAt(i) instanceof GlassTabView) ((GlassTabView)getChildAt(i)).setSkipDrawSelector(true);
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
+index 2ce5835..466302e 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
+@@ -762,7 +762,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
+         if (items.get(items.size() - 1).viewType != UniversalAdapter.VIEW_TYPE_SHADOW)
+             items.add(UItem.asShadow(null));
+ 
+-        items.add(SettingCell.Factory.of(30, 0xFF007AFF, 0xFF007AFF, R.drawable.settings_features, getString(R.string.FxIosEnhancements)));
++        items.add(SettingCell.Factory.of(30, 0xFF007AFF, 0xFF007AFF, R.drawable.fx_glass_24, getString(R.string.FxIosEnhancements)));
+         items.add(UItem.asShadow(null));
+         items.add(UItem.asHeader(getString(R.string.SettingsHelp)));
+         items.add(SettingCell.Factory.of(17, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_ask, getString(R.string.AskAQuestion)));
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ViewPagerActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ViewPagerActivity.java
+index 4295d98..90b2421 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/ViewPagerActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/ViewPagerActivity.java
+@@ -483,7 +483,7 @@ public abstract class ViewPagerActivity extends BaseFragment {
+ 
+         @Override
+         protected long getManualScrollDuration() {
+-            return 320L;
++            return org.telegram.ui.fxios.FxMotion.tabSwitchDuration();
+         }
+ 
+         @Override
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxChatFilter.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxChatFilter.java
+new file mode 100644
+index 0000000..4235b95
+--- /dev/null
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxChatFilter.java
+@@ -0,0 +1,123 @@
++package org.telegram.ui.fxios;
++
++import org.telegram.messenger.ChatObject;
++import org.telegram.messenger.DialogObject;
++import org.telegram.messenger.LocaleController;
++import org.telegram.messenger.MessagesController;
++import org.telegram.messenger.R;
++import org.telegram.tgnet.TLRPC;
++
++import java.util.ArrayList;
++
++/**
++ * Local quick filter for the "All chats" list. It never creates or edits server
++ * chat folders; it only narrows what the main list shows on this device.
++ * The filtered snapshot is rebuilt when the dialogs adapter rebuilds its rows,
++ * so positions used for taps always match what is on screen.
++ */
++public final class FxChatFilter {
++    private FxChatFilter() {}
++
++    public static final int ALL = 0, UNREAD = 1, PERSONAL = 2, GROUPS = 3, CHANNELS = 4, BOTS = 5;
++    public static final int[] MODES = {ALL, UNREAD, PERSONAL, GROUPS, CHANNELS, BOTS};
++
++    private static int mode = ALL;
++    private static int generation;
++
++    private static ArrayList<TLRPC.Dialog> cacheSource;
++    private static int cacheSourceSize = -1, cacheMode = -1, cacheGeneration = -1, cacheAccount = -1;
++    private static ArrayList<TLRPC.Dialog> cache = new ArrayList<>();
++
++    public static int getMode() {
++        return mode;
++    }
++
++    public static boolean isActive() {
++        return mode != ALL;
++    }
++
++    public static void setMode(int newMode) {
++        mode = newMode;
++        invalidate();
++    }
++
++    /** Called right before the chat list rebuilds its rows. */
++    public static void invalidate() {
++        generation++;
++    }
++
++    public static int iconRes(int m) {
++        switch (m) {
++            case UNREAD: return R.drawable.msg_markunread;
++            case PERSONAL: return R.drawable.msg_openprofile;
++            case GROUPS: return R.drawable.msg_groups;
++            case CHANNELS: return R.drawable.msg_channel;
++            case BOTS: return R.drawable.msg_bots;
++            default: return R.drawable.fx_filter_24;
++        }
++    }
++
++    public static String title(int m) {
++        switch (m) {
++            case UNREAD: return LocaleController.getString(R.string.FxFilterUnread);
++            case PERSONAL: return LocaleController.getString(R.string.FxFilterPersonal);
++            case GROUPS: return LocaleController.getString(R.string.FxFilterGroups);
++            case CHANNELS: return LocaleController.getString(R.string.FxFilterChannels);
++            case BOTS: return LocaleController.getString(R.string.FxFilterBots);
++            default: return LocaleController.getString(R.string.FxFilterAll);
++        }
++    }
++
++    public static ArrayList<TLRPC.Dialog> apply(int account, ArrayList<TLRPC.Dialog> source) {
++        if (mode == ALL || source == null) {
++            return source;
++        }
++        if (source == cacheSource && source.size() == cacheSourceSize && cacheMode == mode
++                && cacheGeneration == generation && cacheAccount == account) {
++            return cache;
++        }
++        // A fresh list each time: callers may still hold the previous snapshot while diffing.
++        final ArrayList<TLRPC.Dialog> result = new ArrayList<>();
++        MessagesController controller = MessagesController.getInstance(account);
++        for (int i = 0, n = source.size(); i < n; i++) {
++            TLRPC.Dialog dialog = source.get(i);
++            if (dialog != null && matches(controller, account, dialog)) {
++                result.add(dialog);
++            }
++        }
++        cache = result;
++        cacheSource = source;
++        cacheSourceSize = source.size();
++        cacheMode = mode;
++        cacheGeneration = generation;
++        cacheAccount = account;
++        return cache;
++    }
++
++    private static boolean matches(MessagesController controller, int account, TLRPC.Dialog dialog) {
++        if (dialog instanceof TLRPC.TL_dialogFolder) {
++            return false;
++        }
++        final long id = dialog.id;
++        switch (mode) {
++            case UNREAD:
++                return dialog.unread_count > 0 || dialog.unread_mark || dialog.unread_mentions_count > 0;
++            case PERSONAL: {
++                if (!DialogObject.isUserDialog(id)) return false;
++                TLRPC.User user = controller.getUser(id);
++                return user == null || !user.bot;
++            }
++            case BOTS: {
++                if (!DialogObject.isUserDialog(id)) return false;
++                TLRPC.User user = controller.getUser(id);
++                return user != null && user.bot;
++            }
++            case GROUPS:
++                return DialogObject.isChatDialog(id) && !ChatObject.isChannelAndNotMegaGroup(-id, account);
++            case CHANNELS:
++                return DialogObject.isChatDialog(id) && ChatObject.isChannelAndNotMegaGroup(-id, account);
++            default:
++                return true;
++        }
++    }
++}
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxDownloadsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxDownloadsActivity.java
+new file mode 100644
+index 0000000..cce68eb
+--- /dev/null
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxDownloadsActivity.java
+@@ -0,0 +1,245 @@
++package org.telegram.ui.fxios;
++
++import android.content.Context;
++import android.os.Bundle;
++import android.view.View;
++import android.widget.EditText;
++import android.widget.FrameLayout;
++
++import org.telegram.messenger.DialogObject;
++import org.telegram.messenger.DownloadController;
++import org.telegram.messenger.FileLoader;
++import org.telegram.messenger.LocaleController;
++import org.telegram.messenger.MessageObject;
++import org.telegram.messenger.NotificationCenter;
++import org.telegram.messenger.R;
++import org.telegram.tgnet.TLRPC;
++import org.telegram.ui.ActionBar.ActionBar;
++import org.telegram.ui.ActionBar.ActionBarMenu;
++import org.telegram.ui.ActionBar.ActionBarMenuItem;
++import org.telegram.ui.ActionBar.AlertDialog;
++import org.telegram.ui.ActionBar.BaseFragment;
++import org.telegram.ui.ActionBar.Theme;
++import org.telegram.ui.CacheControlActivity;
++import org.telegram.ui.ChatActivity;
++import org.telegram.ui.Components.BulletinFactory;
++import org.telegram.ui.Components.LayoutHelper;
++import org.telegram.ui.Components.SearchDownloadsContainer;
++import org.telegram.ui.FilteredSearchView;
++
++import java.util.ArrayList;
++
++/**
++ * Stand-alone download manager. It reuses the native download engine and list
++ * (progress, per-file pause/resume by tapping, media/document preview) that the
++ * stock client only exposes inside global search, and adds bulk controls.
++ */
++public class FxDownloadsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
++
++    private static final int ID_SEARCH = 1, ID_MORE = 2;
++    private static final int ID_PAUSE_ALL = 10, ID_RESUME_ALL = 11, ID_CLEAR_RECENT = 12, ID_STORAGE = 13;
++
++    private SearchDownloadsContainer container;
++    private ActionBarMenuItem moreItem;
++
++    @Override
++    public boolean onFragmentCreate() {
++        getNotificationCenter().addObserver(this, NotificationCenter.onDownloadingFilesChanged);
++        return super.onFragmentCreate();
++    }
++
++    @Override
++    public void onFragmentDestroy() {
++        getNotificationCenter().removeObserver(this, NotificationCenter.onDownloadingFilesChanged);
++        super.onFragmentDestroy();
++    }
++
++    @Override
++    public View createView(Context context) {
++        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
++        actionBar.setAllowOverlayTitle(true);
++        actionBar.setTitle(LocaleController.getString(R.string.FxDownloadsTitle));
++        actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
++            @Override
++            public void onItemClick(int id) {
++                if (id == -1) {
++                    finishFragment();
++                } else if (id == ID_PAUSE_ALL) {
++                    pauseAll();
++                } else if (id == ID_RESUME_ALL) {
++                    resumeAll();
++                } else if (id == ID_CLEAR_RECENT) {
++                    confirmClearRecent();
++                } else if (id == ID_STORAGE) {
++                    presentFragment(new CacheControlActivity());
++                }
++            }
++        });
++
++        ActionBarMenu menu = actionBar.createMenu();
++        ActionBarMenuItem searchItem = menu.addItem(ID_SEARCH, R.drawable.outline_header_search).setIsSearchField(true)
++            .setActionBarMenuItemSearchListener(new ActionBarMenuItem.ActionBarMenuItemSearchListener() {
++                @Override
++                public void onTextChanged(EditText editText) {
++                    if (container != null) container.search(editText.getText().toString());
++                }
++
++                @Override
++                public void onSearchCollapse() {
++                    if (container != null) container.search(null);
++                }
++            });
++        searchItem.setSearchFieldHint(LocaleController.getString(R.string.Search));
++        moreItem = menu.addItem(ID_MORE, R.drawable.ic_ab_other);
++        moreItem.addSubItem(ID_PAUSE_ALL, R.drawable.fx_pause_24, LocaleController.getString(R.string.FxDownloadsPauseAll));
++        moreItem.addSubItem(ID_RESUME_ALL, R.drawable.fx_play_24, LocaleController.getString(R.string.FxDownloadsResumeAll));
++        moreItem.addSubItem(ID_CLEAR_RECENT, R.drawable.msg_clear_recent, LocaleController.getString(R.string.FxDownloadsClearRecent));
++        moreItem.addSubItem(ID_STORAGE, R.drawable.fx_storage_24, LocaleController.getString(R.string.StorageUsage));
++
++        FrameLayout frame = new FrameLayout(context);
++        frame.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
++        container = new SearchDownloadsContainer(this, currentAccount);
++        container.setUiCallback(new FilteredSearchView.UiCallback() {
++            @Override
++            public void goToMessage(MessageObject messageObject) {
++                openMessage(messageObject);
++            }
++
++            @Override
++            public boolean actionModeShowing() {
++                return false;
++            }
++
++            @Override
++            public void toggleItemSelection(MessageObject item, View view, int a) {
++            }
++
++            @Override
++            public boolean isSelected(FilteredSearchView.MessageHashId messageHashId) {
++                return false;
++            }
++
++            @Override
++            public void showActionMode() {
++                // Long press opens the message in its chat (there is no bulk selection here).
++            }
++
++            @Override
++            public int getFolderId() {
++                return 0;
++            }
++        });
++        frame.addView(container, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
++        fragmentView = frame;
++        updateMenu();
++        return fragmentView;
++    }
++
++    private void openMessage(MessageObject messageObject) {
++        if (messageObject == null) return;
++        Bundle args = new Bundle();
++        long dialogId = messageObject.getDialogId();
++        if (DialogObject.isUserDialog(dialogId)) {
++            args.putLong("user_id", dialogId);
++        } else {
++            args.putLong("chat_id", -dialogId);
++        }
++        args.putInt("message_id", messageObject.getId());
++        presentFragment(new ChatActivity(args));
++    }
++
++    private ArrayList<MessageObject> currentFiles() {
++        ArrayList<MessageObject> list = new ArrayList<>();
++        FileLoader.getInstance(currentAccount).getCurrentLoadingFiles(list);
++        return list;
++    }
++
++    private boolean isActive(MessageObject messageObject) {
++        return FileLoader.getInstance(currentAccount).isLoadingFile(messageObject.getFileName());
++    }
++
++    private void pauseAll() {
++        int count = 0;
++        for (MessageObject messageObject : currentFiles()) {
++            TLRPC.Document document = messageObject.getDocument();
++            if (document != null && isActive(messageObject)) {
++                // cancelLoadFile keeps the partial file, so the download resumes from the same offset.
++                FileLoader.getInstance(currentAccount).cancelLoadFile(document);
++                count++;
++            }
++        }
++        refresh(count, R.string.FxDownloadsPausedCount);
++    }
++
++    private void resumeAll() {
++        int count = 0;
++        for (MessageObject messageObject : currentFiles()) {
++            TLRPC.Document document = messageObject.getDocument();
++            if (document != null && !isActive(messageObject)) {
++                messageObject.putInDownloadsStore = true;
++                FileLoader.getInstance(currentAccount).loadFile(document, messageObject, FileLoader.PRIORITY_LOW, 0);
++                count++;
++            }
++        }
++        if (count > 0) {
++            DownloadController.getInstance(currentAccount).updateFilesLoadingPriority();
++        }
++        refresh(count, R.string.FxDownloadsResumedCount);
++    }
++
++    private void refresh(int count, int stringRes) {
++        if (container != null) container.update(true);
++        updateMenu();
++        if (count > 0) {
++            BulletinFactory.of(this).createSimpleBulletin(stringRes == R.string.FxDownloadsPausedCount ? R.drawable.fx_pause_24 : R.drawable.fx_play_24,
++                LocaleController.formatString(stringRes, count)).show();
++        } else {
++            BulletinFactory.of(this).createSimpleBulletin(R.drawable.fx_downloads_24, LocaleController.getString(R.string.FxDownloadsNothing)).show();
++        }
++    }
++
++    private void confirmClearRecent() {
++        if (getParentActivity() == null) return;
++        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
++        builder.setTitle(LocaleController.getString(R.string.FxDownloadsClearRecent));
++        builder.setMessage(LocaleController.getString(R.string.FxDownloadsClearRecentInfo));
++        builder.setPositiveButton(LocaleController.getString(R.string.Clear), (dialog, which) -> {
++            DownloadController.getInstance(currentAccount).clearRecentDownloadedFiles();
++            if (container != null) container.update(true);
++            updateMenu();
++        });
++        builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
++        AlertDialog dialog = builder.create();
++        showDialog(dialog);
++        View button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
++        if (button instanceof android.widget.TextView) {
++            ((android.widget.TextView) button).setTextColor(Theme.getColor(Theme.key_text_RedBold));
++        }
++    }
++
++    private void updateMenu() {
++        if (moreItem == null) return;
++        boolean hasActive = false, hasPaused = false;
++        for (MessageObject messageObject : currentFiles()) {
++            if (messageObject.getDocument() == null) continue;
++            if (isActive(messageObject)) hasActive = true; else hasPaused = true;
++        }
++        moreItem.setSubItemShown(ID_PAUSE_ALL, hasActive);
++        moreItem.setSubItemShown(ID_RESUME_ALL, hasPaused);
++        moreItem.setSubItemShown(ID_CLEAR_RECENT, !DownloadController.getInstance(currentAccount).recentDownloadingFiles.isEmpty());
++    }
++
++    @Override
++    public void didReceivedNotification(int id, int account, Object... args) {
++        if (id == NotificationCenter.onDownloadingFilesChanged) {
++            updateMenu();
++        }
++    }
++
++    @Override
++    public void onResume() {
++        super.onResume();
++        if (container != null) container.update(false);
++        updateMenu();
++    }
++}
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxGlassPreviewView.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxGlassPreviewView.java
+new file mode 100644
+index 0000000..40a4345
+--- /dev/null
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxGlassPreviewView.java
+@@ -0,0 +1,160 @@
++package org.telegram.ui.fxios;
++
++import android.animation.ValueAnimator;
++import android.content.Context;
++import android.graphics.Canvas;
++import android.graphics.LinearGradient;
++import android.graphics.Paint;
++import android.graphics.RectF;
++import android.graphics.Shader;
++import android.view.MotionEvent;
++import android.view.View;
++
++import org.telegram.messenger.AndroidUtilities;
++import org.telegram.messenger.FxGlassStyle;
++import org.telegram.ui.ActionBar.Theme;
++
++/**
++ * Small live preview of the selected glass level and motion quality: a tab bar
++ * floating over chat bubbles with the sliding lens. Static until tapped, so it
++ * costs nothing while idle.
++ */
++public class FxGlassPreviewView extends View {
++    private final Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint bubble = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint sheen = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint rim = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint lens = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final Paint dot = new Paint(Paint.ANTI_ALIAS_FLAG);
++    private final RectF rect = new RectF();
++    private float position = 1f, from = 1f, to = 1f, velocityHint;
++    private ValueAnimator animator;
++    private int shaderHeight = -1, shaderDark = -1;
++
++    public FxGlassPreviewView(Context context) {
++        super(context);
++        setClickable(true);
++        setContentDescription(org.telegram.messenger.LocaleController.getString(org.telegram.messenger.R.string.FxPreviewHint));
++    }
++
++    @Override
++    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
++        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(168), MeasureSpec.EXACTLY));
++    }
++
++    @Override
++    public boolean onTouchEvent(MotionEvent event) {
++        if (event.getAction() == MotionEvent.ACTION_UP) {
++            int target = (int) Math.max(0, Math.min(2, event.getX() / Math.max(1, getWidth() / 3f)));
++            moveTo(target == Math.round(to) ? (target + 1) % 3 : target);
++            FxIosExperience.selection(this);
++        }
++        return super.onTouchEvent(event) || true;
++    }
++
++    public void moveTo(int target) {
++        if (animator != null) animator.cancel();
++        from = position;
++        to = target;
++        if (!FxMotion.animationsEnabled()) {
++            position = to;
++            invalidate();
++            return;
++        }
++        animator = ValueAnimator.ofFloat(0, 1);
++        animator.setDuration(FxMotion.reduced() ? 200 : 420);
++        animator.setInterpolator(FxMotion.reduced() ? FxMotion.SPRING_FAST : FxMotion.SPRING_SOFT);
++        animator.addUpdateListener(a -> {
++            float old = position;
++            position = from + (to - from) * (float) a.getAnimatedValue();
++            velocityHint = position - old;
++            invalidate();
++        });
++        animator.start();
++    }
++
++    @Override
++    protected void onDetachedFromWindow() {
++        super.onDetachedFromWindow();
++        if (animator != null) animator.cancel();
++    }
++
++    @Override
++    protected void onDraw(Canvas canvas) {
++        final boolean dark = Theme.isCurrentThemeDark();
++        final int w = getWidth(), h = getHeight();
++        if (h != shaderHeight || (dark ? 1 : 0) != shaderDark) {
++            shaderHeight = h;
++            shaderDark = dark ? 1 : 0;
++            bg.setShader(new LinearGradient(0, 0, 0, h,
++                dark ? new int[]{0xFF1B2733, 0xFF0F1620} : new int[]{0xFFDCE8F5, 0xFFEEF2F8}, null, Shader.TileMode.CLAMP));
++            sheen.setShader(new LinearGradient(0, 0, 0, AndroidUtilities.dp(58),
++                new int[]{dark ? 0x30FFFFFF : 0x80FFFFFF, 0x00FFFFFF}, null, Shader.TileMode.CLAMP));
++        }
++        canvas.drawRect(0, 0, w, h, bg);
++
++        // Chat bubbles scrolling "behind" the bar.
++        final float r = AndroidUtilities.dp(17);
++        bubble.setColor(dark ? 0xFF2C2C2E : 0xFFFFFFFF);
++        rect.set(AndroidUtilities.dp(16), AndroidUtilities.dp(14), w * 0.62f, AndroidUtilities.dp(48));
++        canvas.drawRoundRect(rect, r, r, bubble);
++        bubble.setColor(dark ? 0xFF0A84FF : 0xFF007AFF);
++        rect.set(w * 0.38f, AndroidUtilities.dp(58), w - AndroidUtilities.dp(16), AndroidUtilities.dp(92));
++        canvas.drawRoundRect(rect, r, r, bubble);
++        bubble.setColor(dark ? 0xFF2C2C2E : 0xFFFFFFFF);
++        rect.set(AndroidUtilities.dp(16), AndroidUtilities.dp(102), w * 0.55f, AndroidUtilities.dp(146));
++        canvas.drawRoundRect(rect, r, r, bubble);
++
++        // Floating glass tab bar.
++        final float barH = AndroidUtilities.dp(58);
++        final float top = h - barH - AndroidUtilities.dp(10);
++        final float left = AndroidUtilities.dp(24), right = w - AndroidUtilities.dp(24);
++        rect.set(left, top, right, top + barH);
++        final float alpha = FxGlassStyle.isEnabled() ? FxGlassStyle.tintAlpha(dark) : FxGlassStyle.surfaceAlpha(dark);
++        final int base = dark ? 0x1C1C1E : 0xFFFFFF;
++        bar.setColor(((int) (alpha * 255) << 24) | base);
++        canvas.drawRoundRect(rect, barH / 2, barH / 2, bar);
++        if (FxGlassStyle.highlights()) {
++            canvas.save();
++            canvas.translate(0, top);
++            rect.offset(0, -top);
++            canvas.drawRoundRect(rect, barH / 2, barH / 2, sheen);
++            rect.offset(0, top);
++            canvas.restore();
++            rim.setStyle(Paint.Style.STROKE);
++            rim.setStrokeWidth(AndroidUtilities.dpf2(0.8f));
++            rim.setColor(dark ? 0x55FFFFFF : 0xB3FFFFFF);
++            canvas.drawRoundRect(rect, barH / 2, barH / 2, rim);
++        }
++
++        // Lens: same deformation rules as the real tab bar.
++        final float inset = AndroidUtilities.dp(4);
++        final float slot = (right - left - inset * 2) / 3f;
++        float lL = left + inset + slot * position, lR = lL + slot;
++        final float speed = Math.min(1f, Math.abs(velocityHint) * 18f) * FxMotion.lensElasticity();
++        final float lead = AndroidUtilities.dp(10) * speed, trail = AndroidUtilities.dp(3) * speed;
++        if (velocityHint >= 0) { lR += lead; lL -= trail; } else { lL -= lead; lR += trail; }
++        rect.set(lL, top + inset + AndroidUtilities.dp(2) * speed, lR, top + barH - inset - AndroidUtilities.dp(2) * speed);
++        lens.setStyle(Paint.Style.FILL);
++        lens.setColor(dark ? 0x26FFFFFF : 0x14000000);
++        final float lr = rect.height() / 2;
++        canvas.drawRoundRect(rect, lr, lr, lens);
++        if (FxGlassStyle.highlights()) {
++            canvas.drawRoundRect(rect, lr, lr, rim);
++        }
++
++        // Tab glyphs.
++        for (int i = 0; i < 3; i++) {
++            float cx = left + inset + slot * (i + 0.5f);
++            boolean selected = Math.abs(position - i) < 0.5f;
++            dot.setColor(selected ? (dark ? 0xFF0A84FF : 0xFF007AFF) : (dark ? 0xFF98989D : 0xFF8E8E93));
++            canvas.drawCircle(cx, top + barH / 2 - AndroidUtilities.dp(6), AndroidUtilities.dp(7), dot);
++            rect.set(cx - AndroidUtilities.dp(12), top + barH / 2 + AndroidUtilities.dp(6), cx + AndroidUtilities.dp(12), top + barH / 2 + AndroidUtilities.dp(9));
++            canvas.drawRoundRect(rect, AndroidUtilities.dp(2), AndroidUtilities.dp(2), dot);
++        }
++        if (animator == null || !animator.isRunning()) {
++            velocityHint = 0;
++        }
++    }
++}
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosExperience.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosExperience.java
+index ff9db60..8a2ece2 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosExperience.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosExperience.java
+@@ -21,7 +21,7 @@ public final class FxIosExperience {
+  public static void press(View view,MotionEvent event){
+   int action=event.getActionMasked();
+   if(action!=MotionEvent.ACTION_DOWN&&action!=MotionEvent.ACTION_UP&&action!=MotionEvent.ACTION_CANCEL)return;
+-  boolean enabled=pressAnimations()&&(Build.VERSION.SDK_INT<26||ValueAnimator.areAnimatorsEnabled());
++  boolean enabled=pressAnimations()&&FxMotion.animationsEnabled();
+   float scale=enabled&&action==MotionEvent.ACTION_DOWN?.96f:1f;
+   view.animate().cancel();
+   if(!enabled){view.setScaleX(1f);view.setScaleY(1f);return;}
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosSettingsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosSettingsActivity.java
+index 6414e19..36e246e 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosSettingsActivity.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxIosSettingsActivity.java
+@@ -1,7 +1,11 @@
+ package org.telegram.ui.fxios;
++
+ import android.content.Context;
+ import android.view.View;
++
+ import java.util.ArrayList;
++
++import org.telegram.messenger.AndroidUtilities;
+ import org.telegram.messenger.LocaleController;
+ import org.telegram.messenger.R;
+ import org.telegram.ui.ActionBar.ActionBar;
+@@ -10,30 +14,120 @@ import org.telegram.ui.ActionBar.Theme;
+ import org.telegram.ui.Components.UItem;
+ import org.telegram.ui.Components.UniversalAdapter;
+ import org.telegram.ui.Components.UniversalRecyclerView;
+-/** User controls for the lightweight iPhone Touch add-on. */
++import org.telegram.ui.LiteModeSettingsActivity;
++
++/** FxBgraM "Glass & Motion": Liquid Glass level, animation quality, touch feedback and tools. */
+ public class FxIosSettingsActivity extends BaseFragment {
+- private UniversalRecyclerView list;
+- @Override public View createView(Context context){
+-  actionBar.setTitle(LocaleController.getString(R.string.FxIosEnhancements));
+-  actionBar.setBackButtonImage(R.drawable.ic_ab_back);
+-  actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick(){@Override public void onItemClick(int id){if(id==-1)finishFragment();}});
+-  list=new UniversalRecyclerView(this,this::fill,this::click,(i,v,p,x,y)->false);
+-  list.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
+-  list.setSections(org.telegram.messenger.AndroidUtilities.dp(16),org.telegram.messenger.AndroidUtilities.dp(14),false);
+-  fragmentView=list;
+-  return fragmentView;
+- }
+- private void fill(ArrayList<UItem> items,UniversalAdapter adapter){
+-  items.add(UItem.asShadow(LocaleController.getString(R.string.FxIosEnhancementsInfo)));
+-  items.add(UItem.asCheck(1,LocaleController.getString(R.string.FxIosHaptics)).setChecked(FxIosExperience.haptics()));
+-  items.add(UItem.asCheck(2,LocaleController.getString(R.string.FxIosPress)).setChecked(FxIosExperience.pressAnimations()));
+-  items.add(UItem.asShadow(LocaleController.getString(R.string.FxIosGlassInfo)));
+- }
+- private void click(UItem item,View view,int position,float x,float y){
+-  if(item.id==1)FxIosExperience.setHaptics(!FxIosExperience.haptics());
+-  else if(item.id==2)FxIosExperience.setPressAnimations(!FxIosExperience.pressAnimations());
+-  else return;
+-  FxIosExperience.selection(view);
+-  list.adapter.update(true);
+- }
++    private static final int ID_HAPTICS = 1, ID_PRESS = 2;
++    private static final int ID_GLASS_BASE = 100;   // + FxMotion.GLASS_*
++    private static final int ID_MOTION_BASE = 200;  // + FxMotion.MOTION_*
++    private static final int ID_DOWNLOADS = 300, ID_POWER = 301;
++
++    private UniversalRecyclerView list;
++    private FxGlassPreviewView preview;
++    private int previewStep = 1;
++
++    @Override
++    public View createView(Context context) {
++        actionBar.setTitle(LocaleController.getString(R.string.FxIosEnhancements));
++        actionBar.setBackButtonImage(R.drawable.ic_ab_back);
++        actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
++            @Override
++            public void onItemClick(int id) {
++                if (id == -1) finishFragment();
++            }
++        });
++        preview = new FxGlassPreviewView(context);
++        list = new UniversalRecyclerView(this, this::fill, this::click, (i, v, p, x, y) -> false);
++        list.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundGray));
++        list.setSections(AndroidUtilities.dp(16), AndroidUtilities.dp(14), false);
++        fragmentView = list;
++        return fragmentView;
++    }
++
++    private static String glassName(int level) {
++        switch (level) {
++            case FxMotion.GLASS_RICH: return LocaleController.getString(R.string.FxGlassRich);
++            case FxMotion.GLASS_STANDARD: return LocaleController.getString(R.string.FxGlassStandard);
++            case FxMotion.GLASS_SIMPLE: return LocaleController.getString(R.string.FxGlassSimple);
++            case FxMotion.GLASS_OFF: return LocaleController.getString(R.string.FxGlassOff);
++            default: return LocaleController.getString(R.string.FxGlassAuto);
++        }
++    }
++
++    private static String motionName(int mode) {
++        switch (mode) {
++            case FxMotion.MOTION_FULL: return LocaleController.getString(R.string.FxMotionFull);
++            case FxMotion.MOTION_REDUCED: return LocaleController.getString(R.string.FxMotionReduced);
++            case FxMotion.MOTION_OFF: return LocaleController.getString(R.string.FxMotionOff);
++            default: return LocaleController.getString(R.string.FxGlassAuto);
++        }
++    }
++
++    private void fill(ArrayList<UItem> items, UniversalAdapter adapter) {
++        items.add(UItem.asCustom(preview));
++        items.add(UItem.asShadow(LocaleController.getString(R.string.FxPreviewHint)));
++
++        final int glass = FxMotion.getGlassSetting();
++        items.add(UItem.asHeader(LocaleController.getString(R.string.FxGlassHeader)));
++        items.add(UItem.asRadio(ID_GLASS_BASE + FxMotion.GLASS_AUTO, LocaleController.getString(R.string.FxGlassAuto),
++            LocaleController.formatString(R.string.FxGlassAutoValue, glassName(FxMotion.autoGlass()))).setChecked(glass == FxMotion.GLASS_AUTO));
++        for (int level : new int[]{FxMotion.GLASS_RICH, FxMotion.GLASS_STANDARD, FxMotion.GLASS_SIMPLE, FxMotion.GLASS_OFF}) {
++            UItem item = UItem.asRadio(ID_GLASS_BASE + level, glassName(level)).setChecked(glass == level);
++            if (android.os.Build.VERSION.SDK_INT < 31 && (level == FxMotion.GLASS_RICH || level == FxMotion.GLASS_STANDARD)) {
++                item.setEnabled(false);
++            }
++            items.add(item);
++        }
++        items.add(UItem.asShadow(LocaleController.getString(R.string.FxIosGlassInfo)));
++
++        final int motion = FxMotion.getMotionSetting();
++        items.add(UItem.asHeader(LocaleController.getString(R.string.FxMotionHeader)));
++        items.add(UItem.asRadio(ID_MOTION_BASE + FxMotion.MOTION_AUTO, LocaleController.getString(R.string.FxGlassAuto),
++            LocaleController.formatString(R.string.FxGlassAutoValue, motionName(FxMotion.autoMotion()))).setChecked(motion == FxMotion.MOTION_AUTO));
++        for (int mode : new int[]{FxMotion.MOTION_FULL, FxMotion.MOTION_REDUCED, FxMotion.MOTION_OFF}) {
++            items.add(UItem.asRadio(ID_MOTION_BASE + mode, motionName(mode)).setChecked(motion == mode));
++        }
++        items.add(UItem.asShadow(LocaleController.getString(R.string.FxMotionInfo)));
++
++        items.add(UItem.asHeader(LocaleController.getString(R.string.FxTouchHeader)));
++        items.add(UItem.asCheck(ID_HAPTICS, LocaleController.getString(R.string.FxIosHaptics)).setChecked(FxIosExperience.haptics()));
++        items.add(UItem.asCheck(ID_PRESS, LocaleController.getString(R.string.FxIosPress)).setChecked(FxIosExperience.pressAnimations()));
++        items.add(UItem.asShadow(LocaleController.getString(R.string.FxIosEnhancementsInfo)));
++
++        items.add(UItem.asHeader(LocaleController.getString(R.string.FxToolsHeader)));
++        items.add(UItem.asButton(ID_DOWNLOADS, R.drawable.fx_downloads_24, LocaleController.getString(R.string.FxDownloadsTitle)));
++        items.add(UItem.asButton(ID_POWER, R.drawable.msg2_battery, LocaleController.getString(R.string.FxPowerSavingLink)));
++        items.add(UItem.asShadow(null));
++    }
++
++    private void click(UItem item, View view, int position, float x, float y) {
++        final int id = item.id;
++        if (id == ID_HAPTICS) {
++            FxIosExperience.setHaptics(!FxIosExperience.haptics());
++        } else if (id == ID_PRESS) {
++            FxIosExperience.setPressAnimations(!FxIosExperience.pressAnimations());
++        } else if (id >= ID_GLASS_BASE && id <= ID_GLASS_BASE + FxMotion.GLASS_RICH) {
++            if (!item.enabled) return;
++            FxMotion.setGlassSetting(id - ID_GLASS_BASE);
++            preview.invalidate();
++            // Glass surfaces are created together with their screens: rebuild the screens
++            // underneath this one (not this one) so the new level applies everywhere.
++            if (parentLayout != null) parentLayout.rebuildAllFragmentViews(false, false);
++        } else if (id >= ID_MOTION_BASE && id <= ID_MOTION_BASE + FxMotion.MOTION_OFF) {
++            FxMotion.setMotionSetting(id - ID_MOTION_BASE);
++            preview.moveTo(++previewStep % 3);
++        } else if (id == ID_DOWNLOADS) {
++            presentFragment(new FxDownloadsActivity());
++            return;
++        } else if (id == ID_POWER) {
++            presentFragment(new LiteModeSettingsActivity());
++            return;
++        } else {
++            return;
++        }
++        FxIosExperience.selection(view);
++        list.adapter.update(true);
++    }
++
+ }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxMotion.java b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxMotion.java
+new file mode 100644
+index 0000000..8e92b5a
+--- /dev/null
++++ b/TMessagesProj/src/main/java/org/telegram/ui/fxios/FxMotion.java
+@@ -0,0 +1,204 @@
++package org.telegram.ui.fxios;
++
++import android.animation.ValueAnimator;
++import android.content.SharedPreferences;
++import android.os.Build;
++import android.view.animation.Interpolator;
++
++import org.telegram.messenger.ApplicationLoader;
++import org.telegram.messenger.LiteMode;
++import org.telegram.messenger.SharedConfig;
++
++/**
++ * Central motion and Liquid Glass quality policy.
++ *
++ * Every value is resolved from cached ints so it is safe to call while drawing.
++ * "Auto" picks a level from the device performance class and Android version;
++ * the user can override both choices in FxBgraM settings.
++ */
++public final class FxMotion {
++    private FxMotion() {}
++
++    public static final int MOTION_AUTO = 0, MOTION_FULL = 1, MOTION_REDUCED = 2, MOTION_OFF = 3;
++    public static final int GLASS_AUTO = 0, GLASS_OFF = 1, GLASS_SIMPLE = 2, GLASS_STANDARD = 3, GLASS_RICH = 4;
++
++    private static final String PREFS = "fxbgram_ios_addons";
++    private static final String KEY_MOTION = "motion_mode";
++    private static final String KEY_GLASS = "glass_level";
++
++    private static boolean loaded;
++    private static int motionMode = MOTION_AUTO;
++    private static int glassMode = GLASS_AUTO;
++    private static int autoMotion = -1;
++    private static int autoGlass = -1;
++
++    private static SharedPreferences prefs() {
++        return ApplicationLoader.applicationContext.getSharedPreferences(PREFS, 0);
++    }
++
++    private static void load() {
++        if (loaded || ApplicationLoader.applicationContext == null) return;
++        SharedPreferences p = prefs();
++        motionMode = clamp(p.getInt(KEY_MOTION, MOTION_AUTO), MOTION_AUTO, MOTION_OFF);
++        glassMode = clamp(p.getInt(KEY_GLASS, GLASS_AUTO), GLASS_AUTO, GLASS_RICH);
++        loaded = true;
++    }
++
++    private static int clamp(int v, int min, int max) {
++        return Math.max(min, Math.min(max, v));
++    }
++
++    public static int getMotionSetting() { load(); return motionMode; }
++    public static int getGlassSetting() { load(); return glassMode; }
++
++    public static void setMotionSetting(int mode) {
++        load();
++        motionMode = clamp(mode, MOTION_AUTO, MOTION_OFF);
++        if (ApplicationLoader.applicationContext != null) prefs().edit().putInt(KEY_MOTION, motionMode).apply();
++    }
++
++    public static void setGlassSetting(int level) {
++        load();
++        glassMode = clamp(level, GLASS_AUTO, GLASS_RICH);
++        if (ApplicationLoader.applicationContext != null) prefs().edit().putInt(KEY_GLASS, glassMode).apply();
++    }
++
++    /** Automatic motion level for this device (system "remove animations" always wins). */
++    public static int autoMotion() {
++        if (autoMotion < 0) {
++            autoMotion = SharedConfig.getDevicePerformanceClass() == SharedConfig.PERFORMANCE_CLASS_LOW ? MOTION_REDUCED : MOTION_FULL;
++        }
++        return autoMotion;
++    }
++
++    /** Automatic glass level: real-time refraction needs RenderNode effects (API 31+) and a capable GPU. */
++    public static int autoGlass() {
++        if (autoGlass < 0) {
++            if (Build.VERSION.SDK_INT < 31) {
++                autoGlass = GLASS_SIMPLE;
++            } else {
++                int perf = SharedConfig.getDevicePerformanceClass();
++                // Owner's Vivo Y17s (V2310): v8 already enabled the full glass renderer for it.
++                final boolean vivoY17s = "vivo".equalsIgnoreCase(Build.MANUFACTURER)
++                    && ("V2310".equalsIgnoreCase(Build.MODEL) || "vivo Y17s".equalsIgnoreCase(Build.MODEL));
++                if (vivoY17s && Build.VERSION.SDK_INT >= 33) {
++                    autoGlass = GLASS_RICH;
++                } else if (perf == SharedConfig.PERFORMANCE_CLASS_LOW) {
++                    autoGlass = GLASS_SIMPLE;
++                } else if (perf == SharedConfig.PERFORMANCE_CLASS_AVERAGE && Build.VERSION.SDK_INT < 33) {
++                    autoGlass = GLASS_STANDARD;
++                } else {
++                    autoGlass = GLASS_RICH;
++                }
++            }
++        }
++        return autoGlass;
++    }
++
++    public static int motion() {
++        load();
++        if (Build.VERSION.SDK_INT >= 26 && !ValueAnimator.areAnimatorsEnabled()) return MOTION_OFF;
++        return motionMode == MOTION_AUTO ? autoMotion() : motionMode;
++    }
++
++    public static int glass() {
++        load();
++        int level = glassMode == GLASS_AUTO ? autoGlass() : glassMode;
++        if (Build.VERSION.SDK_INT < 31 && level > GLASS_SIMPLE) {
++            // RenderNode blur is not available: keep the glass look with the light renderer.
++            level = GLASS_SIMPLE;
++        }
++        return level;
++    }
++
++    /** Removes LiteMode flags that the selected glass level does not allow. */
++    public static int maskLiteFlag(int flag) {
++        int level = glass();
++        if (level < GLASS_RICH) flag &= ~LiteMode.FLAG_LIQUID_GLASS;
++        if (level < GLASS_STANDARD) flag &= ~LiteMode.FLAG_CHAT_BLUR;
++        return flag;
++    }
++
++    public static boolean animationsEnabled() { return motion() != MOTION_OFF; }
++    public static boolean reduced() { return motion() != MOTION_FULL; }
++
++    /** Duration of push/pop page transitions in ms. 0 means no animation. */
++    public static float pageDuration(boolean open) {
++        switch (motion()) {
++            case MOTION_OFF: return 1f;
++            case MOTION_REDUCED: return 190f;
++            default: return open ? 330f : 300f;
++        }
++    }
++
++    /** Parallax factor of the page underneath (iOS moves it by about 30%). */
++    public static float pageParallax() {
++        return motion() == MOTION_FULL ? 0.3f : 0f;
++    }
++
++    /** Pager slide when a bottom tab is tapped; kept in step with the glass lens spring. */
++    public static long tabSwitchDuration() {
++        switch (motion()) {
++            case MOTION_OFF: return 0L;
++            case MOTION_REDUCED: return 180L;
++            default: return 300L;
++        }
++    }
++
++    public static float tabStiffness() {
++        switch (motion()) {
++            case MOTION_REDUCED: return 1400f;
++            default: return 560f;
++        }
++    }
++
++    public static float tabDamping() {
++        return motion() == MOTION_FULL ? 0.74f : 1f;
++    }
++
++    /** Elastic deformation multiplier of the sliding glass lens. */
++    public static float lensElasticity() {
++        return motion() == MOTION_FULL ? 1f : 0f;
++    }
++
++    public static Interpolator pageInterpolator() {
++        return motion() == MOTION_FULL ? SPRING_CRITICAL : SPRING_FAST;
++    }
++
++    /** iOS-like critically damped spring, normalised so that it reaches exactly 1 at t = 1. */
++    public static final Interpolator SPRING_CRITICAL = new SpringInterpolator(1f, 9.2f);
++    /** Shorter spring for reduced motion. */
++    public static final Interpolator SPRING_FAST = new SpringInterpolator(1f, 7f);
++    /** Slightly under-damped spring for popups and glass lens settling. */
++    public static final Interpolator SPRING_SOFT = new SpringInterpolator(0.78f, 10f);
++
++    public static final class SpringInterpolator implements Interpolator {
++        private final float zeta, omega, end;
++
++        /**
++         * @param dampingRatio 1 = critical (no overshoot), &lt;1 = a little bounce
++         * @param omega natural frequency expressed per animation duration
++         */
++        public SpringInterpolator(float dampingRatio, float omega) {
++            this.zeta = dampingRatio;
++            this.omega = omega;
++            this.end = raw(1f);
++        }
++
++        private float raw(float t) {
++            if (zeta >= 1f) {
++                return (float) (1 - (1 + omega * t) * Math.exp(-omega * t));
++            }
++            double wd = omega * Math.sqrt(1 - zeta * zeta);
++            double e = Math.exp(-zeta * omega * t);
++            return (float) (1 - e * (Math.cos(wd * t) + zeta * omega / wd * Math.sin(wd * t)));
++        }
++
++        @Override
++        public float getInterpolation(float t) {
++            if (t <= 0f) return 0f;
++            if (t >= 1f) return 1f;
++            return raw(t) / end;
++        }
++    }
++}
+diff --git a/TMessagesProj/src/main/res/drawable/fx_downloads_24.xml b/TMessagesProj/src/main/res/drawable/fx_downloads_24.xml
+new file mode 100644
+index 0000000..895fa2f
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_downloads_24.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph: download tray (24dp, outline) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineCap="round" android:strokeLineJoin="round"
++        android:pathData="M12,3.5v11M7.5,10.5l4.5,4.5l4.5,-4.5M4.5,15.5v2.5a2,2 0,0 0,2 2h11a2,2 0,0 0,2 -2v-2.5"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/drawable/fx_filter_24.xml b/TMessagesProj/src/main/res/drawable/fx_filter_24.xml
+new file mode 100644
+index 0000000..3240c91
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_filter_24.xml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph: filter lines (24dp, outline) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineCap="round"
++        android:pathData="M4,7h16M7,12h10M10,17h4"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/drawable/fx_glass_24.xml b/TMessagesProj/src/main/res/drawable/fx_glass_24.xml
+new file mode 100644
+index 0000000..ef6837b
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_glass_24.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph: glass droplet with highlight (24dp, outline) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineJoin="round"
++        android:pathData="M3.5,12a8.5,6.5 0,1 0,17 0a8.5,6.5 0,1 0,-17 0z"/>
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineCap="round"
++        android:pathData="M7.5,10.2c0.9,-1.4 2.4,-2.2 4.2,-2.4"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/drawable/fx_pause_24.xml b/TMessagesProj/src/main/res/drawable/fx_pause_24.xml
+new file mode 100644
+index 0000000..ba220b2
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_pause_24.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph (24dp, filled, rounded) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#FFFFFF"
++        android:pathData="M7.5,5h1.5a1.5,1.5 0,0 1,1.5 1.5v11a1.5,1.5 0,0 1,-1.5 1.5h-1.5a1.5,1.5 0,0 1,-1.5 -1.5v-11a1.5,1.5 0,0 1,1.5 -1.5zM15,5h1.5a1.5,1.5 0,0 1,1.5 1.5v11a1.5,1.5 0,0 1,-1.5 1.5h-1.5a1.5,1.5 0,0 1,-1.5 -1.5v-11a1.5,1.5 0,0 1,1.5 -1.5z"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/drawable/fx_play_24.xml b/TMessagesProj/src/main/res/drawable/fx_play_24.xml
+new file mode 100644
+index 0000000..86df87e
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_play_24.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph (24dp, filled, rounded) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#FFFFFF"
++        android:pathData="M8.3,4.9l10.1,6.1a1.2,1.2 0,0 1,0 2l-10.1,6.1a1.2,1.2 0,0 1,-1.8 -1v-12.2a1.2,1.2 0,0 1,1.8 -1z"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/drawable/fx_storage_24.xml b/TMessagesProj/src/main/res/drawable/fx_storage_24.xml
+new file mode 100644
+index 0000000..cbdc673
+--- /dev/null
++++ b/TMessagesProj/src/main/res/drawable/fx_storage_24.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- FxBgraM vector glyph: storage pie (24dp, outline) -->
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp" android:height="24dp"
++    android:viewportWidth="24" android:viewportHeight="24">
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineCap="round" android:strokeLineJoin="round"
++        android:pathData="M12,3.5a8.5,8.5 0,1 0,8.5 8.5h-8.5z"/>
++    <path android:fillColor="#00000000" android:strokeColor="#FFFFFF" android:strokeWidth="1.8"
++        android:strokeLineCap="round" android:strokeLineJoin="round"
++        android:pathData="M15,2.8a8.6,8.6 0,0 1,6.2 6.2h-6.2z"/>
++</vector>
+diff --git a/TMessagesProj/src/main/res/values-id/strings.xml b/TMessagesProj/src/main/res/values-id/strings.xml
+index 6fec537..7f0286d 100644
+--- a/TMessagesProj/src/main/res/values-id/strings.xml
++++ b/TMessagesProj/src/main/res/values-id/strings.xml
+@@ -1,8 +1,41 @@
+ <resources>
+-<string name="FxIosEnhancements">Sentuhan iPhone</string>
++<string name="FxIosEnhancements">Kaca &amp; Gerak</string>
+ <string name="FxIosEnhancementsInfo">Getaran sentuh ringan dan animasi tekan. Perubahan langsung berlaku dan mengikuti pengaturan perangkat.</string>
+ <string name="FxIosHaptics">Haptik ringan</string>
+ <string name="FxIosPress">Animasi tekan</string>
+-<string name="FxIosGlassInfo">Liquid Glass tetap dipertahankan. Efek visual bisa disesuaikan melalui Hemat Daya.</string>
++<string name="FxIosGlassInfo">Liquid Glass tetap ada di setiap level. Kaca sederhana mempertahankan tampilan tembus pandang dan kilau tanpa blur real-time agar gulir tetap lancar di perangkat terbatas.</string>
+ <string name="FxProfileMore">Lainnya</string>
++<string name="FxGlassHeader">Liquid Glass</string>
++<string name="FxGlassAuto">Otomatis</string>
++<string name="FxGlassAutoValue">Otomatis · %1$s</string>
++<string name="FxGlassRich">Liquid Glass penuh</string>
++<string name="FxGlassStandard">Kaca buram</string>
++<string name="FxGlassSimple">Kaca sederhana</string>
++<string name="FxGlassOff">Bilah solid</string>
++<string name="FxMotionHeader">Animasi</string>
++<string name="FxMotionFull">Penuh</string>
++<string name="FxMotionReduced">Hemat</string>
++<string name="FxMotionOff">Minimal</string>
++<string name="FxMotionInfo">Penuh memakai pegas gaya iPhone dan efek paralaks halaman. Hemat memakai transisi singkat untuk ponsel kelas bawah. Minimal juga berlaku saat animasi Android dimatikan.</string>
++<string name="FxPreviewHint">Ketuk pratinjau untuk mencoba indikator tab kaca.</string>
++<string name="FxTouchHeader">Sentuhan</string>
++<string name="FxToolsHeader">Alat</string>
++<string name="FxPowerSavingLink">Hemat daya dan efek</string>
++<string name="FxDownloadsTitle">Unduhan</string>
++<string name="FxDownloadsPauseAll">Jeda semua</string>
++<string name="FxDownloadsResumeAll">Lanjutkan semua</string>
++<string name="FxDownloadsClearRecent">Hapus riwayat</string>
++<string name="FxDownloadsClearRecentInfo">Hapus unduhan yang sudah selesai dari daftar ini? Berkas tetap tersimpan di perangkat.</string>
++<string name="FxDownloadsPausedCount">%1$d unduhan dijeda</string>
++<string name="FxDownloadsResumedCount">%1$d unduhan dilanjutkan</string>
++<string name="FxDownloadsNothing">Tidak ada yang perlu diubah</string>
++<string name="FxFilterChats">Filter chat</string>
++<string name="FxFilterAll">Semua chat</string>
++<string name="FxFilterUnread">Belum dibaca</string>
++<string name="FxFilterPersonal">Pribadi</string>
++<string name="FxFilterGroups">Grup</string>
++<string name="FxFilterChannels">Kanal</string>
++<string name="FxFilterBots">Bot</string>
++<string name="FxFilterApplied">Menampilkan: %1$s</string>
++<string name="FxFilterCleared">Menampilkan semua chat</string>
+ </resources>
+\ No newline at end of file
+diff --git a/TMessagesProj/src/main/res/values/strings.xml b/TMessagesProj/src/main/res/values/strings.xml
+index 67cb917..dacc2d2 100644
+--- a/TMessagesProj/src/main/res/values/strings.xml
++++ b/TMessagesProj/src/main/res/values/strings.xml
+@@ -11630,10 +11630,43 @@
+     <string name="NoPaidMessagesTokenUsed">un1 used your QR code and can message you for free</string>
+     <string name="NoPaidMessagesTokenUsedOut">You used the QR code of un1 and can message them for free</string>
+     <string name="NoPaidMessagesTokenImported">You can now message **%1$s** for free.</string>
+-<string name="FxIosEnhancements">iPhone Touch</string>
++<string name="FxIosEnhancements">Glass &amp; Motion</string>
+ <string name="FxIosEnhancementsInfo">Light touch feedback and press animations. Changes apply immediately and follow your device settings.</string>
+ <string name="FxIosHaptics">Light haptic feedback</string>
+ <string name="FxIosPress">Press animations</string>
+-<string name="FxIosGlassInfo">Liquid Glass is retained. You can adjust visual effects in Power Saving.</string>
++<string name="FxIosGlassInfo">Liquid Glass stays on every level. Simple glass keeps the translucent look and highlights without real-time blur, for smooth scrolling on limited devices.</string>
+ <string name="FxProfileMore">More</string>
++<string name="FxGlassHeader">Liquid Glass</string>
++<string name="FxGlassAuto">Automatic</string>
++<string name="FxGlassAutoValue">Auto · %1$s</string>
++<string name="FxGlassRich">Full Liquid Glass</string>
++<string name="FxGlassStandard">Frosted glass</string>
++<string name="FxGlassSimple">Simple glass</string>
++<string name="FxGlassOff">Solid bars</string>
++<string name="FxMotionHeader">Animations</string>
++<string name="FxMotionFull">Full</string>
++<string name="FxMotionReduced">Reduced</string>
++<string name="FxMotionOff">Minimal</string>
++<string name="FxMotionInfo">Full uses iPhone-style springs and page parallax. Reduced keeps short transitions for lower-end phones. Minimal also applies when Android animations are turned off.</string>
++<string name="FxPreviewHint">Tap the preview to test the glass tab indicator.</string>
++<string name="FxTouchHeader">Touch</string>
++<string name="FxToolsHeader">Tools</string>
++<string name="FxPowerSavingLink">Power saving and effects</string>
++<string name="FxDownloadsTitle">Downloads</string>
++<string name="FxDownloadsPauseAll">Pause all</string>
++<string name="FxDownloadsResumeAll">Resume all</string>
++<string name="FxDownloadsClearRecent">Clear history</string>
++<string name="FxDownloadsClearRecentInfo">Remove finished downloads from this list? The files stay on your device.</string>
++<string name="FxDownloadsPausedCount">Paused %1$d downloads</string>
++<string name="FxDownloadsResumedCount">Resumed %1$d downloads</string>
++<string name="FxDownloadsNothing">Nothing to change</string>
++<string name="FxFilterChats">Filter chats</string>
++<string name="FxFilterAll">All chats</string>
++<string name="FxFilterUnread">Unread</string>
++<string name="FxFilterPersonal">Personal</string>
++<string name="FxFilterGroups">Groups</string>
++<string name="FxFilterChannels">Channels</string>
++<string name="FxFilterBots">Bots</string>
++<string name="FxFilterApplied">Showing: %1$s</string>
++<string name="FxFilterCleared">Showing all chats</string>
+ </resources>
+diff --git a/fxbgram/STATUS.md b/fxbgram/STATUS.md
+index a2c1727..5a66fa6 100644
+--- a/fxbgram/STATUS.md
++++ b/fxbgram/STATUS.md
+@@ -1,23 +1,55 @@
+-# FxBgraM v8 — signed release
++# FxBgraM v9 — Glass & Motion (source)
+ 
+ Basis: Telegram Android 13.1.1 commit 3de37c8cfb039452be7398909461da6288babf15.
+-Paket tetap id.fxbgram.messenger.next.web; versi 13.1.1-FxGlass8; versionCode 72449.
+-Keystore/API menggunakan cadangan build v7 milik pemilik. APK rilis sudah dibuat dan tanda tangan sama dengan v7 sudah diverifikasi; paket dan versionCode mendukung pembaruan langsung.
++Paket tetap id.fxbgram.messenger.next.web; versi 13.1.1-FxGlass9; versionCode 7245 (×10 + ABI 9 = 72459), sehingga dapat
++memperbarui v8 (72449) bila ditandatangani dengan keystore pemilik yang sama.
+ 
+-Perbaikan inti:
+-- Indikator navigasi memakai getX() (posisi visual termasuk translationX), bukan getLeft() yang sama saat AnimatedLinearLayout menempatkan anak lewat translasi.
+-- Spring terpisah dari pager, damping .78/stiffness 520, ambang .001 dalam satuan indeks tab. Tap beranimasi; drag langsung mengikuti jari dan memilih tab saat dilepas; cancel kembali ke tab aktif. Gerakan mengikuti preferensi animasi sistem.
+-- Lensa kaca memakai captured-background blur/refraction renderer asli dan lapisan sorotan/rim; bukan hanya kotak warna. Renderer vendor yang tidak mendukung refraction tetap memakai fallback blur/sorotan.
+-- Default kartu 28dp berlaku untuk RecyclerListView lama (termasuk profil) dan UniversalRecyclerView. TextCheckCell default 56dp.
+-- Profil pengguna biasa: empat aksi panggilan/pesan (sesuai izin native), bisukan, cari, lainnya. Pesan/video tetap tersedia di menu native. Pencarian membuka pencarian chat asli, menunggu halaman terlihat penuh.
+-- Header profil lebih tinggi 12dp, judul besar 1.35x dengan ukuran layout diperhitungkan konsisten, status 15dp dan jarak vertikal disesuaikan.
+-- Kanal profil: header di luar kartu, jumlah pelanggan di kanan tanpa chip, kartu pesan radius 28dp dengan tinggi 72dp (84dp untuk preferensi tiga baris).
+-- Kartu informasi: username lalu bio; caption di atas nilai; tambah kontak dan blokir/buka blokir dalam grup kartu yang sama. Alur blokir/konfirmasi, aksesibilitas, tautan, salin, dan QR tetap menggunakan fitur asli.
++## Baru di v9
+ 
+-Validasi: assembleAfatDebug sebelumnya lulus; assembleAfatStandalone rilis lulus. 56 kasus kebijakan bubble biru dan 60 kasus geometri switch lulus. 36 lintasan spring dari pustaka AndroidX asli lulus (uji fisika, bukan visual UI). Tanda tangan APK valid dan sama dengan v7. CRC ZIP, ARM64 native tetap, versionCode 72449, dan fixture/Activity debug tidak ada dalam manifest/DEX release telah diperiksa. git diff --check lulus.
++Kualitas efek dan animasi (`org.telegram.ui.fxios.FxMotion`)
++- Level Liquid Glass: Otomatis / Liquid Glass penuh (blur + refraksi) / Kaca buram (blur tanpa refraksi) /
++  Kaca sederhana (tembus pandang + kilau statis, tanpa blur real-time) / Bilah solid.
++- Otomatis: API < 31 atau kelas performa rendah → kaca sederhana; kelas menengah di Android 12 → kaca buram;
++  selain itu → penuh. Vivo Y17s (V2310, Android 13) → penuh, sama seperti keputusan v8; bisa diturunkan manual. Hemat daya baterai Telegram tetap menang.
++- Level diterapkan lewat `LiteMode.isEnabled` (hanya menurunkan flag CHAT_BLUR/LIQUID_GLASS, tidak menaikkan),
++  sehingga semua layar yang memakai renderer blur asli ikut tanpa blur bertumpuk.
++- Kualitas animasi: Otomatis / Penuh / Hemat / Minimal. Minimal otomatis bila animasi Android dimatikan.
+ 
+-Batas pengujian: emulator tanpa akselerasi berulang kali mengalami ANR pada layanan sistem; tidak ada tangkapan aplikasi yang layak untuk memvalidasi kesesuaian visual. Belum diuji pada perangkat fisik atau alur Telegram yang sudah login. Jangan menyatakan hasil identik dengan foto atau animasi telah diuji di perangkat. FCM khusus proyek belum dikonfigurasi (batasan v7 yang sama).
++Transisi
++- Buka/tutup halaman: pegas kritis gaya iOS (330/300 ms penuh, 190 ms hemat), halaman di bawah bergeser 30%
++  (paralaks) dan meredup halus; gestur kembali memakai paralaks yang sama; pelepasan gestur memakai ease-out.
++  Paralaks hanya lewat translasi kanvas saat menggambar sehingga tidak meninggalkan state view.
++- Perpindahan tab: durasi pager mengikuti mode (300/180/0 ms) agar selaras dengan pegas lensa.
+ 
+-Restore: clone revision basis, apply FxBgraM.patch; inisialisasi submodule TMessagesProj/lib/jlatexmath dan TMessagesProj_Modules/media; salin native/arm64-v8a/libtmessages.49.so ke fxbgram-native/arm64-v8a. Pulihkan fxbgram.local.properties dan fxbgram-signing/release.keystore dari cadangan pribadi. Build dengan -PfxbgramPrebuiltNative=true :TMessagesProj_AppStandalone:assembleAfatStandalone. APK release tidak menyertakan fixture/Activity QA.
++Indikator tab kaca
++- Parameter pegas dari FxMotion; deformasi lentur berbasis kecepatan (tepi depan memanjang, tepi belakang
++  tertinggal, sedikit pipih saat bergerak), lensa "terangkat" saat ditahan/diseret.
++- Shader sorotan/rim di-cache di ruang unit + local matrix (tidak lagi membuat LinearGradient tiap frame).
+ 
+-Penyempurnaan akhir: hit-test tab juga memakai getX/getY; inset header kanal 32dp; reservasi QR mengikuti RTL; username/alias tidak dipotong pada empat baris.
++Modul
++- Layar Unduhan (Pengaturan → Kaca & Gerak → Unduhan, atau menu ⋯ daftar chat): memakai mesin unduhan asli
++  (progres, jeda/lanjut per berkas dengan ketuk, pratinjau media/dokumen asli), plus pencarian, Jeda semua,
++  Lanjutkan semua, Hapus riwayat, dan pintasan Penggunaan Penyimpanan (CacheControlActivity asli, per chat).
++- Filter chat cepat (menu ⋯ daftar chat): Semua / Belum dibaca / Pribadi / Grup / Kanal / Bot. Lokal, tidak
++  mengubah folder server. Ikon menu berubah menjadi ikon filter selama filter aktif.
++- Layar Kaca & Gerak: pratinjau langsung (ketuk untuk menguji lensa), pilihan level kaca dan animasi, haptik,
++  animasi tekan, tautan ke Hemat Daya.
++- Ikon baru berupa vector drawable (fx_*.xml); tidak ada emoji sebagai ikon.
++
++Fitur bawaan yang sengaja tidak diduplikasi: penggunaan penyimpanan per chat (sudah ada di Data & Penyimpanan),
++folder chat (sudah ada), pratinjau foto/video/dokumen (PhotoViewer asli dipakai oleh layar Unduhan).
++
++## Validasi v9
++- Semua berkas Java yang diubah/ditambah dicek tipe dengan javac terhadap android.jar API 36 + stub R/BuildConfig;
++  tidak ada error yang berasal dari perubahan v9 (error tersisa berasal dari dependensi AndroidX yang tidak
++  tersedia di lingkungan pemeriksaan).
++- Kurva pegas diverifikasi numerik (kritis: tanpa overshoot; lunak: overshoot maks 2%).
++- XML string en/id valid.
++- BELUM: build Gradle penuh, APK, uji perangkat fisik, uji alur login. Lingkungan pengerjaan tidak dapat
++  mengakses dl.google.com / maven.google.com (Android SDK & Google Maven).
++
++## Build
++Clone revision basis, apply FxBgraM.patch, inisialisasi submodule (lihat .gitmodules; untuk native dari source
++perlu semua submodule). Isi fxbgram.local.properties (api_id, api_hash) dan fxbgram-signing/release.keystore
++(alias fxbgram). Build: `./gradlew :TMessagesProj_AppStandalone:assembleAfatStandalone`
++(tambahkan `-PfxbgramPrebuiltNative=true` bila libtmessages.49.so tersedia di fxbgram-native/arm64-v8a).
+diff --git a/gradle.properties b/gradle.properties
+index c3587d6..826592d 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -13,8 +13,8 @@
+ # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
+ # org.gradle.parallel=true
+ #Sat Mar 12 05:53:50 MSK 2016
+-APP_VERSION_CODE=7244
+-APP_VERSION_NAME=13.1.1-FxGlass8
++APP_VERSION_CODE=7245
++APP_VERSION_NAME=13.1.1-FxGlass9
+ APP_PACKAGE=id.fxbgram.messenger.next
+ IS_PRIVATE=false
+ RELEASE_KEY_PASSWORD=android

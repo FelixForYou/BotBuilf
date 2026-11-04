@@ -1,0 +1,133 @@
+# TEMPLATE — belum aktif. Untuk mengaktifkan build APK otomatis, pindahkan berkas ini ke
+# .github/workflows/fxbgram-apk.yml (lihat FxBgraM/README.md).
+#
+# Build APK FxBgraM (fork Telegram Android) dari patch di folder FxBgraM/.
+#
+# Secret yang dipakai (Settings → Secrets and variables → Actions → Secrets):
+#   FXBGRAM_API_ID, FXBGRAM_API_HASH    API milik pemilik (my.telegram.org). WAJIB agar login berfungsi.
+#   FXBGRAM_KEYSTORE_BASE64             release.keystore (base64) alias "fxbgram" — agar APK bisa
+#   FXBGRAM_STORE_PASSWORD              memperbarui instalasi v7/v8 tanpa uninstall.
+#   FXBGRAM_KEY_PASSWORD
+# Tanpa API secret, workflow tetap mengompilasi seluruh proyek (pemeriksaan build), tetapi APK
+# diberi nama "COMPILE-CHECK" dan TIDAK bisa login. Tanpa keystore, APK ditandatangani kunci
+# sementara (bisa dipasang baru, tidak bisa menimpa versi lama).
+name: FxBgraM APK
+
+on:
+  push:
+    paths:
+      - "FxBgraM/**"
+      - ".github/workflows/fxbgram-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fxbgram-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      NDK_VERSION: 27.2.12479018
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kosongkan ruang disk runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL || true
+          sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile || true
+          df -h / ; free -g
+
+      - name: Ambil source Telegram dasar dan terapkan patch
+        run: |
+          BASE=$(cat FxBgraM/BASE_COMMIT)
+          mkdir tg && cd tg
+          git init -q && git remote add origin https://github.com/DrKLO/Telegram.git
+          git fetch -q --depth 1 origin "$BASE" && git checkout -q FETCH_HEAD
+          git apply --whitespace=nowarn ../FxBgraM/FxBgraM.patch
+          git submodule update --init --depth 1 TMessagesProj/lib/jlatexmath TMessagesProj_Modules/media
+
+      - name: Cache lib native
+        id: native
+        uses: actions/cache@v4
+        with:
+          path: tg/fxbgram-native
+          key: fxbgram-native-${{ hashFiles('FxBgraM/BASE_COMMIT') }}-ndk27.2-v1
+
+      - name: Submodule native (hanya jika cache kosong)
+        if: steps.native.outputs.cache-hit != 'true'
+        working-directory: tg
+        run: git submodule update --init --recursive --depth 1 --jobs 8
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Android SDK / NDK
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" --install "platforms;android-36" "build-tools;36.0.0" "ndk;${NDK_VERSION}" "cmake;3.22.1" > /dev/null
+
+      - name: Kredensial
+        working-directory: tg
+        env:
+          API_ID: ${{ secrets.FXBGRAM_API_ID }}
+          API_HASH: ${{ secrets.FXBGRAM_API_HASH }}
+          KS_B64: ${{ secrets.FXBGRAM_KEYSTORE_BASE64 }}
+          KS_STORE: ${{ secrets.FXBGRAM_STORE_PASSWORD }}
+          KS_KEY: ${{ secrets.FXBGRAM_KEY_PASSWORD }}
+        run: |
+          mkdir -p fxbgram-signing
+          if [ -n "$API_ID" ] && [ -n "$API_HASH" ]; then
+            printf 'api_id=%s\napi_hash=%s\n' "$API_ID" "$API_HASH" > fxbgram.local.properties
+            echo "FX_KIND=release" >> $GITHUB_ENV
+          else
+            echo "::warning::Secret FXBGRAM_API_ID/FXBGRAM_API_HASH belum diisi: APK hanya pemeriksaan kompilasi, login tidak berfungsi."
+            printf 'api_id=1\napi_hash=00000000000000000000000000000000\n' > fxbgram.local.properties
+            echo "FX_KIND=COMPILE-CHECK-no-login" >> $GITHUB_ENV
+          fi
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > fxbgram-signing/release.keystore
+            echo "FX_STORE_PW=$KS_STORE" >> $GITHUB_ENV
+            echo "FX_KEY_PW=${KS_KEY:-$KS_STORE}" >> $GITHUB_ENV
+            echo "FX_SIGN=owner" >> $GITHUB_ENV
+          else
+            echo "::warning::Keystore pemilik belum diisi: APK ditandatangani kunci sementara."
+            keytool -genkeypair -keystore fxbgram-signing/release.keystore -alias fxbgram -keyalg RSA -keysize 2048 \
+              -validity 10000 -storepass android -keypass android -dname "CN=FxBgraM temporary" > /dev/null
+            echo "FX_STORE_PW=android" >> $GITHUB_ENV
+            echo "FX_KEY_PW=android" >> $GITHUB_ENV
+            echo "FX_SIGN=temporary" >> $GITHUB_ENV
+          fi
+
+      - name: Build APK
+        working-directory: tg
+        run: |
+          PREBUILT=false
+          [ -f fxbgram-native/arm64-v8a/libtmessages.49.so ] && PREBUILT=true
+          echo "Native prebuilt: $PREBUILT"
+          ./gradlew --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" \
+            -PfxbgramPrebuiltNative=$PREBUILT \
+            -PRELEASE_STORE_PASSWORD="$FX_STORE_PW" -PRELEASE_KEY_PASSWORD="$FX_KEY_PW" \
+            :TMessagesProj_AppStandalone:assembleAfatStandalone
+          APK=$(find TMessagesProj_AppStandalone/build/outputs/apk -name '*.apk' | head -1)
+          echo "APK=$APK"; ls -la "$APK"
+          if [ "$PREBUILT" = false ]; then
+            mkdir -p fxbgram-native/arm64-v8a
+            unzip -o -j "$APK" lib/arm64-v8a/libtmessages.49.so -d fxbgram-native/arm64-v8a
+          fi
+          VN=$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d= -f2)
+          mkdir -p ../out && cp "$APK" "../out/FxBgraM-${VN}-${FX_KIND}-${FX_SIGN}-signed.apk"
+          (cd ../out && sha256sum *.apk | tee SHA256SUMS.txt)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FxBgraM-apk-${{ env.FX_KIND }}
+          path: out/
+          retention-days: 30
