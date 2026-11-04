@@ -1,0 +1,391 @@
+1
+00:00:01,100 --> 00:00:02,300
+Pesan masuk.
+
+2
+00:00:02,670 --> 00:00:03,881
+Bot membalas.
+
+3
+00:00:04,406 --> 00:00:05,860
+Hanya butuh sekejap.
+
+4
+00:00:06,384 --> 00:00:09,007
+Di layar, semuanya terlihat sederhana.
+
+5
+00:00:09,532 --> 00:00:12,329
+Tapi, apa sebenarnya yang
+bekerja di baliknya?
+
+6
+00:00:12,863 --> 00:00:15,441
+Setiap bot adalah aplikasi
+yang harus terus berjalan,
+
+7
+00:00:15,491 --> 00:00:17,708
+di sebuah perangkat
+atau server yang aktif.
+
+8
+00:00:18,245 --> 00:00:22,037
+Untuk mengawasi aplikasi itu, banyak
+pengelola memakai sebuah panel.
+
+9
+00:00:22,564 --> 00:00:25,083
+Salah satunya: Pterodactyl Panel.
+
+10
+00:00:26,181 --> 00:00:29,868
+Pterodactyl adalah panel pengelolaan
+server yang gratis dan open source.
+
+11
+00:00:30,400 --> 00:00:34,678
+Artinya, kode sumbernya terbuka untuk
+dipelajari dan dikembangkan siapa saja.
+
+12
+00:00:35,215 --> 00:00:38,625
+Pengembangannya berjalan terbuka,
+bersama banyak kontributor.
+
+13
+00:00:39,152 --> 00:00:41,856
+Proyek ini sudah ada sejak tahun 2015.
+
+14
+00:00:42,391 --> 00:00:46,703
+Tujuan awalnya sederhana: mempermudah
+pengelolaan server game lewat antarmuka web.
+
+15
+00:00:47,231 --> 00:00:51,763
+Menyalakan, mematikan, dan memantau
+server, cukup dari browser.
+
+16
+00:00:52,289 --> 00:00:54,413
+Lalu, bagaimana dengan bot?
+
+17
+00:00:55,511 --> 00:00:57,960
+Jawabannya ada pada cara kerja aplikasi.
+
+18
+00:00:58,482 --> 00:01:00,711
+Server game dan bot sama-sama program.
+
+19
+00:01:01,246 --> 00:01:05,177
+Bagi sistem, keduanya adalah proses
+yang perlu dijalankan dan diawasi.
+
+20
+00:01:05,714 --> 00:01:08,060
+Keduanya butuh lingkungan
+runtime, misalnya Node.
+
+21
+00:01:08,110 --> 00:01:13,174
+js atau Python, ditambah dependensi,
+sumber daya, dan koneksi jaringan.
+
+22
+00:01:13,712 --> 00:01:16,289
+Karena itu, dengan
+konfigurasi yang sesuai,
+
+23
+00:01:16,339 --> 00:01:20,246
+lingkungan yang dikelola Pterodactyl juga bisa
+menjalankan bot Telegram maupun WhatsApp.
+
+24
+00:01:20,774 --> 00:01:22,841
+Kode botnya tetap perlu disesuaikan.
+
+25
+00:01:23,366 --> 00:01:27,042
+Lingkungan sesuai, proses
+berjalan, lalu bot terhubung.
+
+26
+00:01:28,142 --> 00:01:29,665
+Mari lihat susunannya.
+
+27
+00:01:30,185 --> 00:01:33,120
+Paling bawah ada VPS, atau mesin server.
+
+28
+00:01:33,655 --> 00:01:38,222
+Di sinilah CPU, RAM, penyimpanan,
+dan jaringan disediakan.
+
+29
+00:01:38,750 --> 00:01:42,773
+Di atasnya ada Panel, antarmuka
+pengelolaan yang dibuka lewat browser.
+
+30
+00:01:43,308 --> 00:01:45,156
+Perintah dari Panel diteruskan ke Wings,
+
+31
+00:01:45,206 --> 00:01:47,505
+layanan yang mengelola
+container di mesin itu.
+
+32
+00:01:48,042 --> 00:01:51,349
+Container memberi lingkungan proses
+yang terpisah, dan di dalamnya,
+
+33
+00:01:51,399 --> 00:01:52,771
+kode bot berjalan.
+
+34
+00:01:53,298 --> 00:01:55,713
+Pesan dari pengguna tidak
+lewat dashboard Panel.
+
+35
+00:01:56,248 --> 00:02:00,132
+Pesan mengalir dari layanan Telegram
+atau WhatsApp, langsung ke aplikasi bot.
+
+36
+00:02:01,240 --> 00:02:04,997
+Dari sini terlihat peran utama Panel:
+satu tempat untuk mengawasi bot.
+
+37
+00:02:05,520 --> 00:02:08,803
+Ambil contoh Asisten Bot,
+sebuah bot Telegram fiktif.
+
+38
+00:02:09,338 --> 00:02:13,535
+Lewat console, pengelola bisa membaca
+output dan pesan error dari aplikasi.
+
+39
+00:02:14,072 --> 00:02:17,100
+Grafik CPU dan RAM menunjukkan
+pemakaian sumber daya,
+
+40
+00:02:17,150 --> 00:02:19,715
+meski angka yang rendah bukan
+jaminan bot pasti cepat.
+
+41
+00:02:20,243 --> 00:02:22,461
+File manager membantu mengelola berkas.
+
+42
+00:02:22,986 --> 00:02:25,273
+Semuanya terkumpul dalam satu tampilan.
+
+43
+00:02:25,798 --> 00:02:30,180
+Lalu, tombol start, stop, dan
+restart mengatur jalannya proses.
+
+44
+00:02:31,278 --> 00:02:34,028
+Sekarang, ikuti keseharian Asisten Bot.
+
+45
+00:02:34,550 --> 00:02:39,279
+Seorang pengguna mengirim perintah sederhana,
+misalnya jadwal, untuk melihat agenda.
+
+46
+00:02:39,814 --> 00:02:44,161
+Aplikasi menerima permintaan itu,
+memprosesnya, lalu mengirim balasan.
+
+47
+00:02:44,698 --> 00:02:48,179
+Bot seperti ini bisa menjawab
+pertanyaan, mengirim notifikasi,
+
+48
+00:02:48,229 --> 00:02:50,376
+atau membantu administrasi komunitas.
+
+49
+00:02:50,914 --> 00:02:53,410
+Setiap aktivitas meninggalkan
+jejak di console,
+
+50
+00:02:53,460 --> 00:02:55,677
+dan pemakaian sumber daya ikut bergerak.
+
+51
+00:02:56,205 --> 00:02:59,232
+Tapi ingat, kemampuan membalas
+berasal dari kode bot.
+
+52
+00:02:59,758 --> 00:03:02,346
+Panel membantu mengelola
+proses yang menjalankannya.
+
+53
+00:03:03,446 --> 00:03:05,062
+Bagaimana dengan WhatsApp?
+
+54
+00:03:05,582 --> 00:03:09,709
+Misalnya, sebuah bot informasi yang
+menerima pesan dan menyiapkan jawaban.
+
+55
+00:03:10,244 --> 00:03:13,076
+Aplikasi seperti ini butuh
+integrasi dan autentikasi,
+
+56
+00:03:13,126 --> 00:03:16,779
+dan kompatibilitas serta koneksinya
+bergantung pada metode yang digunakan.
+
+57
+00:03:17,316 --> 00:03:19,523
+Pterodactyl mengelola proses aplikasinya,
+
+58
+00:03:19,573 --> 00:03:22,612
+sementara hubungan dengan platform
+ditangani oleh integrasi bot.
+
+59
+00:03:23,149 --> 00:03:28,110
+Jadi, perhatikan dua hal: proses yang
+aktif, dan koneksi platform yang terhubung.
+
+60
+00:03:28,637 --> 00:03:31,515
+Status Running saja belum
+menjamin bot bisa membalas.
+
+61
+00:03:32,615 --> 00:03:34,346
+Mari masuk ke sumber dayanya.
+
+62
+00:03:34,876 --> 00:03:38,703
+CPU mengerjakan perhitungan,
+misalnya saat bot memproses pesan.
+
+63
+00:03:39,232 --> 00:03:41,796
+RAM menampung data yang
+sedang dipakai aplikasi.
+
+64
+00:03:42,330 --> 00:03:46,225
+Penyimpanan menyimpan kode,
+dependensi, dan berkas lainnya.
+
+65
+00:03:46,763 --> 00:03:51,585
+Lalu ada egg: resep konfigurasi lingkungan,
+berisi image container, runtime,
+
+66
+00:03:51,635 --> 00:03:53,344
+dan perintah awal aplikasi.
+
+67
+00:03:53,871 --> 00:03:55,764
+Egg bukan kode bot itu sendiri.
+
+68
+00:03:56,300 --> 00:04:00,532
+Kapasitas yang dibutuhkan pun
+berbeda-beda, bergantung pada kode, fitur,
+
+69
+00:04:00,582 --> 00:04:03,263
+jumlah aktivitas, dan dependensi botnya.
+
+70
+00:04:04,361 --> 00:04:07,551
+Lalu, apa yang bisa dan tidak
+bisa diselesaikan panel?
+
+71
+00:04:08,073 --> 00:04:10,602
+Misalnya, muncul error di console.
+
+72
+00:04:11,138 --> 00:04:13,958
+Panel membantu kita melihat
+masalah dan mengendalikan proses,
+
+73
+00:04:14,008 --> 00:04:16,411
+tapi perbaikannya tetap
+ada di kode aplikasi.
+
+74
+00:04:16,938 --> 00:04:20,313
+Panel juga tidak otomatis membuat
+bot atau menyediakan RAM gratis.
+
+75
+00:04:20,849 --> 00:04:24,063
+Kelangsungan bot ikut ditentukan
+oleh mesin server, jaringan,
+
+76
+00:04:24,113 --> 00:04:25,636
+dan layanan platformnya.
+
+77
+00:04:26,163 --> 00:04:29,410
+Tidak ada panel yang bisa menjanjikan
+bot selalu aktif tanpa kendala.
+
+78
+00:04:29,946 --> 00:04:34,281
+Software panelnya gratis dan open source,
+tapi infrastruktur hosting bisa berbiaya.
+
+79
+00:04:35,389 --> 00:04:38,729
+Jadi, Pterodactyl berawal
+dari pengelolaan server game.
+
+80
+00:04:39,263 --> 00:04:40,717
+Dengan lingkungan yang sesuai,
+
+81
+00:04:40,767 --> 00:04:43,887
+panel ini juga bisa membantu
+mengelola bot Telegram dan WhatsApp.
+
+82
+00:04:44,424 --> 00:04:48,946
+Panel mengelola, server menyediakan
+tenaga, dan bot menjalankan logikanya.
+
+83
+00:04:49,473 --> 00:04:53,589
+Kini, setiap kali bot membalas, kamu
+tahu apa yang bekerja di baliknya.
+
+84
+00:04:54,115 --> 00:04:55,892
+Kenali proses di balik botmu.
+

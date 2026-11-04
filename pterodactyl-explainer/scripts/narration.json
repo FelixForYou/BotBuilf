@@ -1,0 +1,72 @@
+[
+ {
+  "id": "s01",
+  "start": 0.6,
+  "end": 25,
+  "text": "Pesan masuk. Bot membalas. Hanya butuh sekejap. Di layar, semuanya terlihat sederhana. Tapi, apa sebenarnya yang bekerja di baliknya? Setiap bot adalah aplikasi yang harus terus berjalan, di sebuah perangkat atau server yang aktif. Untuk mengawasi aplikasi itu, banyak pengelola memakai sebuah panel. Salah satunya: Pterodactyl Panel.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s02",
+  "start": 25,
+  "end": 55,
+  "text": "Pterodactyl adalah panel pengelolaan server yang gratis dan open source. Artinya, kode sumbernya terbuka untuk dipelajari dan dikembangkan siapa saja. Pengembangannya berjalan terbuka, bersama banyak kontributor. Proyek ini sudah ada sejak tahun 2015. Tujuan awalnya sederhana: mempermudah pengelolaan server game lewat antarmuka web. Menyalakan, mematikan, dan memantau server, cukup dari browser. Lalu, bagaimana dengan bot?",
+  "rate": "+8%"
+ },
+ {
+  "id": "s03",
+  "start": 55,
+  "end": 85,
+  "text": "Jawabannya ada pada cara kerja aplikasi. Server game dan bot sama-sama program. Bagi sistem, keduanya adalah proses yang perlu dijalankan dan diawasi. Keduanya butuh lingkungan runtime, misalnya Node.js atau Python, ditambah dependensi, sumber daya, dan koneksi jaringan. Karena itu, dengan konfigurasi yang sesuai, lingkungan yang dikelola Pterodactyl juga bisa menjalankan bot Telegram maupun WhatsApp. Kode botnya tetap perlu disesuaikan. Lingkungan sesuai, proses berjalan, lalu bot terhubung.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s04",
+  "start": 85,
+  "end": 120,
+  "text": "Mari lihat susunannya. Paling bawah ada VPS, atau mesin server. Di sinilah CPU, RAM, penyimpanan, dan jaringan disediakan. Di atasnya ada Panel, antarmuka pengelolaan yang dibuka lewat browser. Perintah dari Panel diteruskan ke Wings, layanan yang mengelola container di mesin itu. Container memberi lingkungan proses yang terpisah, dan di dalamnya, kode bot berjalan. Pesan dari pengguna tidak lewat dashboard Panel. Pesan mengalir dari layanan Telegram atau WhatsApp, langsung ke aplikasi bot.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s05",
+  "start": 120,
+  "end": 155,
+  "text": "Dari sini terlihat peran utama Panel: satu tempat untuk mengawasi bot. Ambil contoh Asisten Bot, sebuah bot Telegram fiktif. Lewat console, pengelola bisa membaca output dan pesan error dari aplikasi. Grafik CPU dan RAM menunjukkan pemakaian sumber daya, meski angka yang rendah bukan jaminan bot pasti cepat. File manager membantu mengelola berkas. Semuanya terkumpul dalam satu tampilan. Lalu, tombol start, stop, dan restart mengatur jalannya proses.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s06",
+  "start": 155,
+  "end": 185,
+  "text": "Sekarang, ikuti keseharian Asisten Bot. Seorang pengguna mengirim perintah sederhana, misalnya jadwal, untuk melihat agenda. Aplikasi menerima permintaan itu, memprosesnya, lalu mengirim balasan. Bot seperti ini bisa menjawab pertanyaan, mengirim notifikasi, atau membantu administrasi komunitas. Setiap aktivitas meninggalkan jejak di console, dan pemakaian sumber daya ikut bergerak. Tapi ingat, kemampuan membalas berasal dari kode bot. Panel membantu mengelola proses yang menjalankannya.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s07",
+  "start": 185,
+  "end": 215,
+  "text": "Bagaimana dengan WhatsApp? Misalnya, sebuah bot informasi yang menerima pesan dan menyiapkan jawaban. Aplikasi seperti ini butuh integrasi dan autentikasi, dan kompatibilitas serta koneksinya bergantung pada metode yang digunakan. Pterodactyl mengelola proses aplikasinya, sementara hubungan dengan platform ditangani oleh integrasi bot. Jadi, perhatikan dua hal: proses yang aktif, dan koneksi platform yang terhubung. Status Running saja belum menjamin bot bisa membalas.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s08",
+  "start": 215,
+  "end": 245,
+  "text": "Mari masuk ke sumber dayanya. CPU mengerjakan perhitungan, misalnya saat bot memproses pesan. RAM menampung data yang sedang dipakai aplikasi. Penyimpanan menyimpan kode, dependensi, dan berkas lainnya. Lalu ada egg: resep konfigurasi lingkungan, berisi image container, runtime, dan perintah awal aplikasi. Egg bukan kode bot itu sendiri. Kapasitas yang dibutuhkan pun berbeda-beda, bergantung pada kode, fitur, jumlah aktivitas, dan dependensi botnya.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s09",
+  "start": 245,
+  "end": 275,
+  "text": "Lalu, apa yang bisa dan tidak bisa diselesaikan panel? Misalnya, muncul error di console. Panel membantu kita melihat masalah dan mengendalikan proses, tapi perbaikannya tetap ada di kode aplikasi. Panel juga tidak otomatis membuat bot atau menyediakan RAM gratis. Kelangsungan bot ikut ditentukan oleh mesin server, jaringan, dan layanan platformnya. Tidak ada panel yang bisa menjanjikan bot selalu aktif tanpa kendala. Software panelnya gratis dan open source, tapi infrastruktur hosting bisa berbiaya.",
+  "rate": "+8%"
+ },
+ {
+  "id": "s10",
+  "start": 275,
+  "end": 296,
+  "text": "Jadi, Pterodactyl berawal dari pengelolaan server game. Dengan lingkungan yang sesuai, panel ini juga bisa membantu mengelola bot Telegram dan WhatsApp. Panel mengelola, server menyediakan tenaga, dan bot menjalankan logikanya. Kini, setiap kali bot membalas, kamu tahu apa yang bekerja di baliknya. Kenali proses di balik botmu.",
+  "rate": "+8%"
+ }
+]

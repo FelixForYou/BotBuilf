@@ -1,0 +1,5 @@
+node_modules/
+.remotion/
+out/*.tmp*
+out/render.log
+out/test.mp4
