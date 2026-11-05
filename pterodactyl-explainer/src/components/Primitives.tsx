@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
 import { C, FONT, MONO, glow, softShadow } from "../lib/theme";
 import { clamp, drift, easeOut, mix, p } from "../lib/anim";
 import { interpolate } from "remotion";
@@ -135,17 +135,18 @@ export const SimTag: React.FC<{ dark?: boolean; style?: React.CSSProperties }> =
 /** Warm orange glowing wave, drawn as layered strokes (no heavy filters). */
 export const GlowWave: React.FC<{ f: number; y?: number; amp?: number; o?: number; speed?: number; wl?: number; width?: number; color?: string; core?: string; reveal?: number; tilt?: number }> = ({
   f, y = 540, amp = 60, o = 1, speed = 0.02, wl = 520, width = 1, color = C.orange, core = "#ffd2b8", reveal = 1, tilt = 0 }) => {
+  const { width: VW, height: VH } = useVideoConfig();
   const pts: string[] = [];
-  const W = 2200;
+  const W = VW + 280;
   for (let i = 0; i <= 80; i++) {
     const x = -140 + (W * i) / 80;
-    const yy = y + Math.sin(x / wl * Math.PI * 2 + f * speed) * amp + Math.sin(x / (wl * 0.47) + f * speed * 1.7) * amp * 0.25 + (x - 960) * tilt;
+    const yy = y + Math.sin(x / wl * Math.PI * 2 + f * speed) * amp + Math.sin(x / (wl * 0.47) + f * speed * 1.7) * amp * 0.25 + (x - VW / 2) * tilt;
     pts.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)},${yy.toFixed(1)}`);
   }
   const d = pts.join(" ");
   const dash = { pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - reveal } as const;
   return (
-    <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, opacity: o, overflow: "visible" }}>
+    <svg width={VW} height={VH} style={{ position: "absolute", inset: 0, opacity: o, overflow: "visible" }}>
       <path d={d} stroke={color} strokeOpacity={0.06} strokeWidth={150 * width} fill="none" strokeLinecap="round" {...dash} />
       <path d={d} stroke={color} strokeOpacity={0.12} strokeWidth={70 * width} fill="none" strokeLinecap="round" {...dash} />
       <path d={d} stroke={color} strokeOpacity={0.3} strokeWidth={28 * width} fill="none" strokeLinecap="round" {...dash} />
@@ -168,8 +169,10 @@ export const WarmLight: React.FC<{ f: number; o?: number; x?: number; y?: number
 /** Diagonal light streak like the reference background. */
 export const LightStreak: React.FC<{ f: number; o?: number; angle?: number; color?: string; seed?: number }> = ({ f, o = 1, angle = -28, color = "255,106,43", seed = 2 }) => {
   const shift = drift(f, seed, 0.004) * 160;
+  const { width: VW, height: VH } = useVideoConfig();
+  const S = Math.max(VW, VH) * 1.7;
   return (
-    <div style={{ position: "absolute", left: -600 + shift, top: -400, width: 3120, height: 1880, opacity: o, transform: `rotate(${angle}deg)`,
+    <div style={{ position: "absolute", left: VW / 2 - S / 2 + shift, top: VH / 2 - S * 0.3, width: S, height: S * 0.6, opacity: o, transform: `rotate(${angle}deg)`,
       background: `linear-gradient(90deg, rgba(${color},0) 30%, rgba(${color},0.32) 47%, rgba(${color},0.5) 50%, rgba(${color},0.32) 53%, rgba(${color},0) 70%)` }} />
   );
 };
@@ -181,17 +184,18 @@ export const LightStreak: React.FC<{ f: number; o?: number; angle?: number; colo
  */
 export const DashedGrid: React.FC<{ f: number; xs?: number[]; ys?: number[]; bend?: number; o?: number; color?: string; reveal?: number; march?: number }> = ({
   f, xs = [], ys = [], bend = 0, o = 1, color = "rgba(255,255,255,0.75)", reveal = 1, march = 0.4 }) => {
-  const cx = 960, cy = 540;
+  const { width: VW, height: VH } = useVideoConfig();
+  const cx = VW / 2, cy = VH / 2;
   const hLine = (y: number) => {
     const k = ((y - cy) / cy) * bend;
-    return `M -40 ${y + k * 120} Q ${cx} ${y - k * 120} 1960 ${y + k * 120}`;
+    return `M -40 ${y + k * 120} Q ${cx} ${y - k * 120} ${VW + 40} ${y + k * 120}`;
   };
   const vLine = (x: number) => {
     const k = ((x - cx) / cx) * bend;
-    return `M ${x + k * 70} -40 Q ${x - k * 70} ${cy} ${x + k * 70} 1120`;
+    return `M ${x + k * 70} -40 Q ${x - k * 70} ${cy} ${x + k * 70} ${VH + 40}`;
   };
   return (
-    <svg width={1920} height={1080} style={{ position: "absolute", inset: 0, opacity: o }}>
+    <svg width={VW} height={VH} style={{ position: "absolute", inset: 0, opacity: o }}>
       {ys.map((y, i) => (
         <path key={"h" + i} d={hLine(y)} stroke={color} strokeWidth={2} fill="none" strokeDasharray="10 9" strokeDashoffset={-f * march}
           style={{ clipPath: `inset(0 ${(1 - reveal) * 100}% 0 0)` }} />

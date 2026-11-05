@@ -85,13 +85,12 @@ Bagi sistem, keduanya adalah proses
 yang perlu dijalankan dan diawasi.
 
 20
-00:01:01,520 --> 00:01:04,010
-Keduanya butuh lingkungan
-runtime, misalnya Node.
+00:01:01,520 --> 00:01:06,830
+Keduanya butuh lingkungan runtime, misalnya
+Node.js atau Python, ditambah dependensi,
 
 21
-00:01:04,060 --> 00:01:09,090
-js atau Python, ditambah dependensi,
+00:01:06,880 --> 00:01:09,090
 sumber daya, dan koneksi jaringan.
 
 22

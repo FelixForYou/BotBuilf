@@ -58,9 +58,10 @@ def align(expected, heard):
     return res
 
 
-def main(path):
+def main(path, short=False):
     heard_all = json.load(open(path))
-    segs = json.load(open(os.path.join(ROOT, "scripts", "narration.json")))
+    segs = json.load(open(os.path.join(ROOT, "short", "narration_short.json") if short else os.path.join(ROOT, "scripts", "narration.json")))
+    vo_dir = "vo_short" if short else "vo"
     for s in segs:
         heard = heard_all[s["id"]]
         expected = re.findall(r"[\w\-]+", spoken(s["text"]))
@@ -84,9 +85,9 @@ def main(path):
                 i += 1
         matched = sum(1 for k in idx if k is not None)
         words = [{"t": round(t0, 3), "d": round(max(0.02, t1 - t0), 3), "w": w} for w, (t0, t1) in zip(expected, times)]
-        json.dump(words, open(os.path.join(ROOT, "public", "audio", "vo", s["id"] + ".words.json"), "w"), ensure_ascii=False)
+        json.dump(words, open(os.path.join(ROOT, "public", "audio", vo_dir, s["id"] + ".words.json"), "w"), ensure_ascii=False)
         print(f"{s['id']}: {matched}/{len(expected)} kata cocok ({100 * matched / len(expected):.0f}%)")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], short="--short" in sys.argv)

@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
 import { C, FONT } from "../lib/theme";
 import { rand } from "../lib/anim";
 import { clamp01, lerp, out, spr, SNAP } from "../lib/motion";
@@ -77,6 +77,7 @@ export const SwapText: React.FC<{ f: number; items: { at: number; text: string; 
  */
 export const Sweep: React.FC<{ f: number; at: number; len?: number; half: "in" | "out"; dir?: "left" | "right" | "up" | "down"; color?: string; glowEdge?: boolean }> = ({
   f, at, len = 16, half, dir = "left", color = C.black, glowEdge = true }) => {
+  const { width: VW, height: VH } = useVideoConfig();
   const t = clamp01((f - at) / len);
   if (half === "out" && (t >= 1 || f < at)) return null;
   if (half === "in" && (f < at || f >= at + len)) return null;
@@ -84,13 +85,13 @@ export const Sweep: React.FC<{ f: number; at: number; len?: number; half: "in" |
   const e = half === "in" ? t * t : 1 - (1 - t) * (1 - t);
   const horiz = dir === "left" || dir === "right";
   const sign = dir === "left" || dir === "up" ? -1 : 1;
-  const span = horiz ? 2700 : 1700;
+  const span = horiz ? VW * 1.4 + 20 : VH * 1.6;
   const pos = half === "in" ? lerp(-sign * span, 0, e) : lerp(0, sign * span, e);
   const speed = (half === "in" ? 2 * t : 2 * (1 - t)) * span / len;
-  const W = horiz ? 2700 : 2400, H = horiz ? 1500 : 1700;
+  const W = horiz ? VW * 1.4 : VW * 1.25, H = horiz ? VH * 1.4 : VH * 1.6;
   return (
     <AbsoluteFill style={{ pointerEvents: "none" }}>
-      <MBlur dx={horiz ? speed : 0} dy={horiz ? 0 : speed} k={0.22} max={40} style={{ position: "absolute", left: 960 - W / 2, top: 540 - H / 2, width: W, height: H,
+      <MBlur dx={horiz ? speed : 0} dy={horiz ? 0 : speed} k={0.22} max={40} style={{ position: "absolute", left: VW / 2 - W / 2, top: VH / 2 - H / 2, width: W, height: H,
         transform: horiz ? `translateX(${pos}px) skewX(${-sign * Math.min(8, speed * 0.05)}deg)` : `translateY(${pos}px)` }}>
         <div style={{ width: W, height: H, borderRadius: 80, background: color,
           boxShadow: glowEdge ? "0 0 120px rgba(255,106,43,0.55), 0 0 40px rgba(255,138,92,0.6)" : undefined }} />

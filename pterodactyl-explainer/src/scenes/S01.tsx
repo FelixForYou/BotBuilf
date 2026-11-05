@@ -40,7 +40,7 @@ const CHAT: { user: boolean; text: string }[] = [
   { user: true, text: "Terima kasih!" }, { user: false, text: "Sama-sama." },
 ];
 /** Phone mock-up: header + clipped message list; each new message pops in and the list scrolls one step. */
-const PhoneChat: React.FC<{ f: number; start: number }> = ({ f, start }) => {
+export const PhoneChat: React.FC<{ f: number; start: number }> = ({ f, start }) => {
   const W = 380, H = 660, ROW = 64, VIEW = 7; // rows visible in the screen
   const at = (k: number) => (k < 2 ? start - 20 : start + 26 + (k - 2) * 26);
   let scroll = 0;

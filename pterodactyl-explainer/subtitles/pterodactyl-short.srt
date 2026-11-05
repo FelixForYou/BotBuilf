@@ -1,0 +1,105 @@
+1
+00:00:00,900 --> 00:00:02,100
+Pesan masuk.
+
+2
+00:00:02,482 --> 00:00:03,692
+Bot membalas.
+
+3
+00:00:04,216 --> 00:00:07,013
+Tapi, apa sebenarnya yang
+bekerja di baliknya?
+
+4
+00:00:07,538 --> 00:00:11,341
+Banyak pengelola bot memakai satu
+alat yang sama: Pterodactyl Panel.
+
+5
+00:00:12,599 --> 00:00:15,952
+Pterodactyl adalah panel pengelolaan
+server yang gratis dan open source,
+
+6
+00:00:16,002 --> 00:00:18,300
+dan sudah ada sejak tahun 2015.
+
+7
+00:00:18,824 --> 00:00:22,662
+Awalnya, panel ini dibuat untuk
+mengelola server game lewat browser.
+
+8
+00:00:23,910 --> 00:00:26,394
+Lalu, kenapa bisa dipakai untuk bot?
+
+9
+00:00:26,916 --> 00:00:28,821
+Karena bot juga sebuah program.
+
+10
+00:00:29,356 --> 00:00:33,473
+Dengan runtime seperti Node.js atau
+Python, dan konfigurasi yang sesuai,
+
+11
+00:00:33,523 --> 00:00:36,214
+panel ini bisa menjalankan
+bot Telegram maupun WhatsApp.
+
+12
+00:00:36,742 --> 00:00:38,821
+Kode botnya tetap perlu disesuaikan.
+
+13
+00:00:40,071 --> 00:00:41,513
+Susunannya begini.
+
+14
+00:00:42,033 --> 00:00:45,883
+VPS menyediakan CPU, RAM, dan penyimpanan.
+
+15
+00:00:46,408 --> 00:00:48,752
+Panel jadi tempat mengelola lewat browser.
+
+16
+00:00:49,278 --> 00:00:53,243
+Wings menjalankan container, dan di
+dalam container itulah bot berjalan.
+
+17
+00:00:53,779 --> 00:00:57,883
+Pesan pengguna tidak lewat panel, tapi
+langsung dari Telegram atau WhatsApp ke bot.
+
+18
+00:00:59,141 --> 00:01:03,697
+Dari panel, kamu bisa membaca console
+dan error, memantau CPU dan RAM,
+
+19
+00:01:03,747 --> 00:01:07,238
+mengelola file, sampai
+start, stop, dan restart.
+
+20
+00:01:07,771 --> 00:01:10,765
+Tapi ingat, status Running
+belum menjamin bot terhubung,
+
+21
+00:01:10,815 --> 00:01:13,103
+dan error tetap harus
+diperbaiki di kodenya.
+
+22
+00:01:14,351 --> 00:01:17,761
+Software panelnya gratis, tapi
+hosting tetap bisa berbiaya.
+
+23
+00:01:18,283 --> 00:01:20,789
+Jadi, kenali proses di balik botmu.
+
