@@ -40,10 +40,10 @@ const T1 = { pesan: L1.c("Pesan"), bot: L1.c("Bot"), tapi: L1.c("Tapi"), balik: 
 const DIVE1 = T1.balik - 6;
 export const SP1: React.FC = () => {
   const f = useCurrentFrame();
-  const camW = (ff: number) => breathe(rig(ff, { z: -100 }, [{ at: T1.tapi + 10, to: { z: -260, y: 60 }, feel: GLIDE }, { at: DIVE1 + 6, to: { z: -1500 }, feel: { stiffness: 150, damping: 26 } }]), ff, 0.8);
+  const camW = (ff: number) => breathe(rig(ff, { z: -100 }, [{ at: T1.tapi + 10, to: { z: -260, y: 60 }, feel: GLIDE }, { at: DIVE1 + 6, to: { z: -1500 }, feel: { stiffness: 95, damping: 22 } }]), ff, 0.8);
   const { v: cw, d: cwd } = vel(camW, f);
   const turn = spr(f, DIVE1 - 6, { stiffness: 120, damping: 18 });
-  const black = f >= DIVE1 + 30;
+  const black = f >= DIVE1 + 34;
   const phoneIn = spr(f, 0, PANEL);
   const title = spr(f, T1.ptero - 8, GLIDE);
   const camB = (ff: number) => breathe(rig(ff, { z: 600 }, [{ at: DIVE1 + 20, to: { z: 0 }, feel: GLIDE }]), ff, 0.8, 3);
@@ -64,11 +64,14 @@ export const SP1: React.FC = () => {
           <Headline f={f} items={[{ at: T1.pesan - 4, text: "Pesan masuk." }, { at: T1.bot - 6, text: "Bot membalas." }, { at: T1.tapi - 4, text: "Apa yang bekerja di baliknya?" }]} hide={DIVE1} />
         </AbsoluteFill>
       )}
-      {f >= DIVE1 + 29 && (
-        <AbsoluteFill style={{ background: C.black }}>
+      {f >= DIVE1 + 20 && (
+        <AbsoluteFill style={{ background: C.black, opacity: clamp01((f - DIVE1 - 20) / 14) }}>
           <LightStreak f={f} o={0.4} angle={-30} seed={3} />
           <WarmLight f={f} x={540 - cb.x * 0.3} y={960 - cb.y * 0.3} r={900} o={0.6} />
           <GlowWave f={f} y={1180} amp={60} reveal={clamp01((f - DIVE1 - 30) / 30)} speed={0.04} wl={420} />
+          {/* the glow we dived into settles into the background light instead of cutting away */}
+          <div style={{ position: "absolute", inset: 0, opacity: 1 - clamp01((f - DIVE1 - 30) / 34) ** 0.7,
+            background: `radial-gradient(circle at 540px ${lerp(380, 960, clamp01((f - DIVE1 - 30) / 34))}px, rgba(255,150,100,0.95) 0px, rgba(255,77,18,0.8) ${lerp(330, 120, clamp01((f - DIVE1 - 30) / 34))}px, rgba(42,18,9,0.6) ${lerp(720, 420, clamp01((f - DIVE1 - 30) / 34))}px, rgba(5,5,5,0) 1200px)` }} />
           <Stage cam={cb}>
             <Obj x={0} y={-80} w={560} h={360} rx={lerp(30, 8, clamp01(spr(f, DIVE1 + 30, PANEL)))} s={lerp(0.82, 1, clamp01(spr(f, DIVE1 + 30, PANEL)))} o={clamp01(spr(f, DIVE1 + 30, PANEL) * 2)} z={-title * 200}>
               <Card w={560} h={360} tone="dark" glowA={0.9 - title * 0.3} radius={24}>
@@ -148,7 +151,7 @@ export const SP2: React.FC = () => {
             <Roll f={f} at={T2.dua - 26} value="2015" size={230} />
           </div>
         </Obj>
-        <Obj x={0} y={lerp(900, 300, clamp01(spr(f, T2.awal - 10, PANEL)))} w={820} h={560} rx={lerp(40, 0, clamp01(spr(f, T2.awal - 10, PANEL)))} o={f >= T2.awal - 10 ? 1 : 0}>
+        <Obj x={0} y={lerp(900, 300, clamp01(spr(f, T2.awal - 10, PANEL)))} w={820} h={560} rx={lerp(40, 0, clamp01(spr(f, T2.awal - 10, PANEL)))} o={clamp01((f - T2.awal + 10) / 14)}>
           <div style={{ boxShadow: glow(0.6), borderRadius: 16 }}>
             <Browser w={820} h={560} url="panel.contoh.id">
               <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 18 }}>
