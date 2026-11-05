@@ -1,0 +1,8 @@
+[
+ {"id":"p1","text":"Pesan masuk. Bot membalas. Tapi, apa sebenarnya yang bekerja di baliknya? Banyak pengelola bot memakai satu alat yang sama: Pterodactyl Panel."},
+ {"id":"p2","text":"Pterodactyl adalah panel pengelolaan server yang gratis dan open source, dan sudah ada sejak tahun 2015. Awalnya, panel ini dibuat untuk mengelola server game lewat browser."},
+ {"id":"p3","text":"Lalu, kenapa bisa dipakai untuk bot? Karena bot juga sebuah program. Dengan runtime seperti Node.js atau Python, dan konfigurasi yang sesuai, panel ini bisa menjalankan bot Telegram maupun WhatsApp. Kode botnya tetap perlu disesuaikan."},
+ {"id":"p4","text":"Susunannya begini. VPS menyediakan CPU, RAM, dan penyimpanan. Panel jadi tempat mengelola lewat browser. Wings menjalankan container, dan di dalam container itulah bot berjalan. Pesan pengguna tidak lewat panel, tapi langsung dari Telegram atau WhatsApp ke bot."},
+ {"id":"p5","text":"Dari panel, kamu bisa membaca console dan error, memantau CPU dan RAM, mengelola file, sampai start, stop, dan restart. Tapi ingat, status Running belum menjamin bot terhubung, dan error tetap harus diperbaiki di kodenya."},
+ {"id":"p6","text":"Software panelnya gratis, tapi hosting tetap bisa berbiaya. Jadi, kenali proses di balik botmu."}
+]
