@@ -1,18 +1,18 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolateColors } from "remotion";
 import { C, F } from "../lib/theme";
-import { expoInOut, mix, prog } from "../lib/anim";
+import { expoInOut, mix, prog, useT } from "../lib/anim";
 import { FadeUp, Label, Mark, RiseWords } from "../lib/ui";
 import { ABOUT, CONTACT, SERVICES } from "../lib/data";
 
 const Rule: React.FC<{ start: number; dark?: boolean; style?: React.CSSProperties }> = ({ start, dark, style }) => {
-  const f = useCurrentFrame();
+  const f = useT();
   return <i style={{ display: "block", height: 1, background: dark ? C.lineDark : C.lineStrong, transformOrigin: "left", transform: `scaleX(${prog(f, start, 36, expoInOut)})`, ...style }} />;
 };
 
 /** Seluruh adegan sedikit "drift" ke atas, seperti scroll pelan. */
 const useDrift = (dur: number) => {
-  const f = useCurrentFrame();
+  const f = useT();
   return mix(prog(f, 0, dur, (t) => t), 20, -20);
 };
 
@@ -51,7 +51,7 @@ export const About: React.FC = () => {
 
 export const SERVICES_DURATION = 165;
 export const Services: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useT();
   const drift = useDrift(SERVICES_DURATION);
   // sorotan berpindah antar layanan seperti hover
   return (
@@ -72,10 +72,10 @@ export const Services: React.FC = () => {
               <div key={s.title} style={{ position: "relative" }}>
                 <Rule start={20 + i * 6} />
                 <i style={{ position: "absolute", top: 1, left: 0, right: 0, bottom: 0, background: C.ink, transformOrigin: "bottom", transform: `scaleY(${Math.max(0, fill)})` }} />
-                <FadeUp start={26 + i * 6} y={16} style={{ position: "relative", display: "grid", gridTemplateColumns: "120px 760px 1fr 60px", alignItems: "center", padding: "30px 24px", color: fill > 0.5 ? C.bone : C.ink }}>
-                  <span style={{ fontFamily: F.mono, fontSize: 20, color: fill > 0.5 ? "#8b9bff" : C.blue }}>0{i + 1}</span>
+                <FadeUp start={26 + i * 6} y={16} style={{ position: "relative", display: "grid", gridTemplateColumns: "120px 760px 1fr 60px", alignItems: "center", padding: "30px 24px", color: interpolateColors(fill, [0, 1], [C.ink, C.bone]) }}>
+                  <span style={{ fontFamily: F.mono, fontSize: 20, color: interpolateColors(fill, [0, 1], [C.blue, "#8b9bff"]) }}>0{i + 1}</span>
                   <span style={{ fontSize: 50, fontWeight: 650, letterSpacing: "-0.03em" }}>{s.title}</span>
-                  <span style={{ fontSize: 25, lineHeight: 1.4, color: fill > 0.5 ? C.boneDim : C.muted }}>{s.body}</span>
+                  <span style={{ fontSize: 25, lineHeight: 1.4, color: interpolateColors(fill, [0, 1], [C.muted, "rgba(242,238,230,0.6)"]) }}>{s.body}</span>
                   <span style={{ fontFamily: F.mono, fontSize: 30, textAlign: "right", transform: `translateX(${fill * 6}px)` }}>→</span>
                 </FadeUp>
               </div>
@@ -90,7 +90,7 @@ export const Services: React.FC = () => {
 
 export const CONTACT_DURATION = 165;
 export const Contact: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useT();
   const drift = useDrift(CONTACT_DURATION);
   const fill = prog(f, 80, 22);
   return (
@@ -103,7 +103,7 @@ export const Contact: React.FC = () => {
         <div style={{ marginTop: 80, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
           <FadeUp start={36} style={{ fontSize: 32, lineHeight: 1.45, color: "rgba(242,238,230,0.75)", maxWidth: 760 }}>{CONTACT.note}</FadeUp>
           <FadeUp start={44}>
-            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 24, height: 96, padding: "0 44px", border: `1.5px solid ${fill > 0.5 ? C.blue : C.bone}`, fontSize: 32, fontWeight: 560, overflow: "hidden", color: fill > 0.5 ? C.bone : C.dark, background: C.bone }}>
+            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 24, height: 96, padding: "0 44px", border: `1.5px solid ${interpolateColors(fill, [0, 1], [C.bone, C.blue])}`, fontSize: 32, fontWeight: 560, overflow: "hidden", color: interpolateColors(fill, [0, 1], [C.dark, C.bone]), background: C.bone }}>
               <i style={{ position: "absolute", inset: 0, background: C.blue, transformOrigin: "bottom", transform: `scaleY(${fill})` }} />
               <span style={{ position: "relative" }}>Hubungi Saya</span>
               <span style={{ position: "relative", fontFamily: F.mono, transform: `translateX(${fill * 8}px)` }}>→</span>
@@ -125,7 +125,7 @@ export const Contact: React.FC = () => {
 export const OUTRO_DURATION = 120;
 const WORD = "FELIXIORITY".split("");
 export const Outro: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useT();
   return (
     <AbsoluteFill style={{ background: C.blue, color: C.bone, fontFamily: F.sans, overflow: "hidden" }}>
       <div style={{ position: "absolute", top: 70, left: 80, right: 80, display: "flex", justifyContent: "space-between", alignItems: "center" }}>

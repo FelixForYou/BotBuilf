@@ -1,4 +1,10 @@
-import { Easing, interpolate } from "remotion";
+import { Easing, interpolate, useCurrentFrame } from "remotion";
+
+// Render 60 fps; semua timing ditulis dalam "satuan 30 fps" lalu dihitung pecahan,
+// jadi gerakan tetap sama tapi tiap frame lebih halus.
+export const FPS = 60;
+export const K = FPS / 30;
+export const useT = () => useCurrentFrame() / K;
 
 // Kurva yang sama dengan situs: --ease-out / --ease-io / expo.out / power4.inOut
 export const easeOut = Easing.bezier(0.16, 1, 0.3, 1);

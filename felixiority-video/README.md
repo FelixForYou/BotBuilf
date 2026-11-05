@@ -1,6 +1,6 @@
 # FELIXIORITY · Video Portfolio (Remotion)
 
-Video motion graphics ±47 detik (1920×1080, 30 fps) yang dibuat dari desain website portfolio Felixiority:
+Video motion graphics ±47 detik (1920×1080, 60 fps, dengan musik latar dan SFX) yang dibuat dari desain website portfolio Felixiority:
 palet putih tulang / hitam arang / satu biru solid, font Bricolage Grotesque + Instrument Serif + JetBrains Mono,
 dan koreografi yang sama dengan animasi GSAP di situs.
 
@@ -27,3 +27,9 @@ npx remotion render Felixiority out/felixiority-portfolio.mp4
 
 Font dibundel di `public/fonts`, jadi render tidak butuh akses internet.
 Teks dan data project ada di `src/lib/data.ts`; warna dan font di `src/lib/theme.ts`.
+
+## Audio
+
+- `public/music.mp3`: musik latar ambient (pad + pulse lembut), disintesis dengan ffmpeg.
+- `public/sfx/`: whoosh, riser, hit, tick, ketikan (disintesis) serta click, switch, ding, shutter, page-turn dari remotion.media.
+- Penempatan tiap SFX ada di `src/SoundTrack.tsx`, disinkronkan dengan animasi lewat `src/timeline.ts`.

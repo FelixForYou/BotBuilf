@@ -1,7 +1,7 @@
 import React from "react";
-import { useCurrentFrame } from "remotion";
+import { interpolateColors } from "remotion";
 import { C, F } from "./theme";
-import { easeIO, mix, prog } from "./anim";
+import { easeIO, mix, prog, useT } from "./anim";
 import type { Kind } from "./data";
 
 /**
@@ -25,7 +25,7 @@ const Top: React.FC<{ title: string; right: string; p: number }> = ({ title, rig
 );
 
 export const ProjectArt: React.FC<{ kind: Kind; title: string; start?: number }> = ({ kind, title, start = 0 }) => {
-  const f = useCurrentFrame() - start;
+  const f = useT() - start;
   const at = (s: number, d = 18) => prog(f, s, d);
 
   const frame: React.CSSProperties = { width: W, height: H, background: C.bone, border: `1px solid ${C.lineStrong}`, overflow: "hidden", position: "relative", color: C.ink };
@@ -90,16 +90,17 @@ export const ProjectArt: React.FC<{ kind: Kind; title: string; start?: number }>
   }
 
   if (kind === "panel") {
-    const pick = f > 60 ? 2 : -1;
+    const pickP = prog(f, 58, 14);
     return (
       <div style={frame}>
         <Top title={title} right="Pilih paket" p={at(0)} />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, padding: 26 }}>
           {["A", "B", "C", "D"].map((p, i) => {
             const q = at(4 + i * 5, 22);
-            const on = i === pick;
+            const on = i === 2 && pickP > 0.5;
+            const c = i === 2 ? pickP : 0;
             return (
-              <div key={p} style={{ height: 420, border: `1px solid ${on ? C.blue : C.lineStrong}`, background: on ? C.blue : "transparent", color: on ? C.bone : C.ink, padding: 20, display: "flex", flexDirection: "column", gap: 20, opacity: q, transform: `translateY(${mix(q, 40, 0)}px)` }}>
+              <div key={p} style={{ height: 420, border: `1px solid ${interpolateColors(c, [0, 1], [C.lineStrong, C.blue])}`, background: interpolateColors(c, [0, 1], ["rgba(31,61,255,0)", C.blue]), color: interpolateColors(c, [0, 1], [C.ink, C.bone]), transform: `translateY(${mix(q, 40, 0) - c * 10}px)`, padding: 20, display: "flex", flexDirection: "column", gap: 20, opacity: q }}>
                 <small style={{ fontFamily: F.mono, fontSize: 18 }}>Paket {p}</small>
                 <b style={{ fontSize: 44, fontWeight: 700, letterSpacing: "-0.03em" }}>{(i + 1) * 2}GB</b>
                 <span style={{ display: "flex" }}><Meter v={25 + i * 22} p={at(16 + i * 4, 30)} dark={on} /></span>
@@ -204,15 +205,15 @@ export const ProjectArt: React.FC<{ kind: Kind; title: string; start?: number }>
   }
 
   if (kind === "glass") {
-    const sel = f > 50 ? 1 : 0;
+    const selP = prog(f, 48, 14);
     return (
       <div style={{ ...frame, background: `radial-gradient(circle at 25% 30%, ${C.blue} 0, transparent 45%), radial-gradient(circle at 80% 80%, #8b9bff 0, transparent 40%), ${C.dark2}`, border: "1px solid rgba(242,238,230,0.25)", display: "grid", gridTemplateColumns: "300px 1fr", gap: 20, padding: 26 }}>
         <div style={{ display: "grid", gap: 14, alignContent: "start" }}>
           {[0, 1, 2, 3].map((i) => {
             const q = at(4 + i * 4);
-            const on = i === sel;
+            const w = i === 0 ? 1 - selP : i === 1 ? selP : 0;
             return (
-              <div key={i} style={{ display: "flex", gap: 14, alignItems: "center", padding: 16, background: on ? "rgba(242,238,230,0.28)" : "rgba(242,238,230,0.1)", border: "1px solid rgba(242,238,230,0.3)", backdropFilter: "blur(8px)", opacity: q, transform: `translateX(${mix(q, -20, 0)}px)` }}>
+              <div key={i} style={{ display: "flex", gap: 14, alignItems: "center", padding: 16, background: `rgba(242,238,230,${0.1 + 0.18 * w})`, border: "1px solid rgba(242,238,230,0.3)", backdropFilter: "blur(8px)", opacity: q, transform: `translateX(${mix(q, -20, 0)}px)` }}>
                 <i style={{ width: 40, height: 40, borderRadius: 20, background: "rgba(242,238,230,0.5)" }} />
                 <span style={{ display: "grid", gap: 8, flex: 1 }}>
                   <b style={{ height: 10, width: "70%", background: C.bone }} />

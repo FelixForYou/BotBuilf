@@ -1,7 +1,7 @@
 import React from "react";
-import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
+import {AbsoluteFill, Sequence} from "remotion";
 import { C, F } from "../lib/theme";
-import { easeIO, expoInOut, mix, prog } from "../lib/anim";
+import { easeIO, expoInOut, mix, prog, useT, K } from "../lib/anim";
 import { Label, RiseWords, StatusTag } from "../lib/ui";
 import { PROJECTS, type Project } from "../lib/data";
 import { ProjectArt, ART_SIZE } from "../lib/ProjectArt";
@@ -11,7 +11,7 @@ export const PER_PROJECT = 78;
 export const PROJECTS_DURATION = PER_PROJECT * PROJECTS.length;
 
 export const Projects: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useT();
   const idx = Math.min(PROJECTS.length - 1, Math.floor(frame / PER_PROJECT));
   const local = frame - idx * PER_PROJECT;
   const bar = (i: number) => (i < idx ? 1 : i > idx ? 0 : prog(local, 0, PER_PROJECT, (t) => t));
@@ -32,7 +32,7 @@ export const Projects: React.FC = () => {
       </div>
 
       {PROJECTS.map((p, i) => (
-        <Sequence key={p.title} name={p.title} from={i * PER_PROJECT} durationInFrames={PER_PROJECT} layout="none">
+        <Sequence key={p.title} name={p.title} from={i * PER_PROJECT * K} durationInFrames={PER_PROJECT * K} layout="none">
           <Slide p={p} i={i} last={i === PROJECTS.length - 1} />
         </Sequence>
       ))}
@@ -62,7 +62,7 @@ const Counter: React.FC<{ n: number; local: number }> = ({ n, local }) => {
 };
 
 const Slide: React.FC<{ p: Project; i: number; last: boolean }> = ({ p, i, last }) => {
-  const f = useCurrentFrame();
+  const f = useT();
   const out = last ? 0 : prog(f, PER_PROJECT - 16, 16, easeIO);
   const reveal = prog(f, 2, 30, expoInOut);
   const artExit = prog(f, PER_PROJECT - 16, 16, expoInOut);
@@ -105,7 +105,7 @@ const Slide: React.FC<{ p: Project; i: number; last: boolean }> = ({ p, i, last 
           width: ART_SIZE.w,
           height: ART_SIZE.h,
           clipPath: `inset(${artExit * 100}% 0 ${(1 - reveal) * 100}% 0)`,
-          transform: `scale(${mix(prog(f, 0, 50), 1.08, 1)})`,
+          transform: `translateY(${Math.sin(f / 22) * 6}px) scale(${mix(prog(f, 0, 60), 1.08, 1)})`,
         }}
       >
         <ProjectArt kind={p.kind} title={p.title} start={8} />

@@ -1,7 +1,7 @@
 import React from "react";
-import { useCurrentFrame } from "remotion";
+
 import { C, F } from "./theme";
-import { mix, prog } from "./anim";
+import { mix, prog, useT } from "./anim";
 
 /** Kata yang naik dari balik masker (efek .w > span di situs). */
 export const RiseWords: React.FC<{
@@ -13,7 +13,7 @@ export const RiseWords: React.FC<{
   serifWords?: number[];
   blueWords?: number[];
 }> = ({ text, start, stagger = 2, dur = 28, style, serifWords = [], blueWords = [] }) => {
-  const frame = useCurrentFrame();
+  const frame = useT();
   const words = text.split(/\s+/);
   return (
     <span style={style}>
@@ -49,7 +49,7 @@ export const FadeUp: React.FC<{ start: number; dur?: number; y?: number; style?:
   style,
   children,
 }) => {
-  const frame = useCurrentFrame();
+  const frame = useT();
   const p = prog(frame, start, dur);
   return <div style={{ opacity: p, transform: `translateY(${mix(p, y, 0)}px)`, ...style }}>{children}</div>;
 };

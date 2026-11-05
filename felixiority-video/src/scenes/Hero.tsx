@@ -1,7 +1,7 @@
 import React from "react";
-import { AbsoluteFill, interpolateColors, useCurrentFrame, useVideoConfig } from "remotion";
+import {AbsoluteFill, interpolateColors, useVideoConfig} from "remotion";
 import { C, F } from "../lib/theme";
-import { easeIO, expoInOut, mix, prog } from "../lib/anim";
+import { easeIO, expoInOut, mix, prog, useT } from "../lib/anim";
 import { FadeUp, Label, Mark, RiseWords } from "../lib/ui";
 import { HERO } from "../lib/data";
 
@@ -28,7 +28,7 @@ const T = 40; // tirai selesai, intro dimulai
 const HANDOFF = 225;
 
 export const Hero: React.FC = () => {
-  const frame = useCurrentFrame();
+  const frame = useT();
   const { width, height } = useVideoConfig();
   const at = (s: number, d = 24, e = undefined as undefined | ((n: number) => number)) => prog(frame, T + s, d, e);
 
@@ -287,7 +287,7 @@ const Btn: React.FC<{ label: string; arrow: string; solid?: boolean; fill?: numb
       gap: 18,
       height: 72,
       padding: "0 30px",
-      border: `1.5px solid ${solid && fill > 0.5 ? C.blue : C.ink}`,
+      border: `1.5px solid ${solid ? interpolateColors(fill, [0, 1], [C.ink, C.blue]) : C.ink}`,
       background: solid ? C.ink : "transparent",
       color: solid ? C.bone : C.ink,
       fontSize: 23,
