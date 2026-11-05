@@ -31,13 +31,35 @@ const Captions: React.FC = () => {
   );
 };
 
+type Edge = "none" | "dip" | "zoom";
+const edges: Record<PId, [Edge, Edge]> = { p1: ["none", "dip"], p2: ["dip", "zoom"], p3: ["zoom", "zoom"], p4: ["zoom", "zoom"], p5: ["zoom", "none"], p6: ["none", "none"] };
+const ease = (t: number) => t * t * (3 - 2 * t);
+/** Scene shell: zoom-blur into / out of the colour covers, or a short dip through black. */
+const Shell: React.FC<{ id: PId; dur: number; children: React.ReactNode }> = ({ id, dur, children }) => {
+  const f = useCurrentFrame();
+  const [inE, outE] = edges[id];
+  const N = 16;
+  const tin = inE === "none" ? 0 : 1 - ease(Math.min(1, f / N));
+  const tout = outE === "none" ? 0 : ease(Math.max(0, Math.min(1, (f - (dur - N)) / N)));
+  let scale = 1, blur = 0, o = 1;
+  if (inE === "zoom") { scale *= 1 + 0.06 * tin; blur += 8 * tin; }
+  if (outE === "zoom") { scale *= 1 + 0.08 * tout; blur += 10 * tout; }
+  if (inE === "dip") o *= 1 - tin;
+  if (outE === "dip") o *= 1 - tout;
+  return (
+    <AbsoluteFill style={{ opacity: o, transform: scale !== 1 ? `scale(${scale})` : undefined, filter: blur > 0.3 ? `blur(${blur.toFixed(2)}px)` : undefined }}>
+      {children}
+    </AbsoluteFill>
+  );
+};
+
 export const ShortVideo: React.FC = () => (
   <AbsoluteFill style={{ background: "#030303" }}>
     {scenes.map(([id, Comp]) => {
       const { from, dur } = pRange(id);
       return (
         <Sequence key={id} from={from} durationInFrames={dur} name={`short ${id}`}>
-          <Comp />
+          <Shell id={id} dur={dur}><Comp /></Shell>
         </Sequence>
       );
     })}

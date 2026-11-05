@@ -128,3 +128,31 @@ export const exitZ = (f: number, at: number, len = 14) => {
   const q = out(f, at, len);
   return { z: -q * 1600, o: 1 - q * q, blur: q * 10 };
 };
+
+/* ------------------------------------------------------------ ambient depth */
+/**
+ * Soft bokeh particles in two depth layers (behind / in front) that drift slowly and
+ * shift with the camera (parallax), plus a gentle vignette. Gradients only, no filters.
+ */
+export const Ambient: React.FC<{ f: number; camX?: number; camY?: number; color?: string; o?: number; seed?: number }> = ({ f, camX = 0, camY = 0, color = "255,138,92", o = 1, seed = 1 }) => {
+  const { width: VW, height: VH } = useVideoConfig();
+  const parts = Array.from({ length: 22 }).map((_, i) => {
+    const r1 = rand(i * 3.1 + seed), r2 = rand(i * 7.7 + seed), r3 = rand(i * 1.9 + seed);
+    const front = i % 3 === 0;
+    const depth = front ? 1.6 : 0.35 + r3 * 0.4;
+    const size = front ? 60 + r1 * 90 : 8 + r1 * 26;
+    const x = ((r2 * VW * 1.4 - camX * depth + Math.sin(f * 0.004 + i) * 30) % (VW * 1.4) + VW * 1.4) % (VW * 1.4) - VW * 0.2;
+    const y = ((r1 * VH * 1.3 - camY * depth - f * (0.15 + r3 * 0.35)) % (VH * 1.3) + VH * 1.3) % (VH * 1.3) - VH * 0.15;
+    const a = (front ? 0.07 : 0.22) * (0.6 + 0.4 * Math.sin(f * 0.02 + i * 1.3));
+    return { x, y, size, a };
+  });
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none", opacity: o }}>
+      {parts.map((p, i) => (
+        <div key={i} style={{ position: "absolute", left: p.x - p.size / 2, top: p.y - p.size / 2, width: p.size, height: p.size, borderRadius: "50%",
+          background: `radial-gradient(closest-side, rgba(${color},${p.a}), rgba(${color},0))` }} />
+      ))}
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.45) 100%)" }} />
+    </AbsoluteFill>
+  );
+};

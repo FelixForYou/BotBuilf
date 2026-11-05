@@ -1,10 +1,11 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { C, FONT, MONO, glow, softShadow } from "../lib/theme";
-import { arc, breathe, clamp01, DRIFT, GLIDE, lerp, out, PANEL, POP, rig, SNAP, spr, vel, WHIP } from "../lib/motion";
+import { arc, breathe, clamp01, DRIFT, GLIDE, lerp, out, rig, SMOOTH, SOFTPANEL, SOFTPOP, SNAP, spr, vel } from "../lib/motion";
+const PANEL = SOFTPANEL, POP = SOFTPOP, WHIP = SMOOTH;
 import { s, SfxCue } from "../lib/sfx";
-import { Card, Flow, GlowWave, Label, LightStreak, Obj, Stage, WarmLight, DashedGrid } from "../components/Primitives";
-import { MBlur, Sweep, SwapText } from "../components/Motion";
+import { Card, Flow, GlowWave, Label, LightStreak, Obj, Stage, WarmLight, DashedGrid, Words } from "../components/Primitives";
+import { Ambient, MBlur, Sweep, SwapText } from "../components/Motion";
 import { ContainerIllo, ServerIllo } from "../components/Illustrations";
 import { Icon } from "../components/Icon";
 import { BrandLogo, PteroLogo, PteroMark } from "../components/Logos";
@@ -14,14 +15,22 @@ import { localP } from "./time";
 
 /* Vertical 1080x1920. Stage origin = screen centre (540, 960).
  * TikTok safe area: keep key content between screen y 230 and 1380, x < 950. */
-const HEAD_Y = 230; // headline baseline area (screen px)
+const HEAD_Y = 230;
+const ease2 = (t: number) => t * t * (3 - 2 * t); // headline baseline area (screen px)
 
 const Headline: React.FC<{ f: number; items: { at: number; text: string; color?: string }[]; dark?: boolean; size?: number; hide?: number }> = ({ f, items, dark, size = 64, hide }) => (
   <AbsoluteFill style={{ alignItems: "center", pointerEvents: "none" }}>
     {dark && <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 470, background: "linear-gradient(180deg, rgba(3,3,3,0.92) 0%, rgba(3,3,3,0.7) 55%, rgba(3,3,3,0) 100%)" }} />}
-    <div style={{ position: "absolute", top: HEAD_Y, width: 960, display: "flex", justifyContent: "center", opacity: hide === undefined ? 1 : 1 - out(f, hide, 10) }}>
-      <SwapText f={f} items={items} size={size} color={dark ? "#fff" : C.ink} style={{ whiteSpace: "normal", textAlign: "center", lineHeight: 1.1 }} />
-    </div>
+    {items.map((it, i) => {
+      const next = items[i + 1]?.at ?? hide;
+      if (f < it.at - 4 || (next !== undefined && f > next + 16)) return null;
+      return (
+        <div key={i} style={{ position: "absolute", top: HEAD_Y, width: 960, display: "flex", justifyContent: "center" }}>
+          <Words f={f} text={it.text} at={it.at} stagger={3} dur={20} out={next !== undefined ? next - 2 : undefined} outLen={14} size={size} weight={650}
+            color={it.color ?? (dark ? "#fff" : C.ink)} style={{ textAlign: "center", lineHeight: 1.12 }} />
+        </div>
+      );
+    })}
   </AbsoluteFill>
 );
 
@@ -44,6 +53,7 @@ export const SP1: React.FC = () => {
       {!black && (
         <AbsoluteFill>
           <DashedGrid f={f} xs={[540]} ys={[960]} color="rgba(10,10,12,0.08)" march={1.2} />
+          <Ambient f={f} camX={cw.x} camY={cw.y} color="10,10,12" o={0.5} />
           <Stage cam={cw} blur={[cwd.x, cwd.y]}>
             <Obj x={0} y={lerp(700, -40, phoneIn)} w={380} h={660} s={1.3} ry={turn * 180 + lerp(-25, -6, phoneIn)} style={{ transformStyle: "preserve-3d" }}>
               <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden" }}><PhoneChat f={f + 40} start={T1.pesan - 10} /></div>
@@ -57,10 +67,10 @@ export const SP1: React.FC = () => {
       {f >= DIVE1 + 29 && (
         <AbsoluteFill style={{ background: C.black }}>
           <LightStreak f={f} o={0.4} angle={-30} seed={3} />
-          <WarmLight f={f} x={540} y={960} r={900} o={0.6} />
+          <WarmLight f={f} x={540 - cb.x * 0.3} y={960 - cb.y * 0.3} r={900} o={0.6} />
           <GlowWave f={f} y={1180} amp={60} reveal={clamp01((f - DIVE1 - 30) / 30)} speed={0.04} wl={420} />
           <Stage cam={cb}>
-            <Obj x={0} y={-80} w={560} h={360} rx={lerp(30, 8, clamp01(spr(f, DIVE1 + 30, PANEL)))} s={lerp(0.2, 1, clamp01(spr(f, DIVE1 + 30, PANEL)))} z={-title * 200}>
+            <Obj x={0} y={-80} w={560} h={360} rx={lerp(30, 8, clamp01(spr(f, DIVE1 + 30, PANEL)))} s={lerp(0.82, 1, clamp01(spr(f, DIVE1 + 30, PANEL)))} o={clamp01(spr(f, DIVE1 + 30, PANEL) * 2)} z={-title * 200}>
               <Card w={560} h={360} tone="dark" glowA={0.9 - title * 0.3} radius={24}>
                 <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16, opacity: 1 - title * 0.5 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}><BrandLogo brand="telegram" size={30} /><div style={{ color: "#fff", fontSize: 22, fontWeight: 700 }}>asisten-bot</div><div style={{ flex: 1 }} /><StatusPill state="running" f={f} size={14} /></div>
@@ -69,6 +79,7 @@ export const SP1: React.FC = () => {
               </Card>
             </Obj>
           </Stage>
+          <Ambient f={f} camX={cb.x} camY={cb.y} />
           <Headline f={f} dark items={[{ at: T1.banyak - 4, text: "Satu alat yang sama:" }]} size={52} hide={T1.ptero - 10} />
           <AbsoluteFill style={{ alignItems: "center" }}>
             <div style={{ position: "absolute", top: 300, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, opacity: clamp01(title * 1.4), transform: `translateY(${(1 - title) * 40}px)`, filter: title < 0.97 ? `blur(${(1 - title) * 10}px)` : undefined }}>
@@ -114,7 +125,7 @@ export const SP2: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: C.black, fontFamily: FONT }}>
       <LightStreak f={f} o={0.4} angle={-30} seed={3} />
-      <WarmLight f={f} x={540} y={960} r={900} o={0.6} />
+      <WarmLight f={f} x={540 - c.x * 0.3} y={960 - c.y * 0.3} r={900} o={0.6} />
       <Stage cam={c} blur={[cd.x, cd.y]}>
         <Obj x={0} y={-240} w={900} h={120} o={1 - out(f, T2.sejak + 30, 12)}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
@@ -157,8 +168,9 @@ export const SP2: React.FC = () => {
           </div>
         </Obj>
       </Stage>
+      <Ambient f={f} camX={c.x} camY={c.y} />
       <Headline f={f} dark items={[{ at: T2.awal - 6, text: "Berawal dari pengelolaan server game.", color: "#fff" }]} size={56} />
-      <AbsoluteFill style={{ background: "#111113", opacity: clamp01((f - (L2.dur - 7)) / 6) }} />
+      <AbsoluteFill style={{ background: "#111113", opacity: ease2(clamp01((f - (L2.dur - 14)) / 14)) }} />
     </AbsoluteFill>
   );
 };
@@ -181,9 +193,9 @@ export const SP3: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: C.black, fontFamily: FONT }}>
       <LightStreak f={f} o={0.35 * clamp01(f / 20)} angle={-30} seed={7} />
-      <WarmLight f={f} x={540} y={900} r={900} o={0.45} />
+      <WarmLight f={f} x={540 - c.x * 0.3} y={900 - c.y * 0.3} r={900} o={0.45} />
       <Stage cam={c} blur={[cd.x, cd.y]}>
-        <Obj x={0} y={-160} w={240} h={240} s={lerp(0.1, 1, proc)}>
+        <Obj x={0} y={-160} w={240} h={240} s={lerp(0.75, 1, proc)} o={clamp01(proc * 2)}>
           <div style={{ width: 240, height: 240, borderRadius: 46, background: "linear-gradient(160deg, rgba(255,138,92,0.34), rgba(255,77,18,0.14))", border: `3px solid ${C.orange}`, boxShadow: glow(0.9),
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
             <Icon name="Bot" size={100} color="#fff" stroke={1.5} draw={clamp01((f - 6) / 22)} />
@@ -217,8 +229,9 @@ export const SP3: React.FC = () => {
           </div>
         </Obj>
       </Stage>
+      <Ambient f={f} camX={c.x} camY={c.y} />
       <Headline f={f} dark items={[{ at: T3.lalu - 4, text: "Kenapa bisa untuk bot?", color: "#fff" }, { at: T3.karena - 4, text: "Bot juga sebuah program.", color: "#fff" }, { at: T3.konfig - 6, text: "Dengan konfigurasi yang sesuai", color: "#fff" }]} size={58} hide={T3.end - 26} />
-      <AbsoluteFill style={{ background: "#111113", opacity: Math.max(1 - clamp01(f / 8), clamp01((f - (L3.dur - 7)) / 6)) }} />
+      <AbsoluteFill style={{ background: "#111113", opacity: Math.max(1 - ease2(clamp01(f / 14)), ease2(clamp01((f - (L3.dur - 14)) / 14))) }} />
     </AbsoluteFill>
   );
 };
@@ -243,7 +256,7 @@ export const SP4: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: C.black, fontFamily: FONT }}>
       <LightStreak f={f} o={0.4} angle={-30} seed={9} />
-      <WarmLight f={f} x={540} y={1200} r={900} o={0.45} />
+      <WarmLight f={f} x={540 - c.x * 0.3} y={1200 - c.y * 0.3} r={900} o={0.45} />
       <Stage cam={c} blur={[cd.x, cd.y * 0.6]}>
         <Obj x={0} y={480} w={900} h={460} rx={62}>
           <div style={{ width: 900, height: 460, borderRadius: 32, background: "linear-gradient(160deg,#1b1c20,#0d0d0f)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: glow(0.7), position: "relative", transformStyle: "preserve-3d" }}>
@@ -279,7 +292,7 @@ export const SP4: React.FC = () => {
             })}
           </div>
         </Obj>
-        <Obj x={0} y={-120} z={260} w={600} h={260} s={lerp(0.1, 0.62, clamp01(spr(f, T4.bot - 20, PANEL)))} o={clamp01((f - T4.bot + 20) / 8) * (1 - out(f, T4.pesan - 14, 10))}>
+        <Obj x={0} y={-120} z={260} w={600} h={260} s={lerp(0.5, 0.62, clamp01(spr(f, T4.bot - 20, PANEL)))} o={clamp01((f - T4.bot + 20) / 8) * (1 - out(f, T4.pesan - 14, 10))}>
           <CodeCard f={f} at={T4.bot - 14} w={600} title="asisten-bot/index.js" size={22} lines={[{ text: "bot.on('message', async (msg) => {", tone: "kw" }, { text: "  await msg.reply(await jawab(msg));", tone: "plain" }, { text: "});", tone: "kw" }]} />
         </Obj>
         <Obj x={0} y={-430} z={lerp(900, 0, clamp01(panelQ)) + hand * 1300} w={760} h={330} o={clamp01(panelQ * 4)} ry={lerp(-25, -4, clamp01(panelQ)) * (1 - hand)}>
@@ -308,9 +321,10 @@ export const SP4: React.FC = () => {
         <Flow f={f} d="M 340 -90 C 320 0 200 40 40 60" reveal={route * (1 - hand)} color={C.telegram} pulses={4} width={5} dashed={false} />
         <Flow f={f} d="M 420 -90 C 420 20 260 80 60 90" reveal={clamp01((f - T4.wa + 10) / 30) * (1 - hand)} color={C.whatsapp} pulses={4} width={5} dashed={false} />
       </Stage>
+      <Ambient f={f} camX={c.x} camY={c.y} />
       <Headline f={f} dark items={[{ at: T4.vps - 6, text: "Server menyediakan tenaga.", color: "#fff" }, { at: T4.panel - 6, text: "Panel mengelola.", color: "#fff" }, { at: T4.bot - 6, text: "Bot menjalankan logika.", color: "#fff" }, { at: T4.pesan - 6, text: "Pesan tidak lewat panel.", color: "#fff" }]} size={58} hide={L4.dur - 24} />
-      <AbsoluteFill style={{ background: "#111113", opacity: 1 - clamp01(f / 10) }} />
-      <AbsoluteFill style={{ background: "#1b1e23", opacity: clamp01((f - (L4.dur - 7)) / 6) }} />
+      <AbsoluteFill style={{ background: "#111113", opacity: 1 - ease2(clamp01(f / 14)) }} />
+      <AbsoluteFill style={{ background: "#1b1e23", opacity: ease2(clamp01((f - (L4.dur - 14)) / 14)) }} />
     </AbsoluteFill>
   );
 };
@@ -342,7 +356,7 @@ export const SP5: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: C.black, fontFamily: FONT }}>
       <LightStreak f={f} o={0.45} angle={-24} seed={5} />
-      <WarmLight f={f} x={540} y={960} r={1000} o={0.5} />
+      <WarmLight f={f} x={540 - c.x * 0.3} y={960 - c.y * 0.3} r={1000} o={0.5} />
       <Stage cam={c} blur={[cd.x, cd.y]}>
         {[0, 1, 2, 3].map((i) => {
           const q = clamp01(spr(f, i * 6, PANEL));
@@ -380,8 +394,9 @@ export const SP5: React.FC = () => {
             lines={[{ text: "function formatAgenda(a) {", tone: "kw" }, { text: f > T5.kode ? "  if (!a) return 'Belum ada agenda.';" : "  return a.tanggal + a.isi;", tone: f > T5.kode ? "fix" : "err" }, { text: "}", tone: "kw" }]} />
         </Obj>
       </Stage>
+      <Ambient f={f} camX={c.x} camY={c.y} />
       <Headline f={f} dark items={[{ at: T5.console - 8, text: "Console & error", color: "#fff" }, { at: T5.cpu - 8, text: "CPU & RAM", color: "#fff" }, { at: T5.file - 8, text: "File manager", color: "#fff" }, { at: T5.start - 8, text: "Start · Stop · Restart", color: "#fff" }, { at: T5.tapi - 6, text: "Tapi ingat:", color: C.coral }, { at: T5.error2 - 6, text: "Error diperbaiki di kode.", color: "#fff" }]} size={60} />
-      <AbsoluteFill style={{ background: "#1b1e23", opacity: 1 - clamp01(f / 9) }} />
+      <AbsoluteFill style={{ background: "#1b1e23", opacity: 1 - ease2(clamp01(f / 14)) }} />
       <Sweep f={f} at={L5.dur - 16} half="in" dir="up" />
     </AbsoluteFill>
   );
@@ -407,6 +422,7 @@ export const SP6: React.FC = () => {
         <LightStreak f={f} o={0.45} angle={-26} seed={12} />
         <WarmLight f={f} x={540} y={960} r={1000} o={0.55} />
         <GlowWave f={f} y={1180} amp={lerp(10, 50, title)} o={title * 0.85} reveal={title} speed={0.03} wl={420} />
+        <Ambient f={f} seed={6} />
         <Stage cam={breathe(rig(f, { z: 0 }, [{ at: T6.jadi, to: { z: 300 }, feel: DRIFT }]), f, 0.8, 7)}>
           {([["Software panel", "gratis & open source", "mark", -300, T6.soft, C.ok], ["Hosting", "bisa berbiaya", "Coins", 120, T6.hosting, C.warn]] as const).map(([a, b, ic, y, at, col], i) => {
             const q = clamp01(spr(f, at - 10, { stiffness: 150, damping: 16 }));

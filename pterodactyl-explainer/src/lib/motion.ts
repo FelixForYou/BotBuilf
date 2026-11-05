@@ -87,3 +87,8 @@ export const breathe = (c: V6, f: number, amp0 = 1, seed = 0): V6 => {
   rx: c.rx + Math.sin(f * 0.007 + seed) * 0.8 * amp,
   };
 };
+
+/** Softer feels for the vertical cut: no visible bounce, long smooth settle. */
+export const SMOOTH: Feel = { stiffness: 110, damping: 24, mass: 1 };   // camera moves (~32f, no overshoot)
+export const SOFTPOP: Feel = { stiffness: 200, damping: 22, mass: 0.9 }; // small elements (~18f, barely any overshoot)
+export const SOFTPANEL: Feel = { stiffness: 130, damping: 21, mass: 1.1 }; // cards (~28f, very light overshoot)
