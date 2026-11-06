@@ -1,0 +1,8 @@
+[
+ {"id":"s1","text":"Belajar keamanan siber paling efektif lewat praktik. Tapi, di mana tempat latihan yang aman, dan legal?"},
+ {"id":"s2","text":"Kenalkan, O-wasp Juice Shop. Proyek open source O-wasp Flagship, yang dipimpin Björn Kimminich dan Jannik Hollenbach. Sebuah toko online, yang sengaja dibuat penuh celah keamanan."},
+ {"id":"s3","text":"Repositorinya ada di GitHub: juice-shop, garis miring, juice-shop. Lebih dari empat belas ribu bintang, berlisensi MIT. Kalau bermanfaat, tekan tombol Star, untuk mendukung developernya!"},
+ {"id":"s4","text":"Juice Shop memuat kerentanan dari seluruh O-wasp Top Ten, plus celah dari aplikasi nyata. Jalankan di komputermu sendiri, lalu temukan celahnya satu per satu. Cocok untuk pelajar, developer, penguji keamanan, dan trainer CTF."},
+ {"id":"s5","text":"Cukup satu perintah Docker, lalu buka localhost, port tiga ribu. Ada seratus enam belas tantangan, level satu sampai enam bintang, terpantau di Score Board. Pemula dibimbing Hacking Instructor. Lewat Coding Challenge, kamu belajar memperbaiki kode yang rentan, misalnya membuat query SQL aman, dengan parameter binding."},
+ {"id":"s6","text":"Juice Shop melatihmu berpikir seperti penyerang, untuk membangun aplikasi yang lebih aman. Gunakan hanya di lingkungan sendiri, atau yang sudah berizin. Kunjungi repositorinya di GitHub, sekarang!"}
+]
