@@ -157,10 +157,13 @@ const useCamera = (keys: [number, number, number, number][]) => {
   const f = useCurrentFrame();
   const frames = keys.map((k) => k[0]);
   const opts = {...clamp, easing: easeInOut};
+  const s = interpolate(f, frames, keys.map((k) => k[1]), opts);
+  const lim = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+  // keep the page covering the whole viewport (no empty edges while zoomed)
   return {
-    s: interpolate(f, frames, keys.map((k) => k[1]), opts),
-    x: interpolate(f, frames, keys.map((k) => k[2]), opts),
-    y: interpolate(f, frames, keys.map((k) => k[3]), opts),
+    s,
+    x: lim(interpolate(f, frames, keys.map((k) => k[2]), opts), W / (2 * s), W - W / (2 * s)),
+    y: lim(interpolate(f, frames, keys.map((k) => k[3]), opts), H / (2 * s), H + 140 - H / (2 * s)),
   };
 };
 
@@ -257,7 +260,7 @@ export const S3GitHub: React.FC = () => {
             <Typewriter text={`https://${FACTS.url}`} start={10} cps={60} caret={false} />
           </div>
         </div>
-        <div style={{position: 'relative', width: W, height: H, overflow: 'hidden'}}>
+        <div style={{position: 'relative', width: W, height: H, overflow: 'hidden', background: GH.bg}}>
           <div
             style={{
               position: 'absolute',
