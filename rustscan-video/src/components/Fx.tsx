@@ -224,7 +224,7 @@ export const Decode: React.FC<{ text: string; start: number; dur?: number; style
     .split("")
     .map((ch, i) => {
       if (ch === " ") return " ";
-      const th = i / text.length;
+      const th = (i / text.length) * 0.85;
       if (p >= th + 0.12) return ch;
       if (p < th * 0.6) return f < start ? "" : "";
       return GLYPHS[Math.floor(random(`${seed}${i}${Math.floor(f / 2)}`) * GLYPHS.length)];
