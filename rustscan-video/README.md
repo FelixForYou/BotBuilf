@@ -2,7 +2,7 @@
 
 Video motion berbahasa Indonesia, 1920×1080, 60 fps, ±89 detik, H.264/AAC. Isinya pengenalan [RustScan](https://github.com/bee-san/RustScan), repository GitHub beserta animasi ⭐ Star, cara kerja, instalasi di Kali, demo di lab lokal, fitur dan keterbatasan, lalu outro.
 
-Hasil render: `out/RustScan_KaliLinux_1080p60.mp4`. Sumber setiap fakta ada di [RESEARCH.md](RESEARCH.md).
+Hasil render: [`RustScan_KaliLinux_1080p60.mp4`](RustScan_KaliLinux_1080p60.mp4). Sumber setiap fakta ada di [RESEARCH.md](RESEARCH.md).
 
 ## Struktur
 
