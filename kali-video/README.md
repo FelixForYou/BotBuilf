@@ -1,6 +1,6 @@
 # Mengenal Kali Linux: video motion edukasi (revisi 2, gaya minimal)
 
-Video motion vertikal berbahasa Indonesia untuk pemula. Spesifikasi: 1080×1920, 60 fps, H.264/AAC, ±115 detik, dengan narasi santai, subtitle, dan SFX tanpa musik.
+Video motion vertikal berbahasa Indonesia untuk pemula. Spesifikasi: 1080×1920, 60 fps, H.264/AAC, ±120 detik, dengan narasi dari rekaman suara, subtitle, dan SFX tanpa musik.
 
 Hasil render: [`Mengenal_Kali_Linux_Vertikal_1080x1920.mp4`](Mengenal_Kali_Linux_Vertikal_1080x1920.mp4). Sumber setiap fakta ada di [RESEARCH.md](RESEARCH.md).
 
@@ -30,6 +30,10 @@ python3 scripts/tts.py && python3 scripts/timeline.py && python3 scripts/mix.py
 npx remotion render KaliLinuxVideo out/Mengenal_Kali_Linux_Vertikal_1080x1920.mp4 --codec=h264 --crf=18 --audio-codec=aac
 ```
 
-Narasi juga bisa diganti dengan rekaman suara sendiri, seperti cara di video referensi. Potong rekaman per kalimat sesuai `narration.json`, lalu timeline dan audio tinggal dihitung ulang.
+**Narasi sekarang memakai rekaman suara** (`scripts/rec/s1…s8.wav`, satu file per scene). `scripts/use_recordings.py` memotong tiap rekaman per kalimat di titik jeda (timestamp kata dari Whisper ada di `scripts/rec/words.json`) dan mempertahankan ritme aslinya, karena antar-kalimat tidak diberi jeda tambahan. Momen animasi yang terikat ke kata tertentu sudah diselaraskan dengan rekaman.
+
+```bash
+python3 scripts/use_recordings.py && python3 scripts/timeline.py && python3 scripts/mix.py
+```
 
 Logo dan screenshot berasal dari kali.org dan dipakai untuk keperluan edukasi.
