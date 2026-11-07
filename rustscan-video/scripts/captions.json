@@ -1,0 +1,10 @@
+{
+ "s1":["Langkah pertama pentest: mencari port yang terbuka.","Tapi, memindai 65.535 port bisa lama."],
+ "s2":["Kenalkan, RustScan.","Port scanner modern berbasis bahasa Rust, karya bee-san dan komunitasnya."],
+ "s3":["Repositorinya: bee-san/RustScan.","Sekitar 21 ribu bintang, lisensi GPL-3.0.","Tekan Star untuk mendukung developernya."],
+ "s4":["RustScan membuka ribuan koneksi paralel untuk menemukan port terbuka.","Lalu, hanya port terbuka yang diteruskan ke Nmap untuk analisis layanan."],
+ "s5":["Di Kali Linux: sudo apt install rustscan","Atau cara resmi: cargo install rustscan","Dependensinya Nmap, yang sudah ada di Kali."],
+ "s6":["Demo aman di lab lokal, yaitu localhost.","-a untuk target, -r rentang port, --ulimit batas koneksi.","Opsi setelah --, yaitu -sV, diteruskan ke Nmap.","Dua port terbuka ditemukan, lengkap dengan layanannya."],
+ "s7":["Fiturnya: scripting engine, adaptive learning, IPv6, dan UDP.","Keterbatasannya: deteksi layanan butuh Nmap, dan batch size berlebih bisa melewatkan port.","Cocok untuk pentester, pemain CTF, dan admin jaringan."],
+ "s8":["Cepat, fleksibel, dan open source.","Gunakan hanya pada sistem milikmu, atau yang memberi izin.","Kunjungi repositorinya, dan beri bintang!"]
+}

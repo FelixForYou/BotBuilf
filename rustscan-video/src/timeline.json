@@ -1,0 +1,194 @@
+{
+ "fps": 60,
+ "total": 5325,
+ "scenes": [
+  {
+   "id": "s1",
+   "from": 0,
+   "dur": 467,
+   "parts": [
+    {
+     "start": 78,
+     "dur": 171,
+     "text": "Langkah pertama pentest: mencari port yang terbuka.",
+     "file": "s1_0.wav"
+    },
+    {
+     "start": 262,
+     "dur": 181,
+     "text": "Tapi, memindai 65.535 port bisa lama.",
+     "file": "s1_1.wav"
+    }
+   ]
+  },
+  {
+   "id": "s2",
+   "from": 467,
+   "dur": 421,
+   "parts": [
+    {
+     "start": 30,
+     "dur": 92,
+     "text": "Kenalkan, RustScan.",
+     "file": "s2_0.wav"
+    },
+    {
+     "start": 135,
+     "dur": 256,
+     "text": "Port scanner modern berbasis bahasa Rust, karya bee-san dan komunitasnya.",
+     "file": "s2_1.wav"
+    }
+   ]
+  },
+  {
+   "id": "s3",
+   "from": 888,
+   "dur": 701,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 220,
+     "text": "Repositorinya: bee-san/RustScan.",
+     "file": "s3_0.wav"
+    },
+    {
+     "start": 257,
+     "dur": 221,
+     "text": "Sekitar 21 ribu bintang, lisensi GPL-3.0.",
+     "file": "s3_1.wav"
+    },
+    {
+     "start": 492,
+     "dur": 131,
+     "text": "Tekan Star untuk mendukung developernya.",
+     "file": "s3_2.wav"
+    }
+   ]
+  },
+  {
+   "id": "s4",
+   "from": 1589,
+   "dur": 558,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 232,
+     "text": "RustScan membuka ribuan koneksi paralel untuk menemukan port terbuka.",
+     "file": "s4_0.wav"
+    },
+    {
+     "start": 269,
+     "dur": 259,
+     "text": "Lalu, hanya port terbuka yang diteruskan ke Nmap untuk analisis layanan.",
+     "file": "s4_1.wav"
+    }
+   ]
+  },
+  {
+   "id": "s5",
+   "from": 2147,
+   "dur": 590,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 185,
+     "text": "Di Kali Linux: sudo apt install rustscan",
+     "file": "s5_0.wav"
+    },
+    {
+     "start": 222,
+     "dur": 169,
+     "text": "Atau cara resmi: cargo install rustscan",
+     "file": "s5_1.wav"
+    },
+    {
+     "start": 404,
+     "dur": 155,
+     "text": "Dependensinya Nmap, yang sudah ada di Kali.",
+     "file": "s5_2.wav"
+    }
+   ]
+  },
+  {
+   "id": "s6",
+   "from": 2737,
+   "dur": 991,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 164,
+     "text": "Demo aman di lab lokal, yaitu localhost.",
+     "file": "s6_0.wav"
+    },
+    {
+     "start": 201,
+     "dur": 265,
+     "text": "-a untuk target, -r rentang port, --ulimit batas koneksi.",
+     "file": "s6_1.wav"
+    },
+    {
+     "start": 479,
+     "dur": 260,
+     "text": "Opsi setelah --, yaitu -sV, diteruskan ke Nmap.",
+     "file": "s6_2.wav"
+    },
+    {
+     "start": 753,
+     "dur": 184,
+     "text": "Dua port terbuka ditemukan, lengkap dengan layanannya.",
+     "file": "s6_3.wav"
+    }
+   ]
+  },
+  {
+   "id": "s7",
+   "from": 3728,
+   "dur": 938,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 310,
+     "text": "Fiturnya: scripting engine, adaptive learning, IPv6, dan UDP.",
+     "file": "s7_0.wav"
+    },
+    {
+     "start": 348,
+     "dur": 326,
+     "text": "Keterbatasannya: deteksi layanan butuh Nmap, dan batch size berlebih bisa melewatkan port.",
+     "file": "s7_1.wav"
+    },
+    {
+     "start": 687,
+     "dur": 227,
+     "text": "Cocok untuk pentester, pemain CTF, dan admin jaringan.",
+     "file": "s7_2.wav"
+    }
+   ]
+  },
+  {
+   "id": "s8",
+   "from": 4666,
+   "dur": 659,
+   "parts": [
+    {
+     "start": 24,
+     "dur": 157,
+     "text": "Cepat, fleksibel, dan open source.",
+     "file": "s8_0.wav"
+    },
+    {
+     "start": 195,
+     "dur": 198,
+     "text": "Gunakan hanya pada sistem milikmu, atau yang memberi izin.",
+     "file": "s8_1.wav"
+    },
+    {
+     "start": 406,
+     "dur": 151,
+     "text": "Kunjungi repositorinya, dan beri bintang!",
+     "file": "s8_2.wav"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,64 @@
+[
+ {
+  "id": "s1",
+  "parts": [
+   "Langkah pertama pentest: mencari port yang terbuka.",
+   "Tapi, memindai enam puluh lima ribu port bisa lama."
+  ]
+ },
+ {
+  "id": "s2",
+  "parts": [
+   "Kenalkan, Rast Sken.",
+   "Port scanner modern berbasis bahasa Rast, karya bi-san dan komunitasnya."
+  ]
+ },
+ {
+  "id": "s3",
+  "parts": [
+   "Repositorinya: bi-san, garis miring, Rast Sken.",
+   "Sekitar dua puluh satu ribu bintang, lisensi G-P-L tiga.",
+   "Tekan Star untuk mendukung developernya."
+  ]
+ },
+ {
+  "id": "s4",
+  "parts": [
+   "Rast Sken membuka ribuan koneksi paralel untuk menemukan port terbuka.",
+   "Lalu, hanya port terbuka yang diteruskan ke En-map untuk analisis layanan."
+  ]
+ },
+ {
+  "id": "s5",
+  "parts": [
+   "Di Kali Linux: sudo apt install rast sken.",
+   "Atau cara resmi: cargo install rast sken.",
+   "Dependensinya En-map, yang sudah ada di Kali."
+  ]
+ },
+ {
+  "id": "s6",
+  "parts": [
+   "Demo aman di lab lokal, yaitu localhost.",
+   "Minus a untuk target, minus r rentang port, ulimit batas koneksi.",
+   "Opsi setelah dua minus, yaitu minus es ve, diteruskan ke En-map.",
+   "Dua port terbuka ditemukan, lengkap dengan layanannya."
+  ]
+ },
+ {
+  "id": "s7",
+  "parts": [
+   "Fiturnya: scripting engine, adaptive learning, IPv6, dan UDP.",
+   "Keterbatasannya: deteksi layanan butuh En-map, dan batch size berlebih bisa melewatkan port.",
+   "Cocok untuk pentester, pemain C-T-F, dan admin jaringan."
+  ]
+ },
+ {
+  "id": "s8",
+  "parts": [
+   "Cepat, fleksibel, dan open source.",
+   "Gunakan hanya pada sistem milikmu, atau yang memberi izin.",
+   "Kunjungi repositorinya, dan beri bintang!"
+  ]
+ }
+]
