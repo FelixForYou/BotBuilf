@@ -1,13 +1,13 @@
 # Mengenal Kali Linux: video motion edukasi (revisi 2, gaya minimal)
 
-Video motion vertikal berbahasa Indonesia untuk pemula. Spesifikasi: 1080×1920, 60 fps, H.264/AAC, ±118 detik, dengan narasi santai, subtitle, dan SFX tanpa musik.
+Video motion vertikal berbahasa Indonesia untuk pemula. Spesifikasi: 1080×1920, 60 fps, H.264/AAC, ±115 detik, dengan narasi santai, subtitle, dan SFX tanpa musik.
 
 Hasil render: [`Mengenal_Kali_Linux_Vertikal_1080x1920.mp4`](Mengenal_Kali_Linux_Vertikal_1080x1920.mp4). Sumber setiap fakta ada di [RESEARCH.md](RESEARCH.md).
 
 ## Revisi 2 (mengikuti video & audio referensi)
 
 - **Desain**: latar putih dengan gradasi pastel lembut. Headline hitam tebal dengan satu kata aksen biru, kartu putih bershadow, kotak seleksi bergaya tool desain, dan kursor yang mengklik. Bar "Tanya soal Kali Linux..." tetap di bawah, header/footer kecil, dan outro berupa end card navy.
-- **Pembukaan**: dibuka dengan gelembung komentar penonton ("Bang, Kali Linux itu sebenernya buat apa sih?"), lalu hook "Katanya buat ~~hacker?~~ → keamanan."
+- **Pembukaan**: cukup pertanyaan "Kali Linux itu buat apa sih?", lalu hook "Katanya buat ~~hacker?~~ → keamanan."
 - **Narasi**: gaya bicara santai seperti audio referensi ("aku", "nah", "ya", kalimat pendek). Suara gTTS diolah dengan vocoder WORLD (`scripts/voice.py`) menjadi suara pria (±115 Hz) dengan kontur intonasi diperkuat 2,2×.
 - **SFX**: lebih lembut (pop, tick, klik, ketikan, chime), tanpa glitch.
 

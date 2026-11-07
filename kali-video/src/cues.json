@@ -1,24 +1,9 @@
 {
  "s1": {
-  "bubble": {
-   "ref": "start",
-   "off": 0.35,
-   "sfx": "bubble"
-  },
-  "hl": {
-   "ref": "start",
-   "off": 1.15,
-   "sfx": "tick"
-  },
-  "cursor": {
+  "q": {
    "ref": "p0",
-   "off": 1.0,
-   "sfx": "swoosh"
-  },
-  "click": {
-   "ref": "p0",
-   "off": 1.9,
-   "sfx": "click"
+   "off": -0.05,
+   "sfx": "pop"
   },
   "head": {
    "ref": "p1",

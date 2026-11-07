@@ -1,26 +1,26 @@
 {
  "fps": 60,
- "total": 7067,
+ "total": 6929,
  "scenes": [
   {
    "id": "s1",
    "from": 0,
-   "dur": 586,
+   "dur": 448,
    "parts": [
     {
-     "start": 120,
-     "dur": 184,
-     "text": "Ada yang nanya: Kali Linux itu sebenernya buat apa sih?",
+     "start": 30,
+     "dur": 130,
+     "text": "Kali Linux itu sebenernya buat apa sih?",
      "file": "s1_0.wav"
     },
     {
-     "start": 313,
+     "start": 169,
      "dur": 84,
      "text": "Katanya buat hacker ya?",
      "file": "s1_1.wav"
     },
     {
-     "start": 406,
+     "start": 262,
      "dur": 162,
      "text": "Oke, aku jelasin. Simpel aja.",
      "file": "s1_2.wav"
@@ -29,7 +29,7 @@
   },
   {
    "id": "s2",
-   "from": 586,
+   "from": 448,
    "dur": 1160,
    "parts": [
     {
@@ -60,7 +60,7 @@
   },
   {
    "id": "s3",
-   "from": 1746,
+   "from": 1608,
    "dur": 1001,
    "parts": [
     {
@@ -91,7 +91,7 @@
   },
   {
    "id": "s4",
-   "from": 2747,
+   "from": 2609,
    "dur": 947,
    "parts": [
     {
@@ -140,7 +140,7 @@
   },
   {
    "id": "s5",
-   "from": 3694,
+   "from": 3556,
    "dur": 1048,
    "parts": [
     {
@@ -183,7 +183,7 @@
   },
   {
    "id": "s6",
-   "from": 4742,
+   "from": 4604,
    "dur": 797,
    "parts": [
     {
@@ -214,7 +214,7 @@
   },
   {
    "id": "s7",
-   "from": 5539,
+   "from": 5401,
    "dur": 722,
    "parts": [
     {
@@ -233,7 +233,7 @@
   },
   {
    "id": "s8",
-   "from": 6261,
+   "from": 6123,
    "dur": 806,
    "parts": [
     {

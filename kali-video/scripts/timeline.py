@@ -4,7 +4,7 @@ FPS=60; GAP=0.15
 d=json.load(open(f"{root}/scripts/.tts/durations.json"))
 cap=json.load(open(f"{root}/scripts/captions.json"))
 # lead-in before narration, tail after narration (seconds)
-cfg={"s1":(2.0,0.3),"s2":(0.35,0.3),"s3":(0.35,0.3),"s4":(0.35,0.3),"s5":(0.35,0.3),"s6":(0.35,0.4),"s7":(0.35,0.3),"s8":(0.35,3.2)}
+cfg={"s1":(0.5,0.4),"s2":(0.35,0.3),"s3":(0.35,0.3),"s4":(0.35,0.3),"s5":(0.35,0.3),"s6":(0.35,0.4),"s7":(0.35,0.3),"s8":(0.35,3.2)}
 scenes=[]; t=0
 for sid,(lead,tail) in cfg.items():
     parts=[]; c=lead
