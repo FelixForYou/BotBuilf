@@ -1,0 +1,52 @@
+{
+ "s1": [
+  "Pernah mendengar sistem operasi yang sering digunakan oleh para ahli keamanan siber?",
+  "Mari mengenal Kali Linux."
+ ],
+ "s2": [
+  "Kali Linux adalah distribusi Linux open source, berbasis Debian.",
+  "Artinya: sistem operasi lengkap yang dibangun dari inti Linux.",
+  "Kali dikembangkan oleh Offensive Security, kini bernama OffSec,",
+  "khusus untuk penetration testing, security auditing, dan keamanan informasi."
+ ],
+ "s3": [
+  "Akarnya dimulai tahun 2004, lewat Whoppix dan WHAX.",
+  "Tahun 2006, lahirlah BackTrack.",
+  "13 Maret 2013: BackTrack dibangun ulang di atas Debian, menjadi Kali Linux.",
+  "Sejak 2016, Kali menjadi rolling release."
+ ],
+ "s4": [
+  "Apa saja fungsinya?",
+  "Penetration testing: menguji keamanan sistem, dengan izin.",
+  "Network security: mengaudit keamanan jaringan.",
+  "Web application security: mencari celah pada aplikasi web.",
+  "Digital forensics: menganalisis bukti digital.",
+  "Vulnerability assessment: menemukan kelemahan keamanan.",
+  "Wireless security testing: menguji keamanan jaringan WiFi."
+ ],
+ "s5": [
+  "Kali menyertakan ratusan tools, misalnya:",
+  "Nmap: pemetaan jaringan dan pemindaian port.",
+  "Wireshark: analisis lalu lintas jaringan.",
+  "Metasploit Framework: riset kerentanan dan uji eksploitasi.",
+  "Burp Suite: pengujian keamanan aplikasi web.",
+  "John the Ripper: audit keamanan kata sandi."
+ ],
+ "s6": [
+  "Inilah tampilan desktop Kali Linux.",
+  "Banyak pekerjaan dilakukan lewat terminal.",
+  "Peneliti keamanan menguji mesin di lab miliknya, menemukan kelemahan, lalu memperbaikinya.",
+  "Tujuannya: membuat sistem lebih aman."
+ ],
+ "s7": [
+  "Siapa penggunanya?",
+  "Cybersecurity researcher, penetration tester, security analyst, forensics investigator, hingga mahasiswa.",
+  "Tapi tim Kali menyarankan: pemula kuasai dasar Linux dulu."
+ ],
+ "s8": [
+  "Jadi, Kali Linux adalah alat untuk menguji dan meningkatkan keamanan.",
+  "Alat untuk melindungi, bukan sekadar untuk meretas.",
+  "Gunakan secara legal dan bertanggung jawab.",
+  "Understand Security. Build Better Protection."
+ ]
+}

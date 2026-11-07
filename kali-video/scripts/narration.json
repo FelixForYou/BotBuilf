@@ -1,0 +1,76 @@
+[
+ {
+  "id": "s1",
+  "parts": [
+   "Pernah mendengar sistem operasi yang sering digunakan oleh para ahli keamanan siber?",
+   "Mari mengenal Kali Linux."
+  ]
+ },
+ {
+  "id": "s2",
+  "parts": [
+   "Kali Linux adalah distribusi Linux open source, berbasis Debian.",
+   "Artinya, sistem operasi lengkap yang dibangun dari inti Linux.",
+   "Kali dikembangkan oleh Ofensif Sekuriti, kini bernama Of-sek,",
+   "khusus untuk uji penetrasi, audit keamanan, dan keamanan informasi."
+  ]
+ },
+ {
+  "id": "s3",
+  "parts": [
+   "Akarnya dimulai tahun 2004, lewat Wopiks dan Waks.",
+   "Tahun 2006, lahirlah Bek-trek.",
+   "13 Maret 2013, Bek-trek dibangun ulang di atas Debian, menjadi Kali.",
+   "Sejak 2016, Kali menjadi rolling release."
+  ]
+ },
+ {
+  "id": "s4",
+  "parts": [
+   "Apa saja fungsinya?",
+   "Penetration testing: menguji keamanan sistem, dengan izin.",
+   "Network security: mengaudit keamanan jaringan.",
+   "Web security: mencari celah pada aplikasi web.",
+   "Forensik digital: menganalisis bukti digital.",
+   "Vulnerability assessment: menemukan kelemahan keamanan.",
+   "Dan menguji keamanan jaringan WiFi."
+  ]
+ },
+ {
+  "id": "s5",
+  "parts": [
+   "Kali menyertakan ratusan tools, misalnya:",
+   "En-map, pemindai jaringan dan port.",
+   "Wair-syark, penganalisis lalu lintas jaringan.",
+   "Meta-sploit, untuk riset kerentanan dan uji eksploitasi.",
+   "Berp Swit, penguji keamanan web.",
+   "Dan Jon de Riper, pengaudit kata sandi."
+  ]
+ },
+ {
+  "id": "s6",
+  "parts": [
+   "Inilah tampilan desktop Kali Linux.",
+   "Banyak pekerjaan dilakukan lewat terminal.",
+   "Peneliti keamanan menguji mesin di lab miliknya, menemukan kelemahan, lalu memperbaikinya.",
+   "Tujuannya, membuat sistem lebih aman."
+  ]
+ },
+ {
+  "id": "s7",
+  "parts": [
+   "Siapa penggunanya?",
+   "Peneliti keamanan, pentester, analis keamanan, investigator forensik, hingga mahasiswa.",
+   "Tapi tim Kali menyarankan, pemula kuasai dasar Linux dulu."
+  ]
+ },
+ {
+  "id": "s8",
+  "parts": [
+   "Jadi, Kali Linux adalah alat untuk menguji dan meningkatkan keamanan.",
+   "Alat untuk melindungi, bukan sekadar untuk meretas.",
+   "Gunakan secara legal, dan bertanggung jawab.",
+   "Pahami keamanan, dan bangun perlindungan yang lebih baik."
+  ]
+ }
+]
