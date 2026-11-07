@@ -1,10 +1,10 @@
 import json, os
 root=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FPS=60; GAP=0.2
+FPS=60; GAP=0.15
 d=json.load(open(f"{root}/scripts/.tts/durations.json"))
 cap=json.load(open(f"{root}/scripts/captions.json"))
 # lead-in before narration, tail after narration (seconds)
-cfg={"s1":(1.8,0.4),"s2":(0.4,0.4),"s3":(0.4,0.5),"s4":(0.4,0.4),"s5":(0.4,0.4),"s6":(0.4,0.6),"s7":(0.4,0.4),"s8":(0.4,2.0)}
+cfg={"s1":(2.0,0.3),"s2":(0.35,0.3),"s3":(0.35,0.3),"s4":(0.35,0.3),"s5":(0.35,0.3),"s6":(0.35,0.4),"s7":(0.35,0.3),"s8":(0.35,3.2)}
 scenes=[]; t=0
 for sid,(lead,tail) in cfg.items():
     parts=[]; c=lead

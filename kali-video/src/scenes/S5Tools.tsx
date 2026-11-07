@@ -1,103 +1,74 @@
 import React from "react";
-import { AbsoluteFill, Img, interpolate, random, staticFile, useCurrentFrame } from "remotion";
-import { C, FONT, MONO } from "../theme";
-import { beat, easeInOut, prog } from "../timing";
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
+import { CommandBar, Eyebrow, Headline, Select } from "../components/Ui";
+import { C, FONT, MONO, PAD, SHADOW } from "../theme";
+import { beat, prog, spr } from "../timing";
 
-// Logos, descriptions and versions: kali.org homepage + kali.org/tools/<name> (all in the "top10" metapackage)
+// Logos & versions from kali.org (homepage tool showcase + kali.org/tools/<name>)
 const TOOLS = [
-  { logo: "img/tool-logo-nmap.svg", name: "Nmap", fn: "Pemetaan jaringan & pemindaian port", ver: "nmap 7.99", note: "“utility for network exploration or security auditing”" },
-  { logo: "img/tool-logo-wireshark.svg", name: "Wireshark", fn: "Analisis lalu lintas jaringan", ver: "wireshark 4.6.6", note: "menangkap & membedah paket jaringan" },
-  { logo: "img/tool-logo-metasploit.svg", name: "Metasploit Framework", fn: "Riset kerentanan & uji eksploitasi", ver: "metasploit-framework 6.5.3", note: "platform open source untuk riset kerentanan" },
-  { logo: "img/tool-logo-burp.svg", name: "Burp Suite", fn: "Pengujian keamanan aplikasi web", ver: "burpsuite 2026.8", note: "platform terpadu untuk uji keamanan web" },
-  { logo: "img/tool-logo-john.svg", name: "John the Ripper", fn: "Audit keamanan kata sandi", ver: "john 1.9.0", note: "membantu admin menemukan password lemah" },
+  { logo: "img/tool-logo-nmap.svg", name: "Nmap", fn: "metain jaringan & port", ver: "7.99" },
+  { logo: "img/tool-logo-wireshark.svg", name: "Wireshark", fn: "analisis lalu lintas", ver: "4.6.6" },
+  { logo: "img/tool-logo-metasploit.svg", name: "Metasploit", fn: "riset kerentanan", ver: "6.5.3" },
+  { logo: "img/tool-logo-burp.svg", name: "Burp Suite", fn: "tes keamanan web", ver: "2026.8" },
+  { logo: "img/tool-logo-john.svg", name: "John the Ripper", fn: "cek password lemah", ver: "1.9.0" },
 ];
-
-// Real tool names shown on kali.org (homepage tool showcase + this video's five)
-const CLOUD = ["nmap", "wireshark", "metasploit-framework", "burpsuite", "john", "aircrack-ng", "hydra", "sqlmap", "maltego", "responder", "ffuf", "netexec", "powershell-empire", "starkiller", "rustscan", "nuclei", "feroxbuster", "httpx-toolkit", "sherlock", "gitleaks"];
+const CLOUD = ["aircrack-ng", "hydra", "sqlmap", "maltego", "responder", "ffuf", "netexec", "nuclei", "feroxbuster", "gitleaks", "sherlock", "rustscan", "powershell-empire", "starkiller", "httpx-toolkit", "subfinder"];
+const CW = 460;
+const CH = 270;
+const pos = (i: number) => ({ x: PAD + (i % 2) * (CW + 20), y: 450 + Math.floor(i / 2) * (CH + 20) });
 
 export const S5Tools: React.FC = () => {
   const f = useCurrentFrame();
-  const grid = beat("s5", "grid");
-  const starts = [1, 2, 3, 4, 5].map((i) => beat("s5", `t${i}`));
-  const toCards = prog(f, starts[0] - 20, 30, easeInOut);
-  // carousel glides to card i when its narration starts
-  const posSmooth = interpolate(
-    f,
-    starts.flatMap((st) => [st, st + 24]),
-    starts.flatMap((_, i) => [Math.max(0, i - 1), i]),
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: easeInOut },
-  );
+  const send = beat("s5", "send");
+  const cloud = beat("s5", "cloud");
+  const starts = [1, 2, 3, 4, 5].map((i) => beat("s5", `c${i}`));
+  const active = starts.reduce((a, s, i) => (f >= s ? i : a), -1);
+  const cloudOut = prog(f, starts[0] - 14, 18);
 
   return (
     <AbsoluteFill>
-      {/* "hundreds of tools" cloud */}
-      <div style={{ position: "absolute", inset: 0, opacity: 1 - toCards * 0.96, filter: `blur(${toCards * 6}px)` }}>
-        {CLOUD.map((n, i) => {
-          const p = prog(f, grid + i * 2, 24);
-          const x = 140 + random(`cx${i}`) * 1500;
-          const y = 200 + random(`cy${i}`) * 560;
-          const big = i < 5;
-          return (
-            <div key={n} style={{ position: "absolute", left: x, top: y, fontFamily: MONO, fontSize: big ? 38 : 26, color: big ? C.text : C.muted, padding: "8px 18px", border: `1.5px solid ${big ? C.kali : C.dim}`, borderRadius: 999, background: big ? `${C.kali}22` : "transparent", opacity: p, transform: `scale(${0.6 + 0.4 * p}) translateY(${Math.sin(f / 30 + i) * 6}px)` }}>
-              {n}
-            </div>
-          );
-        })}
-        <div style={{ position: "absolute", left: 0, right: 0, top: 440, textAlign: "center", opacity: prog(f, grid + 10, 20) }}>
-          <span style={{ fontFamily: FONT, fontSize: 120, fontWeight: 700, color: C.text, textShadow: `0 0 40px ${C.bg}, 0 0 80px ${C.bg}` }}>
-            <span style={{ color: C.kali }}>Ratusan</span> tools
-          </span>
+      <div style={{ position: "absolute", left: PAD, top: 150, width: 940 }}>
+        <Eyebrow text="04 · TOOLS" start={send} />
+        <div style={{ marginTop: 22 }}>
+          <Headline words={["Ratusan", { t: "tools.", accent: "blue" }]} start={send + 4} />
         </div>
       </div>
 
-      {/* coverflow carousel */}
-      <div style={{ position: "absolute", inset: 0, opacity: toCards, perspective: 1800 }}>
-        {TOOLS.map((t, i) => {
-          const d = i - posSmooth;
-          const abs = Math.abs(d);
-          if (abs > 2.2) return null;
-          const x = 960 + d * 560;
-          const scale = 1 - Math.min(abs, 1) * 0.32;
-          const seen = f >= starts[i] - 6;
+      {/* hundreds of tools: a cloud of real Kali package names */}
+      <div style={{ position: "absolute", left: PAD, top: 470, width: 940, display: "flex", flexWrap: "wrap", gap: 14, opacity: 1 - cloudOut, filter: `blur(${cloudOut * 6}px)` }}>
+        {[...TOOLS.map((t) => t.name.toLowerCase().split(" ")[0]), ...CLOUD].map((n, i) => {
+          const p = prog(f, cloud + i * 2.5, 16);
           return (
-            <div
-              key={t.name}
-              style={{
-                position: "absolute",
-                left: x - 330,
-                top: 190,
-                width: 660,
-                height: 620,
-                borderRadius: 28,
-                background: C.panel,
-                border: `2px solid ${abs < 0.5 ? C.kali : C.dim}`,
-                boxShadow: abs < 0.5 ? `0 40px 100px rgba(0,0,0,0.6), 0 0 80px ${C.kali}44` : undefined,
-                transform: `rotateY(${-d * 28}deg) scale(${scale})`,
-                opacity: (seen ? 1 : 0.25) * (1 - Math.max(0, abs - 1.2)),
-                zIndex: 10 - Math.round(abs * 2),
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                paddingTop: 50,
-              }}
-            >
-              <div style={{ width: 230, height: 230, display: "flex", alignItems: "center", justifyContent: "center", filter: abs < 0.5 ? `drop-shadow(0 0 30px ${C.kali}88)` : undefined }}>
-                <Img src={staticFile(t.logo)} style={{ width: 220, height: 220, objectFit: "contain" }} />
-              </div>
-              <div style={{ fontFamily: FONT, fontSize: 58, fontWeight: 700, color: C.text, marginTop: 26, textAlign: "center", lineHeight: 1.05 }}>{t.name}</div>
-              <div style={{ fontFamily: FONT, fontSize: 32, color: C.cyan, marginTop: 14, textAlign: "center", padding: "0 30px" }}>{t.fn}</div>
-              <div style={{ fontFamily: FONT, fontSize: 24, color: C.muted, marginTop: 14, textAlign: "center", padding: "0 40px" }}>{t.note}</div>
-              <div style={{ position: "absolute", bottom: 28, fontFamily: MONO, fontSize: 20, color: C.dim }}>kali.org/tools · {t.ver}</div>
-            </div>
+            <span key={n} style={{ fontFamily: MONO, fontSize: 28, color: i < 5 ? C.blue : C.muted, background: i < 5 ? C.blueSoft : "#fff", border: `1.5px solid ${i < 5 ? "transparent" : C.line}`, borderRadius: 12, padding: "10px 16px", opacity: p, transform: `translateY(${(1 - p) * 20 + Math.sin(f / 25 + i) * 3}px)` }}>
+              {n}
+            </span>
           );
         })}
-        {/* index dots */}
-        <div style={{ position: "absolute", left: 0, right: 0, top: 838, display: "flex", justifyContent: "center", gap: 14 }}>
-          {TOOLS.map((_, i) => (
-            <div key={i} style={{ width: Math.abs(i - posSmooth) < 0.5 ? 40 : 12, height: 12, borderRadius: 6, background: Math.abs(i - posSmooth) < 0.5 ? C.kali : C.dim }} />
-          ))}
-        </div>
+        <span style={{ fontFamily: MONO, fontSize: 28, color: C.faint, padding: "10px 6px", opacity: prog(f, cloud + 60, 16) }}>+ ratusan lainnya</span>
       </div>
+
+      {TOOLS.map((t, i) => {
+        const s = Math.min(1, spr(f, starts[i], 13, 150));
+        const p = pos(i);
+        const isAct = active === i;
+        return (
+          <div key={t.name} style={{ position: "absolute", left: p.x, top: p.y, width: CW, height: CH, borderRadius: 24, background: "#fff", border: `1.5px solid ${C.line}`, boxShadow: SHADOW, opacity: s * (isAct || active > 4 ? 1 : 0.6), transform: `translateY(${(1 - s) * 50}px) scale(${0.92 + 0.08 * s})`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <Img src={staticFile(t.logo)} style={{ width: 110, height: 110, objectFit: "contain" }} />
+            <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 36, color: C.ink, letterSpacing: -1 }}>{t.name}</div>
+            <div style={{ fontFamily: FONT, fontSize: 24, color: C.muted, fontWeight: 500 }}>{t.fn}</div>
+            <div style={{ position: "absolute", top: 16, right: 18, fontFamily: MONO, fontSize: 16, color: C.faint }}>v{t.ver}</div>
+          </div>
+        );
+      })}
+      {/* sixth slot */}
+      <div style={{ position: "absolute", left: pos(5).x, top: pos(5).y, width: CW, height: CH, borderRadius: 24, border: `2px dashed ${C.line}`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 6, opacity: prog(f, starts[4] + 20, 20) }}>
+        <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: 64, color: C.blue }}>+</span>
+        <span style={{ fontFamily: FONT, fontSize: 26, color: C.muted, fontWeight: 600 }}>ratusan lainnya</span>
+        <span style={{ fontFamily: MONO, fontSize: 18, color: C.faint }}>kali.org/tools</span>
+      </div>
+      {active >= 0 ? <Select x={pos(active).x - 6} y={pos(active).y - 6} w={CW + 12} h={CH + 12} start={starts[active] + 2} end={active < 4 ? starts[active + 1] : starts[4] + 60} label={`top10 · ${TOOLS[active].name.toLowerCase()}`} /> : null}
+
+      <CommandBar query="tools populernya?" typeAt={beat("s5", "type")} sendAt={send} />
     </AbsoluteFill>
   );
 };

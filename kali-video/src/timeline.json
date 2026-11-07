@@ -1,264 +1,258 @@
 {
  "fps": 60,
- "total": 7138,
+ "total": 7067,
  "scenes": [
   {
    "id": "s1",
    "from": 0,
-   "dur": 477,
+   "dur": 586,
    "parts": [
     {
-     "start": 108,
-     "dur": 238,
-     "text": "Pernah mendengar sistem operasi yang sering digunakan oleh para ahli keamanan siber?",
+     "start": 120,
+     "dur": 184,
+     "text": "Ada yang nanya: Kali Linux itu sebenernya buat apa sih?",
      "file": "s1_0.wav"
     },
     {
-     "start": 358,
-     "dur": 96,
-     "text": "Mari mengenal Kali Linux.",
+     "start": 313,
+     "dur": 84,
+     "text": "Katanya buat hacker ya?",
      "file": "s1_1.wav"
+    },
+    {
+     "start": 406,
+     "dur": 162,
+     "text": "Oke, aku jelasin. Simpel aja.",
+     "file": "s1_2.wav"
     }
    ]
   },
   {
    "id": "s2",
-   "from": 477,
-   "dur": 1029,
+   "from": 586,
+   "dur": 1160,
    "parts": [
     {
-     "start": 24,
-     "dur": 244,
-     "text": "Kali Linux adalah distribusi Linux open source, berbasis Debian.",
+     "start": 21,
+     "dur": 306,
+     "text": "Kali Linux itu sistem operasi. Sama kayak Windows, tapi basisnya Linux.",
      "file": "s2_0.wav"
     },
     {
-     "start": 280,
-     "dur": 218,
-     "text": "Artinya: sistem operasi lengkap yang dibangun dari inti Linux.",
+     "start": 336,
+     "dur": 308,
+     "text": "Tepatnya, distribusi Linux berbasis Debian. Gratis, dan open source.",
      "file": "s2_1.wav"
     },
     {
-     "start": 510,
-     "dur": 219,
-     "text": "Kali dikembangkan oleh Offensive Security, kini bernama OffSec,",
+     "start": 653,
+     "dur": 269,
+     "text": "Yang ngembangin itu: Offensive Security. Sekarang namanya OffSec.",
      "file": "s2_2.wav"
     },
     {
-     "start": 741,
-     "dur": 264,
-     "text": "khusus untuk penetration testing, security auditing, dan keamanan informasi.",
+     "start": 931,
+     "dur": 210,
+     "text": "Dan dari awal, dia emang dirancang buat pengujian keamanan.",
      "file": "s2_3.wav"
     }
    ]
   },
   {
    "id": "s3",
-   "from": 1506,
-   "dur": 968,
+   "from": 1746,
+   "dur": 1001,
    "parts": [
     {
-     "start": 24,
-     "dur": 227,
-     "text": "Akarnya dimulai tahun 2004, lewat Whoppix dan WHAX.",
+     "start": 21,
+     "dur": 100,
+     "text": "Asal-usulnya lumayan panjang.",
      "file": "s3_0.wav"
     },
     {
-     "start": 263,
-     "dur": 130,
-     "text": "Tahun 2006, lahirlah BackTrack.",
+     "start": 130,
+     "dur": 160,
+     "text": "Dulu ada BackTrack, rilis tahun 2006.",
      "file": "s3_1.wav"
     },
     {
-     "start": 405,
-     "dur": 331,
-     "text": "13 Maret 2013: BackTrack dibangun ulang di atas Debian, menjadi Kali Linux.",
+     "start": 299,
+     "dur": 416,
+     "text": "Terus, 13 Maret 2013, BackTrack dibangun ulang di atas Debian. Lahirlah Kali.",
      "file": "s3_2.wav"
     },
     {
-     "start": 749,
-     "dur": 189,
-     "text": "Sejak 2016, Kali menjadi rolling release.",
+     "start": 724,
+     "dur": 259,
+     "text": "Sejak 2016, dia rolling release. Jadi update terus.",
      "file": "s3_3.wav"
     }
    ]
   },
   {
    "id": "s4",
-   "from": 2474,
-   "dur": 1226,
+   "from": 2747,
+   "dur": 947,
    "parts": [
     {
-     "start": 24,
-     "dur": 71,
-     "text": "Apa saja fungsinya?",
+     "start": 21,
+     "dur": 105,
+     "text": "Nah, fungsinya apa aja?",
      "file": "s4_0.wav"
     },
     {
-     "start": 107,
-     "dur": 215,
-     "text": "Penetration testing: menguji keamanan sistem, dengan izin.",
+     "start": 135,
+     "dur": 180,
+     "text": "Pentest: nguji keamanan sistem, tapi harus ada izin.",
      "file": "s4_1.wav"
     },
     {
-     "start": 335,
-     "dur": 170,
-     "text": "Network security: mengaudit keamanan jaringan.",
+     "start": 324,
+     "dur": 88,
+     "text": "Ngaudit keamanan jaringan.",
      "file": "s4_2.wav"
     },
     {
-     "start": 517,
-     "dur": 162,
-     "text": "Web application security: mencari celah pada aplikasi web.",
+     "start": 422,
+     "dur": 92,
+     "text": "Nyari celah di aplikasi web.",
      "file": "s4_3.wav"
     },
     {
-     "start": 691,
-     "dur": 168,
-     "text": "Digital forensics: menganalisis bukti digital.",
+     "start": 523,
+     "dur": 152,
+     "text": "Forensik digital, buat nganalisis bukti.",
      "file": "s4_4.wav"
     },
     {
-     "start": 872,
-     "dur": 193,
-     "text": "Vulnerability assessment: menemukan kelemahan keamanan.",
+     "start": 684,
+     "dur": 129,
+     "text": "Nemuin dan nilai kelemahan sistem.",
      "file": "s4_5.wav"
     },
     {
-     "start": 1077,
-     "dur": 125,
-     "text": "Wireless security testing: menguji keamanan jaringan WiFi.",
+     "start": 823,
+     "dur": 106,
+     "text": "Sampai nguji keamanan WiFi.",
      "file": "s4_6.wav"
     }
    ]
   },
   {
    "id": "s5",
-   "from": 3700,
-   "dur": 1014,
+   "from": 3694,
+   "dur": 1048,
    "parts": [
     {
-     "start": 24,
-     "dur": 144,
-     "text": "Kali menyertakan ratusan tools, misalnya:",
+     "start": 21,
+     "dur": 206,
+     "text": "Isinya ratusan tools. Lima yang paling sering disebut:",
      "file": "s5_0.wav"
     },
     {
-     "start": 180,
-     "dur": 132,
-     "text": "Nmap: pemetaan jaringan dan pemindaian port.",
+     "start": 236,
+     "dur": 151,
+     "text": "Nmap, buat metain jaringan dan port.",
      "file": "s5_1.wav"
     },
     {
-     "start": 324,
-     "dur": 163,
-     "text": "Wireshark: analisis lalu lintas jaringan.",
+     "start": 396,
+     "dur": 173,
+     "text": "Wireshark, buat nganalisis lalu lintas jaringan.",
      "file": "s5_2.wav"
     },
     {
-     "start": 499,
-     "dur": 212,
-     "text": "Metasploit Framework: riset kerentanan dan uji eksploitasi.",
+     "start": 578,
+     "dur": 135,
+     "text": "Metasploit, buat riset kerentanan.",
      "file": "s5_3.wav"
     },
     {
-     "start": 723,
-     "dur": 111,
-     "text": "Burp Suite: pengujian keamanan aplikasi web.",
+     "start": 722,
+     "dur": 124,
+     "text": "Burp Suite, buat ngetes keamanan web.",
      "file": "s5_4.wav"
     },
     {
-     "start": 846,
-     "dur": 143,
-     "text": "John the Ripper: audit keamanan kata sandi.",
+     "start": 855,
+     "dur": 175,
+     "text": "Sama John the Ripper, buat ngecek password yang lemah.",
      "file": "s5_5.wav"
     }
    ]
   },
   {
    "id": "s6",
-   "from": 4714,
-   "dur": 805,
+   "from": 4742,
+   "dur": 797,
    "parts": [
     {
-     "start": 24,
-     "dur": 127,
-     "text": "Inilah tampilan desktop Kali Linux.",
+     "start": 21,
+     "dur": 89,
+     "text": "Tampilannya kayak gini.",
      "file": "s6_0.wav"
     },
     {
-     "start": 163,
-     "dur": 142,
-     "text": "Banyak pekerjaan dilakukan lewat terminal.",
+     "start": 119,
+     "dur": 195,
+     "text": "Kebanyakan kerjaannya lewat terminal. Ngetik perintah.",
      "file": "s6_1.wav"
     },
     {
-     "start": 317,
-     "dur": 302,
-     "text": "Peneliti keamanan menguji mesin di lab miliknya, menemukan kelemahan, lalu memperbaikinya.",
+     "start": 324,
+     "dur": 266,
+     "text": "Di lab sendiri: uji mesinnya, nemu kelemahan, terus diperbaiki.",
      "file": "s6_2.wav"
     },
     {
-     "start": 631,
-     "dur": 139,
-     "text": "Tujuannya: membuat sistem lebih aman.",
+     "start": 598,
+     "dur": 175,
+     "text": "Tujuannya satu: sistemnya jadi lebih aman.",
      "file": "s6_3.wav"
     }
    ]
   },
   {
    "id": "s7",
-   "from": 5519,
-   "dur": 685,
+   "from": 5539,
+   "dur": 722,
    "parts": [
     {
-     "start": 24,
-     "dur": 65,
-     "text": "Siapa penggunanya?",
+     "start": 21,
+     "dur": 401,
+     "text": "Yang pakai siapa? Peneliti keamanan, pentester, analis, investigator forensik, sampai mahasiswa.",
      "file": "s7_0.wav"
     },
     {
-     "start": 101,
-     "dur": 339,
-     "text": "Cybersecurity researcher, penetration tester, security analyst, forensics investigator, hingga mahasiswa.",
+     "start": 431,
+     "dur": 273,
+     "text": "Tapi kata tim Kali sendiri: kalau masih pemula, kuasain dasar Linux dulu ya.",
      "file": "s7_1.wav"
-    },
-    {
-     "start": 452,
-     "dur": 208,
-     "text": "Tapi tim Kali menyarankan: pemula kuasai dasar Linux dulu.",
-     "file": "s7_2.wav"
     }
    ]
   },
   {
    "id": "s8",
-   "from": 6204,
-   "dur": 934,
+   "from": 6261,
+   "dur": 806,
    "parts": [
     {
-     "start": 24,
-     "dur": 239,
-     "text": "Jadi, Kali Linux adalah alat untuk menguji dan meningkatkan keamanan.",
+     "start": 21,
+     "dur": 267,
+     "text": "Jadi, Kali Linux itu alat buat ngelindungi. Bukan sekadar buat ngehack.",
      "file": "s8_0.wav"
     },
     {
-     "start": 275,
-     "dur": 186,
-     "text": "Alat untuk melindungi, bukan sekadar untuk meretas.",
+     "start": 297,
+     "dur": 150,
+     "text": "Pakainya harus legal dan bertanggung jawab.",
      "file": "s8_1.wav"
     },
     {
-     "start": 473,
-     "dur": 154,
-     "text": "Gunakan secara legal dan bertanggung jawab.",
-     "file": "s8_2.wav"
-    },
-    {
-     "start": 638,
-     "dur": 175,
+     "start": 455,
+     "dur": 159,
      "text": "Understand Security. Build Better Protection.",
-     "file": "s8_3.wav"
+     "file": "s8_2.wav"
     }
    ]
   }

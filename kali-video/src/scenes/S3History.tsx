@@ -1,93 +1,82 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { Icon } from "../components/Icons";
-import { C, FONT, MONO } from "../theme";
-import { beat, easeInOut, prog, spr } from "../timing";
+import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { CommandBar, Eyebrow, Headline, Select } from "../components/Ui";
+import { C, FONT, MONO, PAD, SHADOW } from "../theme";
+import { beat, prog, spr } from "../timing";
 
-// Source: kali.org/docs/introduction/kali-linux-history (major releases)
-const EVENTS = [
-  { key: "n0", year: "2004", name: "Whoppix", base: "berbasis Knoppix", major: false },
-  { key: "n1", year: "2005", name: "WHAX", base: "berbasis Slax", major: false },
-  { key: "n2", year: "2006", name: "BackTrack", base: "WHAX + Auditor Security Collection", major: true },
-  { key: "n3", year: "2010", name: "BackTrack 4", base: "beralih ke Ubuntu", major: false },
-  { key: "n4", year: "2013", name: "Kali Linux 1.0", base: "13 Maret · Debian 7", major: true },
-  { key: "n5", year: "2015", name: "Kali Linux 2.0", base: "Debian 8", major: false },
-  { key: "n6", year: "2016", name: "Kali Rolling", base: "Debian Testing · terus diperbarui", major: true },
+// kali.org/docs/introduction/kali-linux-history (major releases)
+const ITEMS = [
+  { key: "t0", year: "2004", name: "Whoppix", sub: "berbasis Knoppix", kali: false, big: false },
+  { key: "t1", year: "2005", name: "WHAX", sub: "berbasis Slax", kali: false, big: false },
+  { key: "t2", year: "2006", name: "BackTrack", sub: "WHAX + Auditor Security Collection", kali: false, big: true },
+  { key: "t3", year: "2010", name: "BackTrack 4", sub: "pindah ke Ubuntu", kali: false, big: false },
+  { key: "t4", year: "13 Mar 2013", name: "Kali Linux 1.0", sub: "dibangun ulang di atas Debian", kali: true, big: true },
+  { key: "t5", year: "2015", name: "Kali Linux 2.0", sub: "Debian 8", kali: true, big: false },
+  { key: "t6", year: "2016", name: "Kali Rolling", sub: "rolling release · update terus", kali: true, big: true },
 ];
-const SPACING = 520;
-const X0 = 300;
+const ROW = 118;
+const TOP = 440;
 
 export const S3History: React.FC = () => {
   const f = useCurrentFrame();
-  const times = EVENTS.map((e) => beat("s3", e.key));
-  // camera follows the most recent node
-  const camX = interpolate(
-    f,
-    times.map((t) => t - 10),
-    EVENTS.map((_, i) => Math.max(0, i * SPACING - 640)),
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: easeInOut },
-  );
-  const lineP = interpolate(f, [0, ...times], [0, ...EVENTS.map((_, i) => X0 + i * SPACING)], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: easeInOut });
-  const zoomOut = prog(f, times[6] + 50, 60, easeInOut);
-  const camS = 1 - zoomOut * 0.52;
-  const camShift = interpolate(zoomOut, [0, 1], [-camX, 139]);
+  const send = beat("s3", "send");
+  const times = ITEMS.map((it) => beat("s3", it.key));
+  const lastIdx = times.reduce((a, t, i) => (f >= t ? i : a), -1);
+  const railH = lastIdx < 0 ? 0 : lastIdx * ROW + 40;
+  const railP = prog(f, times[Math.max(0, lastIdx)], 20);
 
   return (
     <AbsoluteFill>
-      <div style={{ position: "absolute", left: 130, top: 130, display: "flex", alignItems: "center", gap: 16, opacity: prog(f, 0, 20) }}>
-        <Icon name="history" size={44} color={C.kali} draw={prog(f, 0, 30)} />
-        <span style={{ fontFamily: MONO, fontSize: 30, letterSpacing: 6, color: C.text }}>SEJARAH SINGKAT</span>
+      <div style={{ position: "absolute", left: PAD, top: 150, width: 940 }}>
+        <Eyebrow text="02 · SEJARAH" start={send} />
+        <div style={{ marginTop: 22 }}>
+          <Headline words={["Dari", "BackTrack", "ke", { t: "Kali.", accent: "blue" }]} start={send + 4} lineBreakAfter={[1]} />
+        </div>
       </div>
 
-      <div style={{ position: "absolute", left: 0, top: 540, width: 4000, transformOrigin: "0 0", transform: `scale(${camS}) translateX(${camShift}px)` }}>
-        {/* base rail */}
-        <div style={{ position: "absolute", left: X0, top: 0, width: 6 * SPACING, height: 3, background: `${C.kali}33` }} />
-        {/* progress rail */}
-        <div style={{ position: "absolute", left: X0, top: -1, width: Math.max(0, lineP - X0), height: 5, background: `linear-gradient(90deg, ${C.kali}, ${C.cyan})`, boxShadow: `0 0 20px ${C.cyan}` }} />
-        <div style={{ position: "absolute", left: lineP - 9, top: -8, width: 18, height: 18, borderRadius: 9, background: C.text, boxShadow: `0 0 20px ${C.cyan}` }} />
+      {/* rail */}
+      <div style={{ position: "absolute", left: PAD + 20, top: TOP + 30, width: 4, height: 6 * ROW, background: C.line, borderRadius: 2 }} />
+      <div style={{ position: "absolute", left: PAD + 20, top: TOP + 30, width: 4, height: Math.max(0, railH - 40 + 40 * railP), background: C.blue, borderRadius: 2 }} />
 
-        {EVENTS.map((e, i) => {
-          const s = spr(f, times[i], 13, 140);
-          const x = X0 + i * SPACING;
-          const up = i % 2 === 0;
-          const isKali = i >= 4;
-          const col = isKali ? C.kali : C.muted;
-          const cardH = 190;
-          return (
-            <div key={e.key} style={{ opacity: Math.min(1, s) }}>
-              <div style={{ position: "absolute", left: x - (e.major ? 22 : 15), top: -(e.major ? 22 : 15), width: e.major ? 44 : 30, height: e.major ? 44 : 30, borderRadius: 30, background: C.bg, border: `4px solid ${isKali ? C.cyan : col}`, transform: `scale(${Math.min(1.3, s)})`, boxShadow: e.major ? `0 0 30px ${isKali ? C.cyan : col}` : undefined }} />
-              <div style={{ position: "absolute", left: x - 1, top: up ? -60 : 24, width: 2, height: 36, background: col, transform: `scaleY(${Math.min(1, s)})` }} />
-              <div
-                style={{
-                  position: "absolute",
-                  left: x - 210,
-                  top: up ? -60 - cardH : 60,
-                  width: 420,
-                  height: cardH,
-                  padding: "22px 26px",
-                  borderRadius: 18,
-                  background: C.panel,
-                  border: `${e.major ? 2 : 1.5}px solid ${isKali ? C.kali : C.dim}`,
-                  transform: `translateY(${(1 - Math.min(1, s)) * (up ? 40 : -40)}px)`,
-                  boxShadow: e.major ? `0 0 40px ${isKali ? C.kali : C.dim}44` : undefined,
-                }}
-              >
-                <div style={{ fontFamily: MONO, fontSize: 34, color: isKali ? C.cyan : C.muted, fontWeight: 700 }}>{e.year}</div>
-                <div style={{ fontFamily: FONT, fontSize: 46, color: C.text, fontWeight: 700, lineHeight: 1.1 }}>{e.name}</div>
-                <div style={{ fontFamily: FONT, fontSize: 24, color: C.muted, marginTop: 6 }}>{e.base}</div>
+      {ITEMS.map((it, i) => {
+        const s = Math.min(1, spr(f, times[i], 14, 150));
+        const y = TOP + i * ROW;
+        const active = lastIdx === i;
+        return (
+          <div key={it.key} style={{ position: "absolute", left: PAD, top: y, width: 940, height: 100, opacity: s, transform: `translateX(${(1 - s) * 30}px)` }}>
+            <div style={{ position: "absolute", left: 22 - (it.big ? 13 : 9), top: 30 - (it.big ? 13 : 9) + 2, width: it.big ? 26 : 18, height: it.big ? 26 : 18, borderRadius: 13, background: it.kali ? C.blue : "#fff", border: `3px solid ${it.kali ? C.blue : C.faint}`, boxShadow: active ? `0 0 0 8px ${C.blueSoft}` : undefined }} />
+            <div
+              style={{
+                position: "absolute",
+                left: 70,
+                top: 0,
+                right: 0,
+                height: 100,
+                borderRadius: 20,
+                background: active ? "#fff" : "transparent",
+                border: `1.5px solid ${active ? C.line : "transparent"}`,
+                boxShadow: active ? SHADOW : undefined,
+                display: "flex",
+                alignItems: "center",
+                gap: 24,
+                padding: "0 26px",
+              }}
+            >
+              <span style={{ fontFamily: MONO, fontSize: 24, color: it.kali ? C.blue : C.muted, width: 190, fontWeight: 700 }}>{it.year}</span>
+              <div>
+                <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: it.big ? 40 : 34, color: C.ink, letterSpacing: -1 }}>{it.name}</div>
+                <div style={{ fontFamily: FONT, fontSize: 22, color: C.muted }}>{it.sub}</div>
               </div>
             </div>
-          );
-        })}
-        {/* Auditor merge branch into BackTrack */}
-        <svg width={600} height={300} style={{ position: "absolute", left: X0 + SPACING * 1.25, top: 0, overflow: "visible" }}>
-          <path d={`M 0 220 C 200 220, ${SPACING * 0.75 - 140} 100, ${SPACING * 0.75} 0`} fill="none" stroke={C.muted} strokeWidth={3} strokeDasharray="10 8" pathLength={1} strokeDashoffset={1 - prog(f, times[2] - 20, 30)} opacity={0.7} />
-          <text x={-20} y={262} fill={C.muted} fontFamily={MONO} fontSize={22} opacity={prog(f, times[2] - 20, 20)}>
-            Auditor Security Collection
-          </text>
-        </svg>
-      </div>
-      <div style={{ position: "absolute", right: 130, top: 140, fontFamily: MONO, fontSize: 20, color: C.dim, opacity: prog(f, 20, 20) }}>Sumber: kali.org · Kali Linux History</div>
+          </div>
+        );
+      })}
+      <Select x={PAD + 62} y={TOP + 2 * ROW - 8} w={870} h={116} start={times[2] + 4} end={times[3]} />
+      <Select x={PAD + 62} y={TOP + 4 * ROW - 8} w={870} h={116} start={times[4] + 4} end={times[5]} label="lahirnya Kali" />
+      <Select x={PAD + 62} y={TOP + 6 * ROW - 8} w={870} h={116} start={times[6] + 4} label="sampai sekarang" />
+      <div style={{ position: "absolute", right: PAD, top: TOP + 7 * ROW + 10, fontFamily: MONO, fontSize: 18, color: C.faint, opacity: prog(f, times[6] + 20, 20) }}>sumber: kali.org · Kali Linux History</div>
+
+      <CommandBar query="sejarahnya gimana?" typeAt={beat("s3", "type")} sendAt={send} />
     </AbsoluteFill>
   );
 };

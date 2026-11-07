@@ -1,38 +1,45 @@
 import { loadFont } from "@remotion/fonts";
 import { staticFile } from "remotion";
 
-// Fonts are bundled locally (from @fontsource) so rendering needs no network.
+// Fonts bundled locally (from @fontsource) so rendering needs no network.
+for (const w of ["500", "600", "700", "800"]) {
+  loadFont({ family: "Inter", url: staticFile(`fonts/inter-latin-${w}-normal.woff2`), weight: w });
+}
 for (const w of ["400", "500", "700"]) {
-  loadFont({ family: "Space Grotesk", url: staticFile(`fonts/space-grotesk-latin-${w}-normal.woff2`), weight: w });
   loadFont({ family: "JetBrains Mono", url: staticFile(`fonts/jetbrains-mono-latin-${w}-normal.woff2`), weight: w });
 }
+loadFont({ family: "Instrument Serif", url: staticFile("fonts/instrument-serif-latin-400-italic.woff2"), style: "italic", weight: "400" });
 
-export const FONT = "'Space Grotesk', 'DejaVu Sans', sans-serif";
-// Box-drawing glyphs fall back to DejaVu Sans Mono, the ㉿ glyph to WenQuanYi.
-export const MONO = "'JetBrains Mono', 'DejaVu Sans Mono', 'WenQuanYi Zen Hei', monospace";
+export const FONT = "'Inter', 'DejaVu Sans', sans-serif";
+export const MONO = "'JetBrains Mono', 'DejaVu Sans Mono', monospace";
+export const SERIF = "'Instrument Serif', serif";
 
+// Light, minimal palette (white + soft pastels, one blue accent)
 export const C = {
-  bg: "#03060f",
-  bg2: "#070d16",
-  panel: "rgba(10, 20, 34, 0.82)",
-  panelSolid: "#0a1422",
-  line: "rgba(80, 200, 255, 0.18)",
-  lineStrong: "rgba(80, 220, 255, 0.45)",
-  cyan: "#22d3ee",
-  blue: "#3b82f6",
+  bg: "#fbfbfd",
+  ink: "#0b0d12",
+  text: "#1f2430",
+  muted: "#6b7280",
+  faint: "#a3abb9",
+  line: "#e8ebf2",
+  card: "#ffffff",
+  blue: "#2f6bff",
+  blueSoft: "#e8efff",
   kali: "#367bf0",
-  kaliDeep: "#1a3d82",
-  navy: "#060b18",
-  green: "#34d399",
-  lime: "#a3e635",
-  yellow: "#facc15",
-  orange: "#f97316",
-  red: "#f43f5e",
-  text: "#e6f1ff",
-  muted: "#8aa0bb",
-  dim: "#4b5d75",
+  green: "#16a34a",
+  greenSoft: "#e7f7ed",
+  orange: "#f08c00",
+  orangeSoft: "#fff3e0",
+  red: "#e5484d",
+  redSoft: "#fdecec",
+  violet: "#7c5cff",
+  violetSoft: "#f0ecff",
+  navy: "#070d1f",
 };
 
+export const SHADOW = "0 24px 60px rgba(25, 35, 70, 0.08), 0 4px 14px rgba(25, 35, 70, 0.05)";
+
 export const FPS = 60;
-export const W = 1920;
-export const H = 1080;
+export const W = 1080;
+export const H = 1920;
+export const PAD = 70; // side margin

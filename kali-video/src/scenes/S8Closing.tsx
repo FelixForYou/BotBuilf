@@ -1,96 +1,78 @@
 import React from "react";
-import { AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame } from "remotion";
-import { Decode } from "../components/Fx";
-import { Icon, IconName } from "../components/Icons";
-import { C, FONT, MONO } from "../theme";
-import { beat, easeInOut, prog, scene, spr } from "../timing";
-
-const Key: React.FC<{ start: number; icon: IconName; text: string; x: number; y: number }> = ({ start, icon, text, x, y }) => {
-  const f = useCurrentFrame();
-  const s = spr(f, start, 12, 150);
-  return (
-    <div style={{ position: "absolute", left: x, top: y, display: "flex", alignItems: "center", gap: 18, padding: "18px 28px", borderRadius: 18, background: C.panel, border: `1.5px solid ${C.kali}99`, opacity: Math.min(1, s), transform: `scale(${0.7 + 0.3 * Math.min(1, s)})` }}>
-      <Icon name={icon} size={46} color={C.cyan} draw={prog(f, start, 26)} />
-      <span style={{ fontFamily: FONT, fontSize: 36, fontWeight: 700, color: C.text }}>{text}</span>
-    </div>
-  );
-};
+import { AbsoluteFill, Img, staticFile, useCurrentFrame } from "remotion";
+import { Icon } from "../components/Icons";
+import { Cursor, Eyebrow, Pill } from "../components/Ui";
+import { C, FONT, MONO, PAD } from "../theme";
+import { beat, easeInOut, prog, spr } from "../timing";
 
 export const S8Closing: React.FC = () => {
   const f = useCurrentFrame();
-  const sc = scene("s8");
-  const versus = beat("s8", "versus");
-  const strike = beat("s8", "strike");
+  const head = beat("s8", "head");
+  const strike = prog(f, beat("s8", "strike"), 12);
+  const swap = Math.min(1, spr(f, beat("s8", "swap"), 12, 160));
   const legal = beat("s8", "legal");
+  const dark = beat("s8", "dark");
   const fin = beat("s8", "final");
-  const ftext = beat("s8", "ftext");
-
-  const recapIn = prog(f, beat("s8", "recap"), 30);
-    const toLegal = prog(f, legal, 28, easeInOut);
-  const toFinal = prog(f, fin, 30, easeInOut);
-  const strikeP = prog(f, strike, 16);
-  const protect = spr(f, beat("s8", "protect"), 12, 140);
-  const fs = spr(f, ftext, 13, 120);
-  const fade = prog(f, sc.dur - 40, 40, easeInOut);
+  const click = beat("s8", "click");
+  const toDark = prog(f, dark, 24, easeInOut);
+  const fs = Math.min(1, spr(f, fin, 14, 120));
+  const saved = f >= click + 2;
 
   return (
     <AbsoluteFill>
-      {/* recap */}
-      <div style={{ position: "absolute", inset: 0, opacity: recapIn * (1 - prog(f, versus - 6, 12)) }}>
-        <div style={{ position: "absolute", left: 960 - 200, top: 330, width: 400, height: 226, filter: `drop-shadow(0 0 40px ${C.kali}88)` }}>
-          <Img src={staticFile("img/kali-logo.svg")} style={{ width: 400, height: 226 }} />
-        </div>
-        <Key start={beat("s8", "k0")} icon="layers" text="Berbasis Debian" x={200} y={240} />
-        <Key start={beat("s8", "k1")} icon="package" text="Ratusan tools keamanan" x={1240} y={240} />
-        <Key start={beat("s8", "k2")} icon="shieldCheck" text="Menguji & meningkatkan keamanan" x={600} y={640} />
-      </div>
-
-      {/* hacking vs protecting */}
-      <div style={{ position: "absolute", inset: 0, opacity: prog(f, versus + 4, 20) * (1 - toLegal) }}>
-        <div style={{ position: "absolute", left: 260, top: 340, width: 600, height: 300, borderRadius: 26, border: `2px solid ${C.red}66`, background: `${C.red}0d`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: 1 - strikeP * 0.55 }}>
-          <Icon name="bug" size={90} color={C.red} />
-          <div style={{ position: "relative", fontFamily: FONT, fontSize: 56, fontWeight: 700, color: C.text, marginTop: 14 }}>
-            Sekadar meretas
-            <div style={{ position: "absolute", left: -10, right: -10, top: "52%", height: 7, background: C.red, transform: `scaleX(${strikeP})`, transformOrigin: "left", borderRadius: 4 }} />
+      {/* light part */}
+      <div style={{ position: "absolute", inset: 0, opacity: 1 - toDark }}>
+        <div style={{ position: "absolute", left: PAD, top: 150, width: 940 }}>
+          <Eyebrow text="07 · KESIMPULAN" start={head} />
+          <div style={{ marginTop: 26, fontFamily: FONT, fontWeight: 800, fontSize: 110, lineHeight: 1.06, letterSpacing: -5, color: C.ink, opacity: prog(f, head, 16) }}>
+            Alat buat
+            <br />
+            <span style={{ position: "relative", display: "inline-block" }}>
+              <span style={{ opacity: 1 - swap, display: "inline-block", transform: `translateY(${-swap * 30}px)` }}>
+                <Pill text="ngehack" color={C.red} size={110} p={prog(f, head + 8, 14)} strike={strike} />
+              </span>
+              <span style={{ position: "absolute", left: 0, top: 0, opacity: swap, transform: `translateY(${(1 - swap) * 30}px)`, whiteSpace: "nowrap" }}>
+                <Pill text="melindungi." color={C.blue} size={110} p={swap} />
+              </span>
+            </span>
           </div>
         </div>
-        <div style={{ position: "absolute", left: 1060, top: 320, width: 620, height: 340, borderRadius: 26, border: `3px solid ${C.green}`, background: `${C.green}14`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", opacity: Math.min(1, protect), transform: `scale(${0.8 + 0.2 * Math.min(1.1, protect)})`, boxShadow: `0 0 70px ${C.green}44` }}>
-          <Icon name="shieldCheck" size={110} color={C.green} draw={prog(f, beat("s8", "protect"), 26)} />
-          <div style={{ fontFamily: FONT, fontSize: 64, fontWeight: 700, color: C.text, marginTop: 14 }}>Melindungi</div>
-        </div>
-        <div style={{ position: "absolute", left: 930, top: 460, fontFamily: MONO, fontSize: 40, color: C.muted }}>vs</div>
-      </div>
-
-      {/* legal & responsible */}
-      <div style={{ position: "absolute", left: 0, right: 0, top: 300, display: "flex", flexDirection: "column", alignItems: "center", opacity: toLegal * (1 - toFinal) }}>
-        <Icon name="scale" size={140} color={C.kali} stroke={1.4} draw={toLegal} />
-        <div style={{ display: "flex", gap: 30, marginTop: 40 }}>
-          {["Legal", "Berizin", "Bertanggung jawab"].map((t, i) => {
-            const p = prog(f, legal + 10 + i * 10, 20);
+        <div style={{ position: "absolute", left: PAD, top: 640, width: 940 }}>
+          {[
+            ["Legal", "l0"],
+            ["Berizin", "l1"],
+            ["Bertanggung jawab", "l2"],
+          ].map(([t, k]) => {
+            const s = Math.min(1, spr(f, beat("s8", k), 12, 170));
             return (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 30px", borderRadius: 999, border: `2px solid ${C.green}aa`, background: `${C.green}14`, fontFamily: FONT, fontSize: 44, fontWeight: 700, color: C.text, opacity: p, transform: `translateY(${(1 - p) * 30}px)` }}>
-                <Icon name="check" size={40} color={C.green} /> {t}
+              <div key={t} style={{ display: "flex", alignItems: "center", gap: 22, height: 120, padding: "0 30px", marginBottom: 16, borderRadius: 22, background: C.greenSoft, opacity: s, transform: `translateX(${(1 - s) * 50}px)` }}>
+                <div style={{ width: 60, height: 60, borderRadius: 30, background: C.green, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon name="check" size={34} color="#fff" stroke={3} />
+                </div>
+                <span style={{ fontFamily: FONT, fontWeight: 800, fontSize: 48, color: C.ink, letterSpacing: -1.5 }}>{t}</span>
               </div>
             );
           })}
+          <div style={{ fontFamily: FONT, fontSize: 30, color: C.muted, fontWeight: 600, marginTop: 10, opacity: prog(f, legal + 30, 20) }}>Uji hanya sistem milikmu atau yang memberi izin.</div>
         </div>
       </div>
 
-      {/* final line */}
-      <div style={{ position: "absolute", inset: 0, opacity: toFinal * (1 - fade) }}>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center" }}>
-          <div style={{ fontFamily: FONT, fontSize: 104, fontWeight: 700, color: C.text, lineHeight: 1.1, letterSpacing: interpolate(Math.min(1, fs), [0, 1], [30, -1]), filter: `blur(${(1 - Math.min(1, fs)) * 14}px)` }}>
-            Understand Security.
-          </div>
-          <div style={{ fontFamily: FONT, fontSize: 104, fontWeight: 700, color: C.kali, lineHeight: 1.1, textShadow: `0 0 50px ${C.kali}aa`, opacity: prog(f, ftext + 16, 24), transform: `translateY(${(1 - prog(f, ftext + 16, 24)) * 40}px)` }}>
-            Build Better Protection.
-          </div>
-          <div style={{ margin: "40px auto 0", width: 1000, height: 3, background: `linear-gradient(90deg, transparent, ${C.kali}, ${C.cyan}, transparent)`, transform: `scaleX(${prog(f, ftext + 30, 40)})` }} />
-          <div style={{ marginTop: 26, fontFamily: MONO, fontSize: 26, letterSpacing: 8, color: C.muted }}>
-            <Decode text="MENGENAL KALI LINUX · kali.org" start={ftext + 40} dur={36} seed="end" />
-          </div>
+      {/* dark end card (like the reference outro) */}
+      <div style={{ position: "absolute", inset: 0, opacity: toDark, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 560 }}>
+        <div style={{ transform: `scale(${0.8 + 0.2 * fs})`, opacity: fs }}>
+          <Img src={staticFile("img/kali-logo.svg")} style={{ width: 320, height: 181, filter: "drop-shadow(0 0 40px rgba(54,123,240,0.6))" }} />
         </div>
+        <div style={{ marginTop: 60, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 88, lineHeight: 1.08, letterSpacing: -3.5 }}>
+          <div style={{ color: "#fff", opacity: prog(f, fin + 6, 18), transform: `translateY(${(1 - prog(f, fin + 6, 18)) * 24}px)` }}>Understand Security.</div>
+          <div style={{ color: "#5b8cff", opacity: prog(f, fin + 18, 18), transform: `translateY(${(1 - prog(f, fin + 18, 18)) * 24}px)` }}>Build Better Protection.</div>
+        </div>
+        <div style={{ marginTop: 50, display: "flex", alignItems: "center", gap: 12, padding: "16px 34px", borderRadius: 999, background: saved ? "rgba(255,255,255,0.12)" : C.blue, color: "#fff", fontFamily: FONT, fontWeight: 700, fontSize: 32, opacity: prog(f, fin + 34, 18), transform: `scale(${f >= click && f < click + 8 ? 0.92 : 1})`, boxShadow: saved ? undefined : `0 16px 40px ${C.blue}66` }}>
+          <Icon name={saved ? "check" : "book"} size={32} color="#fff" stroke={2.6} />
+          {saved ? "Tersimpan" : "Simpan buat belajar"}
+        </div>
+        <div style={{ marginTop: 24, fontFamily: MONO, fontSize: 22, color: "rgba(255,255,255,0.5)", opacity: prog(f, click + 20, 20) }}>sumber: kali.org · offsec.com</div>
       </div>
+      <Cursor path={[{ at: beat("s8", "cur"), x: 760, y: 1300 }, { at: click - 2, x: 600, y: 1105 }, { at: click + 50, x: 700, y: 1260 }]} clicks={[click]} hideAfter={click + 60} />
     </AbsoluteFill>
   );
 };

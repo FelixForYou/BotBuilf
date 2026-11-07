@@ -226,11 +226,53 @@ def transition():
     return out
 
 
+def bubble():
+    d = 0.18
+    tt = t(d)
+    f = 380 + 700 * (tt / d) ** 0.6
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * env(len(tt), 0.004, curve=3)
+    return norm(x, 0.22)
+
+
+def tick():
+    return blip(f=2600, d=0.05, peak=0.1)
+
+
+def swoosh():
+    n = int(0.45 * SR)
+    x = sweep_noise(0.45, 900, 5200, q=0.5)
+    x *= np.sin(np.linspace(0, np.pi, n)) ** 3
+    return norm(x, 0.09)
+
+
+def thump():
+    d = 0.9
+    tt = t(d)
+    f = 55 + 60 * np.exp(-tt * 14)
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 5)
+    return norm(x, 0.32)
+
+
+def chime():
+    out = np.zeros(int(1.4 * SR))
+    for i, f in enumerate([1046.5, 1318.5, 1568.0]):
+        tt = t(1.0)
+        x = (np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * 2 * f * tt)) * np.exp(-tt * 4.5)
+        o = int(i * 0.07 * SR)
+        out[o: o + len(x)] += x
+    return norm(out, 0.18)
+
+
+def soft_transition():
+    return swoosh() * 0.8
+
+
 SFX = {
     "whoosh": whoosh, "whoosh_s": whoosh_s, "impact": impact, "impact_s": impact_s,
     "blip": blip, "pop": pop, "click": click, "ding": ding, "success": success,
     "star": star, "scan": scan, "glitch": glitch, "decode": decode, "type": type_,
     "ticks": ticks, "riser": riser, "riser_down": riser_down, "transition": transition,
+    "bubble": bubble, "tick": tick, "swoosh": swoosh, "thump": thump, "chime": chime,
 }
 TAKES_DUR = {"decode", "type", "ticks", "riser", "riser_down"}
 
@@ -272,12 +314,12 @@ def main():
             fn = SFX[c["sfx"]]
             add(fx, fn(c["dur"]) if c["sfx"] in TAKES_DUR and "dur" in c else fn(), sec)
         if sc["from"] > 0:  # scene-boundary transition
-            add(fx, transition(), s0 - 0.3)
+            add(fx, soft_transition(), s0 - 0.25)
 
     # duck SFX slightly while the narrator speaks
     venv = np.convolve(np.abs(voice), np.ones(4800) / 4800, mode="same")
     duck = 1 - 0.35 * np.clip(venv * 12, 0, 1)
-    mix = voice * 0.95 + fx * duck
+    mix = voice * 0.97 + fx * duck * 0.85
     mix = np.tanh(mix * 1.1) / np.tanh(1.1)  # soft limiter
     stereo = np.stack([mix, mix], axis=1)
     out = f"{ROOT}/public/audio/mix.wav"

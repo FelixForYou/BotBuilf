@@ -1,434 +1,456 @@
 {
  "s1": {
-  "boot": {
+  "bubble": {
    "ref": "start",
-   "off": 0,
-   "sfx": "riser",
-   "dur": 1.8
+   "off": 0.35,
+   "sfx": "bubble"
   },
-  "net": {
+  "hl": {
    "ref": "start",
-   "off": 0.2,
-   "sfx": "scan"
+   "off": 1.15,
+   "sfx": "tick"
   },
-  "type": {
-   "ref": "start",
-   "off": 0.45,
-   "sfx": "type",
-   "dur": 0.7
-  },
-  "question": {
+  "cursor": {
    "ref": "p0",
+   "off": 1.0,
+   "sfx": "swoosh"
+  },
+  "click": {
+   "ref": "p0",
+   "off": 1.9,
+   "sfx": "click"
+  },
+  "head": {
+   "ref": "p1",
    "off": -0.05,
-   "sfx": "whoosh"
+   "sfx": "pop"
   },
-  "title": {
-   "ref": "p1",
-   "off": -0.1,
-   "sfx": "impact"
+  "swap": {
+   "ref": "p2",
+   "off": 0.35,
+   "sfx": "pop"
   },
-  "glitch": {
-   "ref": "p1",
-   "off": 0.05,
-   "sfx": "glitch"
+  "sel": {
+   "ref": "p2",
+   "off": 0.5,
+   "sfx": "tick"
   }
  },
  "s2": {
-  "logo": {
+  "type": {
+   "ref": "start",
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
+  },
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
+  },
+  "tree": {
    "ref": "p0",
-   "off": -0.15,
-   "sfx": "impact"
-  },
-  "chip0": {
-   "ref": "p0",
-   "off": 1.7,
-   "sfx": "blip"
-  },
-  "chip1": {
-   "ref": "p0",
-   "off": 2.3,
-   "sfx": "blip"
-  },
-  "chip2": {
-   "ref": "p0",
-   "off": 2.9,
-   "sfx": "blip"
-  },
-  "stack": {
-   "ref": "p1",
-   "off": -0.1,
-   "sfx": "whoosh_s"
-  },
-  "L0": {
-   "ref": "p1",
-   "off": 0.3,
+   "off": 0.6,
    "sfx": "pop"
   },
-  "L1": {
-   "ref": "p1",
-   "off": 1.4,
-   "sfx": "pop"
-  },
-  "L2": {
-   "ref": "p1",
+  "selKali": {
+   "ref": "p0",
    "off": 2.6,
+   "sfx": "tick"
+  },
+  "ch0": {
+   "ref": "p1",
+   "off": 0.7,
    "sfx": "pop"
+  },
+  "ch1": {
+   "ref": "p1",
+   "off": 1.6,
+   "sfx": "pop"
+  },
+  "ch2": {
+   "ref": "p1",
+   "off": 2.5,
+   "sfx": "pop"
+  },
+  "dev": {
+   "ref": "p2",
+   "off": -0.1,
+   "sfx": "swoosh"
+  },
+  "strike": {
+   "ref": "p2",
+   "off": 1.9,
+   "sfx": "tick"
   },
   "offsec": {
    "ref": "p2",
-   "off": -0.1,
-   "sfx": "whoosh"
-  },
-  "rename": {
-   "ref": "p2",
-   "off": 1.7,
-   "sfx": "glitch"
+   "off": 2.15,
+   "sfx": "pop"
   },
   "purpose": {
    "ref": "p3",
    "off": -0.1,
-   "sfx": "whoosh_s"
+   "sfx": "swoosh"
   },
   "pu0": {
    "ref": "p3",
-   "off": 0.5,
+   "off": 0.6,
    "sfx": "pop"
   },
   "pu1": {
    "ref": "p3",
-   "off": 1.6,
+   "off": 1.3,
    "sfx": "pop"
   },
   "pu2": {
    "ref": "p3",
-   "off": 2.7,
+   "off": 2.0,
    "sfx": "pop"
   }
  },
  "s3": {
-  "line": {
+  "type": {
    "ref": "start",
-   "off": 0,
-   "sfx": "whoosh"
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
   },
-  "n0": {
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
+  },
+  "t0": {
    "ref": "p0",
-   "off": 0.5,
+   "off": 0.15,
+   "sfx": "tick"
+  },
+  "t1": {
+   "ref": "p0",
+   "off": 0.6,
+   "sfx": "tick"
+  },
+  "t2": {
+   "ref": "p1",
+   "off": 0.0,
    "sfx": "pop"
   },
-  "n1": {
-   "ref": "p0",
-   "off": 2.4,
-   "sfx": "pop"
-  },
-  "n2": {
+  "t3": {
    "ref": "p1",
-   "off": 0.1,
-   "sfx": "impact_s"
+   "off": 1.3,
+   "sfx": "tick"
   },
-  "n3": {
-   "ref": "p1",
-   "off": 1.4,
-   "sfx": "blip"
-  },
-  "n4": {
+  "t4": {
    "ref": "p2",
    "off": 0.2,
-   "sfx": "impact"
+   "sfx": "pop"
   },
-  "n5": {
+  "t4b": {
    "ref": "p2",
-   "off": 4.2,
-   "sfx": "blip"
+   "off": 4.6,
+   "sfx": "ding"
   },
-  "n6": {
+  "t5": {
    "ref": "p3",
-   "off": 0.4,
-   "sfx": "success"
+   "off": -0.3,
+   "sfx": "tick"
+  },
+  "t6": {
+   "ref": "p3",
+   "off": 0.25,
+   "sfx": "pop"
   }
  },
  "s4": {
-  "q": {
+  "type": {
    "ref": "start",
-   "off": 0,
-   "sfx": "whoosh"
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
   },
-  "f1": {
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
+  },
+  "r1": {
    "ref": "p1",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "f2": {
-   "ref": "p2",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "f3": {
-   "ref": "p3",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "f4": {
-   "ref": "p4",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "f5": {
-   "ref": "p5",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "f6": {
-   "ref": "p6",
-   "off": -0.12,
-   "sfx": "whoosh_s"
-  },
-  "fx1": {
-   "ref": "p1",
-   "off": 0.6,
+   "off": -0.05,
    "sfx": "pop"
   },
-  "fx2": {
+  "r2": {
+   "ref": "p2",
+   "off": -0.05,
+   "sfx": "pop"
+  },
+  "r3": {
+   "ref": "p3",
+   "off": -0.05,
+   "sfx": "pop"
+  },
+  "r4": {
+   "ref": "p4",
+   "off": -0.05,
+   "sfx": "pop"
+  },
+  "r5": {
+   "ref": "p5",
+   "off": -0.05,
+   "sfx": "pop"
+  },
+  "r6": {
+   "ref": "p6",
+   "off": -0.05,
+   "sfx": "pop"
+  },
+  "k1": {
+   "ref": "p1",
+   "off": 0.6,
+   "sfx": "tick"
+  },
+  "k2": {
    "ref": "p2",
    "off": 0.6,
-   "sfx": "scan"
+   "sfx": "tick"
   },
-  "fx3": {
+  "k3": {
    "ref": "p3",
    "off": 0.6,
-   "sfx": "scan"
+   "sfx": "tick"
   },
-  "fx4": {
+  "k4": {
    "ref": "p4",
    "off": 0.6,
-   "sfx": "blip"
+   "sfx": "tick"
   },
-  "fx5": {
+  "k5": {
    "ref": "p5",
    "off": 0.6,
-   "sfx": "glitch"
+   "sfx": "tick"
   },
-  "fx6": {
+  "k6": {
    "ref": "p6",
    "off": 0.6,
-   "sfx": "scan"
+   "sfx": "tick"
   }
  },
  "s5": {
-  "grid": {
+  "type": {
+   "ref": "start",
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
+  },
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
+  },
+  "cloud": {
    "ref": "p0",
-   "off": -0.1,
-   "sfx": "scan"
+   "off": 0.1,
+   "sfx": "swoosh"
   },
-  "t1": {
+  "c1": {
    "ref": "p1",
-   "off": -0.15,
-   "sfx": "whoosh_s"
+   "off": -0.05,
+   "sfx": "pop"
   },
-  "t2": {
+  "c2": {
    "ref": "p2",
-   "off": -0.15,
-   "sfx": "whoosh_s"
+   "off": -0.05,
+   "sfx": "pop"
   },
-  "t3": {
+  "c3": {
    "ref": "p3",
-   "off": -0.15,
-   "sfx": "whoosh_s"
+   "off": -0.05,
+   "sfx": "pop"
   },
-  "t4": {
+  "c4": {
    "ref": "p4",
-   "off": -0.15,
-   "sfx": "whoosh_s"
+   "off": -0.05,
+   "sfx": "pop"
   },
-  "t5": {
+  "c5": {
    "ref": "p5",
-   "off": -0.15,
-   "sfx": "whoosh_s"
-  },
-  "tl1": {
-   "ref": "p1",
-   "off": 0.05,
-   "sfx": "pop"
-  },
-  "tl2": {
-   "ref": "p2",
-   "off": 0.05,
-   "sfx": "pop"
-  },
-  "tl3": {
-   "ref": "p3",
-   "off": 0.05,
-   "sfx": "pop"
-  },
-  "tl4": {
-   "ref": "p4",
-   "off": 0.05,
-   "sfx": "pop"
-  },
-  "tl5": {
-   "ref": "p5",
-   "off": 0.05,
+   "off": -0.05,
    "sfx": "pop"
   }
  },
  "s6": {
-  "desk": {
+  "type": {
    "ref": "start",
-   "off": 0,
-   "sfx": "whoosh"
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
+  },
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
+  },
+  "desk": {
+   "ref": "p0",
+   "off": -0.05,
+   "sfx": "swoosh"
   },
   "term": {
    "ref": "p1",
-   "off": -0.2,
-   "sfx": "whoosh_s"
+   "off": -0.1,
+   "sfx": "pop"
   },
-  "type1": {
+  "typing": {
    "ref": "p1",
-   "off": 0.05,
+   "off": 0.25,
    "sfx": "type",
-   "dur": 0.35
-  },
-  "type2": {
-   "ref": "p1",
-   "off": 0.75,
-   "sfx": "type",
-   "dur": 0.5
-  },
-  "type3": {
-   "ref": "p1",
-   "off": 1.6,
-   "sfx": "type",
-   "dur": 0.9
+   "dur": 1.3
   },
   "lab": {
    "ref": "p2",
-   "off": -0.15,
-   "sfx": "whoosh"
+   "off": -0.1,
+   "sfx": "swoosh"
+  },
+  "st0": {
+   "ref": "p2",
+   "off": 0.2,
+   "sfx": "pop"
   },
   "st1": {
    "ref": "p2",
-   "off": 0.4,
-   "sfx": "scan"
+   "off": 1.3,
+   "sfx": "tick"
   },
   "st2": {
    "ref": "p2",
-   "off": 1.7,
-   "sfx": "glitch"
+   "off": 2.4,
+   "sfx": "pop"
   },
   "st3": {
    "ref": "p2",
-   "off": 3.0,
-   "sfx": "pop"
-  },
-  "st4": {
-   "ref": "p2",
-   "off": 4.1,
-   "sfx": "success"
+   "off": 3.3,
+   "sfx": "tick"
   },
   "goal": {
    "ref": "p3",
-   "off": 0.0,
-   "sfx": "impact_s"
+   "off": 0.1,
+   "sfx": "chime"
   }
  },
  "s7": {
-  "q": {
+  "type": {
    "ref": "start",
-   "off": 0,
-   "sfx": "whoosh"
+   "off": 0.0,
+   "sfx": "type",
+   "dur": 0.6
+  },
+  "send": {
+   "ref": "start",
+   "off": 0.72,
+   "sfx": "click"
   },
   "w0": {
-   "ref": "p1",
-   "off": 0.1,
+   "ref": "p0",
+   "off": 1.3,
    "sfx": "pop"
   },
   "w1": {
-   "ref": "p1",
-   "off": 1.2,
-   "sfx": "pop"
-  },
-  "w2": {
-   "ref": "p1",
+   "ref": "p0",
    "off": 2.3,
    "sfx": "pop"
   },
+  "w2": {
+   "ref": "p0",
+   "off": 3.0,
+   "sfx": "pop"
+  },
   "w3": {
-   "ref": "p1",
-   "off": 3.3,
+   "ref": "p0",
+   "off": 3.6,
    "sfx": "pop"
   },
   "w4": {
-   "ref": "p1",
-   "off": 4.6,
+   "ref": "p0",
+   "off": 4.8,
    "sfx": "pop"
   },
   "tip": {
-   "ref": "p2",
+   "ref": "p1",
    "off": -0.1,
-   "sfx": "whoosh_s"
+   "sfx": "swoosh"
   },
   "tipd": {
-   "ref": "p2",
+   "ref": "p1",
    "off": 0.5,
    "sfx": "ding"
   }
  },
  "s8": {
-  "recap": {
+  "head": {
    "ref": "p0",
-   "off": -0.1,
-   "sfx": "whoosh"
+   "off": 0.0,
+   "sfx": "pop"
   },
-  "k0": {
+  "strike": {
    "ref": "p0",
+   "off": 2.5,
+   "sfx": "tick"
+  },
+  "swap": {
+   "ref": "p0",
+   "off": 2.75,
+   "sfx": "pop"
+  },
+  "legal": {
+   "ref": "p1",
+   "off": -0.1,
+   "sfx": "swoosh"
+  },
+  "l0": {
+   "ref": "p1",
+   "off": 0.3,
+   "sfx": "pop"
+  },
+  "l1": {
+   "ref": "p1",
    "off": 0.8,
    "sfx": "pop"
   },
-  "k1": {
-   "ref": "p0",
-   "off": 1.7,
+  "l2": {
+   "ref": "p1",
+   "off": 1.3,
    "sfx": "pop"
   },
-  "k2": {
-   "ref": "p0",
-   "off": 2.6,
-   "sfx": "pop"
-  },
-  "versus": {
-   "ref": "p1",
-   "off": -0.15,
-   "sfx": "whoosh"
-  },
-  "strike": {
-   "ref": "p1",
-   "off": 1.4,
-   "sfx": "glitch"
-  },
-  "protect": {
-   "ref": "p1",
-   "off": 1.9,
-   "sfx": "success"
-  },
-  "legal": {
+  "dark": {
    "ref": "p2",
-   "off": -0.15,
-   "sfx": "impact_s"
+   "off": -0.25,
+   "sfx": "swoosh"
   },
   "final": {
-   "ref": "p3",
-   "off": -0.15,
-   "sfx": "whoosh"
-  },
-  "ftext": {
-   "ref": "p3",
+   "ref": "p2",
    "off": 0.1,
-   "sfx": "impact"
+   "sfx": "thump"
+  },
+  "cur": {
+   "ref": "p2",
+   "off": 1.6,
+   "sfx": "swoosh"
+  },
+  "click": {
+   "ref": "p2",
+   "off": 2.3,
+   "sfx": "click"
+  },
+  "saved": {
+   "ref": "p2",
+   "off": 2.35,
+   "sfx": "chime"
   },
   "outro": {
    "ref": "end",
-   "off": -1.4,
+   "off": -1.2,
    "sfx": "riser_down",
-   "dur": 1.4
+   "dur": 1.2
   }
  }
 }

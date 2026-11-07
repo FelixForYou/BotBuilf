@@ -1,64 +1,64 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame } from "remotion";
 import { Icon, IconName } from "../components/Icons";
-import { C, FONT, MONO } from "../theme";
-import { beat, easeInOut, prog, spr } from "../timing";
+import { CommandBar, Eyebrow, Headline } from "../components/Ui";
+import { C, FONT, MONO, PAD, SHADOW } from "../theme";
+import { beat, prog, spr } from "../timing";
 
-const PEOPLE: { icon: IconName; title: string; sub: string }[] = [
-  { icon: "search", title: "Cybersecurity Researcher", sub: "meneliti ancaman & celah" },
-  { icon: "target", title: "Penetration Tester", sub: "uji keamanan berizin" },
-  { icon: "monitor", title: "Security Analyst", sub: "memantau & menganalisis" },
-  { icon: "fingerprint", title: "Forensics Investigator", sub: "menelusuri bukti digital" },
-  { icon: "cap", title: "Mahasiswa & Pelajar", sub: "belajar keamanan siber" },
+const PEOPLE: { icon: IconName; title: string; sub: string; color: string; bg: string }[] = [
+  { icon: "search", title: "Peneliti keamanan", sub: "cybersecurity researcher", color: C.blue, bg: C.blueSoft },
+  { icon: "target", title: "Pentester", sub: "penetration tester", color: C.orange, bg: C.orangeSoft },
+  { icon: "monitor", title: "Analis keamanan", sub: "security analyst", color: C.green, bg: C.greenSoft },
+  { icon: "fingerprint", title: "Investigator forensik", sub: "digital forensics", color: C.violet, bg: C.violetSoft },
+  { icon: "cap", title: "Mahasiswa", sub: "yang lagi belajar", color: "#0891b2", bg: "#e3f6fa" },
 ];
 
 export const S7Who: React.FC = () => {
   const f = useCurrentFrame();
-  const qIn = prog(f, 0, 22);
-  const times = [0, 1, 2, 3, 4].map((i) => beat("s7", `w${i}`));
+  const send = beat("s7", "send");
   const tip = beat("s7", "tip");
-  const toTip = prog(f, tip, 28, easeInOut);
-  const qUp = prog(f, times[0] - 20, 30, easeInOut);
+  const toTip = prog(f, tip, 20);
+  const ts = Math.min(1, spr(f, tip, 14, 140));
 
   return (
     <AbsoluteFill>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 440 - qUp * 290, textAlign: "center", fontFamily: FONT, fontWeight: 700, fontSize: 110 - qUp * 46, color: C.text, opacity: qIn }}>
-        Siapa <span style={{ color: C.kali }}>penggunanya?</span>
+      <div style={{ position: "absolute", left: PAD, top: 150, width: 940 }}>
+        <Eyebrow text="06 · PENGGUNA" start={send} />
+        <div style={{ marginTop: 22 }}>
+          <Headline words={["Yang", "pakai", { t: "siapa?", accent: "blue" }]} start={send + 4} />
+        </div>
       </div>
 
-      <div style={{ position: "absolute", inset: 0, opacity: 1 - toTip * 0.75, transform: `translateY(${-toTip * 70}px) scale(${1 - toTip * 0.1})`, filter: `blur(${toTip * 3}px)` }}>
+      <div style={{ position: "absolute", left: PAD, top: 430, width: 940, opacity: 1 - toTip * 0.25 }}>
         {PEOPLE.map((p, i) => {
-          const s = spr(f, times[i], 12, 140);
-          const x = 160 + i * 330;
+          const st = beat("s7", `w${i}`);
+          const s = Math.min(1, spr(f, st, 13, 160));
           return (
-            <div key={p.title} style={{ position: "absolute", left: x, top: 330, width: 300, textAlign: "center", opacity: Math.min(1, s), transform: `translateY(${(1 - Math.min(1, s)) * 80}px)` }}>
-              <div style={{ position: "relative", width: 190, height: 190, margin: "0 auto" }}>
-                <svg width={190} height={190} viewBox="-95 -95 190 190" style={{ position: "absolute", inset: 0 }}>
-                  <circle r={88} fill={`${C.kali}18`} stroke={C.kali} strokeWidth={2} />
-                  <g transform={`rotate(${f * (i % 2 ? -1 : 1) * 0.8})`}>
-                    <circle r={80} fill="none" stroke={C.cyan} strokeWidth={3} strokeDasharray="40 22" opacity={0.7} />
-                  </g>
-                </svg>
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon name={p.icon} size={84} color={C.cyan} draw={prog(f, times[i], 28)} />
-                </div>
+            <div key={p.title} style={{ display: "flex", alignItems: "center", gap: 24, height: 100, padding: "0 26px", marginBottom: 12, borderRadius: 22, background: "#fff", border: `1.5px solid ${C.line}`, boxShadow: SHADOW, opacity: s, transform: `translateY(${(1 - s) * 40}px)` }}>
+              <div style={{ width: 72, height: 72, borderRadius: 36, background: p.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Icon name={p.icon} size={40} color={p.color} stroke={2.2} draw={prog(f, st, 24)} />
               </div>
-              <div style={{ fontFamily: FONT, fontSize: 32, fontWeight: 700, color: C.text, marginTop: 20, lineHeight: 1.15 }}>{p.title}</div>
-              <div style={{ fontFamily: FONT, fontSize: 23, color: C.muted, marginTop: 6 }}>{p.sub}</div>
+              <div>
+                <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 38, color: C.ink, letterSpacing: -1 }}>{p.title}</div>
+                <div style={{ fontFamily: MONO, fontSize: 20, color: C.faint }}>{p.sub}</div>
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* official advice for beginners */}
-      <div style={{ position: "absolute", left: 360, top: 560, width: 1200, padding: "30px 40px", borderRadius: 22, background: "rgba(6,11,24,0.95)", border: `2px solid ${C.yellow}99`, display: "flex", gap: 30, alignItems: "center", opacity: toTip, transform: `translateY(${(1 - toTip) * 60}px)`, boxShadow: `0 0 60px ${C.yellow}22` }}>
-        <Icon name="book" size={86} color={C.yellow} draw={toTip} />
-        <div>
-          <div style={{ fontFamily: MONO, fontSize: 22, letterSpacing: 4, color: C.yellow }}>SARAN RESMI TIM KALI</div>
-          <div style={{ fontFamily: FONT, fontSize: 44, fontWeight: 700, color: C.text, marginTop: 6 }}>Pemula: kuasai dasar Linux dulu.</div>
-          <div style={{ fontFamily: MONO, fontSize: 20, color: C.muted, marginTop: 10 }}>kali.org/docs · "Should I Use Kali Linux?"</div>
+      {/* official advice */}
+      <div style={{ position: "absolute", left: PAD, top: 1010, width: 940, padding: "30px 36px", borderRadius: 26, background: "#fffaf0", border: `2px solid ${C.orange}55`, boxShadow: SHADOW, opacity: ts, transform: `translateY(${(1 - ts) * 60}px)` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, fontFamily: MONO, fontSize: 20, color: C.orange, letterSpacing: 2 }}>
+          <Icon name="book" size={28} color={C.orange} stroke={2.3} /> SARAN TIM KALI
         </div>
+        <div style={{ marginTop: 14, fontFamily: FONT, fontWeight: 800, fontSize: 48, color: C.ink, letterSpacing: -2, lineHeight: 1.1 }}>
+          Masih pemula? Kuasai <span style={{ color: C.blue }}>dasar Linux</span> dulu.
+        </div>
+        <div style={{ marginTop: 16, fontFamily: MONO, fontSize: 18, color: C.faint }}>kali.org/docs · "Should I Use Kali Linux?"</div>
       </div>
+
+      <CommandBar query="siapa yang pakai?" typeAt={beat("s7", "type")} sendAt={send} />
     </AbsoluteFill>
   );
 };

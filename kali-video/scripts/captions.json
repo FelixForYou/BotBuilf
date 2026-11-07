@@ -1,52 +1,51 @@
 {
  "s1": [
-  "Pernah mendengar sistem operasi yang sering digunakan oleh para ahli keamanan siber?",
-  "Mari mengenal Kali Linux."
+  "Ada yang nanya: Kali Linux itu sebenernya buat apa sih?",
+  "Katanya buat hacker ya?",
+  "Oke, aku jelasin. Simpel aja."
  ],
  "s2": [
-  "Kali Linux adalah distribusi Linux open source, berbasis Debian.",
-  "Artinya: sistem operasi lengkap yang dibangun dari inti Linux.",
-  "Kali dikembangkan oleh Offensive Security, kini bernama OffSec,",
-  "khusus untuk penetration testing, security auditing, dan keamanan informasi."
+  "Kali Linux itu sistem operasi. Sama kayak Windows, tapi basisnya Linux.",
+  "Tepatnya, distribusi Linux berbasis Debian. Gratis, dan open source.",
+  "Yang ngembangin itu: Offensive Security. Sekarang namanya OffSec.",
+  "Dan dari awal, dia emang dirancang buat pengujian keamanan."
  ],
  "s3": [
-  "Akarnya dimulai tahun 2004, lewat Whoppix dan WHAX.",
-  "Tahun 2006, lahirlah BackTrack.",
-  "13 Maret 2013: BackTrack dibangun ulang di atas Debian, menjadi Kali Linux.",
-  "Sejak 2016, Kali menjadi rolling release."
+  "Asal-usulnya lumayan panjang.",
+  "Dulu ada BackTrack, rilis tahun 2006.",
+  "Terus, 13 Maret 2013, BackTrack dibangun ulang di atas Debian. Lahirlah Kali.",
+  "Sejak 2016, dia rolling release. Jadi update terus."
  ],
  "s4": [
-  "Apa saja fungsinya?",
-  "Penetration testing: menguji keamanan sistem, dengan izin.",
-  "Network security: mengaudit keamanan jaringan.",
-  "Web application security: mencari celah pada aplikasi web.",
-  "Digital forensics: menganalisis bukti digital.",
-  "Vulnerability assessment: menemukan kelemahan keamanan.",
-  "Wireless security testing: menguji keamanan jaringan WiFi."
+  "Nah, fungsinya apa aja?",
+  "Pentest: nguji keamanan sistem, tapi harus ada izin.",
+  "Ngaudit keamanan jaringan.",
+  "Nyari celah di aplikasi web.",
+  "Forensik digital, buat nganalisis bukti.",
+  "Nemuin dan nilai kelemahan sistem.",
+  "Sampai nguji keamanan WiFi."
  ],
  "s5": [
-  "Kali menyertakan ratusan tools, misalnya:",
-  "Nmap: pemetaan jaringan dan pemindaian port.",
-  "Wireshark: analisis lalu lintas jaringan.",
-  "Metasploit Framework: riset kerentanan dan uji eksploitasi.",
-  "Burp Suite: pengujian keamanan aplikasi web.",
-  "John the Ripper: audit keamanan kata sandi."
+  "Isinya ratusan tools. Lima yang paling sering disebut:",
+  "Nmap, buat metain jaringan dan port.",
+  "Wireshark, buat nganalisis lalu lintas jaringan.",
+  "Metasploit, buat riset kerentanan.",
+  "Burp Suite, buat ngetes keamanan web.",
+  "Sama John the Ripper, buat ngecek password yang lemah."
  ],
  "s6": [
-  "Inilah tampilan desktop Kali Linux.",
-  "Banyak pekerjaan dilakukan lewat terminal.",
-  "Peneliti keamanan menguji mesin di lab miliknya, menemukan kelemahan, lalu memperbaikinya.",
-  "Tujuannya: membuat sistem lebih aman."
+  "Tampilannya kayak gini.",
+  "Kebanyakan kerjaannya lewat terminal. Ngetik perintah.",
+  "Di lab sendiri: uji mesinnya, nemu kelemahan, terus diperbaiki.",
+  "Tujuannya satu: sistemnya jadi lebih aman."
  ],
  "s7": [
-  "Siapa penggunanya?",
-  "Cybersecurity researcher, penetration tester, security analyst, forensics investigator, hingga mahasiswa.",
-  "Tapi tim Kali menyarankan: pemula kuasai dasar Linux dulu."
+  "Yang pakai siapa? Peneliti keamanan, pentester, analis, investigator forensik, sampai mahasiswa.",
+  "Tapi kata tim Kali sendiri: kalau masih pemula, kuasain dasar Linux dulu ya."
  ],
  "s8": [
-  "Jadi, Kali Linux adalah alat untuk menguji dan meningkatkan keamanan.",
-  "Alat untuk melindungi, bukan sekadar untuk meretas.",
-  "Gunakan secara legal dan bertanggung jawab.",
+  "Jadi, Kali Linux itu alat buat ngelindungi. Bukan sekadar buat ngehack.",
+  "Pakainya harus legal dan bertanggung jawab.",
   "Understand Security. Build Better Protection."
  ]
 }
